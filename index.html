@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -28,7 +29,9 @@
                         'flip': 'flip 0.8s ease-in-out forwards',
                         'fadeIn': 'fadeIn 0.5s ease-in-out',
                         'slideUp': 'slideUp 0.5s ease-out',
-                        'pageFlip': 'pageFlip 1.2s ease-in-out forwards'
+                        'pageFlip': 'pageFlip 1.2s ease-in-out forwards',
+                        'spinCoin': 'spinCoin 1.5s ease-in-out forwards',
+                        'bounceCoin': 'bounceCoin 0.5s ease-in-out',
                     },
                     keyframes: {
                         float: {
@@ -54,6 +57,15 @@
                         pageFlip: {
                             '0%': { transform: 'rotateY(0deg)' },
                             '100%': { transform: 'rotateY(-180deg)' }
+                        },
+                        spinCoin: {
+                            '0%': { transform: 'rotateY(0deg) rotateX(0deg)' },
+                            '50%': { transform: 'rotateY(720deg) rotateX(360deg)' },
+                            '100%': { transform: 'rotateY(0deg) rotateX(0deg)' }
+                        },
+                        bounceCoin: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' }
                         }
                     }
                 }
@@ -130,15 +142,33 @@
             .book-back {
                 transform: rotateY(180deg);
             }
-            .coin {
-                transition: transform 0.5s ease-in-out;
-                transform-style: preserve-3d;
+            .copper-coin {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: radial-gradient(circle at 30% 30%, #d4a017, #b8860b);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,200,0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
             }
-            .coin.flipped {
-                transform: rotateY(720deg);
+            .copper-coin::after {
+                content: "";
+                position: absolute;
+                width: 24px;
+                height: 24px;
+                background: #3a2c0a;
+                border: 2px solid #8b6508;
+                transform: rotate(45deg);
             }
-            .zodiac-wheel {
-                transform-origin: center;
+            .coin-text {
+                font-family: 'KaiTi', '楷体', serif;
+                font-size: 36px;
+                font-weight: bold;
+                color: #3a2c0a;
+                position: relative;
+                z-index: 1;
             }
         }
     </style>
@@ -224,7 +254,7 @@
                     <div>
                         <label class="block text-gray-300 font-medium mb-3 text-lg">选择牌阵：</label>
                         <select id="tarot-spread" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                            <option value="single">单张牌 - 今日运势</option>
+                            <option value="single">单张牌 - 今日运势/快速答案</option>
                             <option value="three">三牌阵 - 过去·现在·未来</option>
                             <option value="cross">十字牌阵 - 综合分析</option>
                             <option value="celtic">凯尔特十字 - 深度解析</option>
@@ -237,12 +267,13 @@
                             <option value="love">感情爱情</option>
                             <option value="career">事业学业</option>
                             <option value="wealth">财运健康</option>
+                            <option value="lost">寻物找人</option>
                         </select>
                     </div>
                 </div>
                 <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">心中默念你的问题：</label>
-                    <textarea id="tarot-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我和他的关系未来会如何发展？"></textarea>
+                    <label class="block text-gray-300 font-medium mb-3 text-lg">心中默念你的问题（可问时间/方位）：</label>
+                    <textarea id="tarot-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的钥匙丢在哪了？/ 我什么时候能找到工作？"></textarea>
                 </div>
                 <button onclick="drawTarot()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
                     <i class="fa fa-hand-paper-o mr-2"></i>开始抽牌
@@ -262,15 +293,15 @@
                 <div class="mb-8">
                     <label class="block text-gray-300 font-medium mb-3 text-lg">选择牌阵：</label>
                     <select id="lenormand-spread" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                        <option value="single">单张牌 - 快速答案</option>
+                        <option value="single">单张牌 - 快速答案/时间方位</option>
                         <option value="three">三牌阵 - 问题发展</option>
                         <option value="five">五牌阵 - 详细分析</option>
                         <option value="nine">九宫格 - 全面解读</option>
                     </select>
                 </div>
                 <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">心中默念你的问题：</label>
-                    <textarea id="lenormand-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我这次面试会成功吗？"></textarea>
+                    <label class="block text-gray-300 font-medium mb-3 text-lg">心中默念你的问题（可问时间/方位）：</label>
+                    <textarea id="lenormand-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的钱包丢在哪了？/ 他什么时候会联系我？"></textarea>
                 </div>
                 <button onclick="drawLenormand()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
                     <i class="fa fa-hand-paper-o mr-2"></i>开始抽牌
@@ -286,14 +317,14 @@
         <!-- 八字排盘 -->
         <div id="bazi-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
-                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-calendar mr-3"></i>八字排盘</h2>
+                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-calendar mr-3"></i>八字排盘（公历自动转农历）</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div>
-                        <label class="block text-gray-300 font-medium mb-3 text-lg">出生日期：</label>
+                        <label class="block text-gray-300 font-medium mb-3 text-lg">出生公历日期：</label>
                         <input type="date" id="bazi-date" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
                     </div>
                     <div>
-                        <label class="block text-gray-300 font-medium mb-3 text-lg">出生时间：</label>
+                        <label class="block text-gray-300 font-medium mb-3 text-lg">出生时间（公历）：</label>
                         <input type="time" id="bazi-time" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
                     </div>
                 </div>
@@ -319,54 +350,25 @@
         <div id="bazi-hepan-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
                 <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-heart mr-3"></i>八字合盘</h2>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                     <div class="bg-darker/30 p-6 rounded-xl">
                         <h4 class="text-xl font-bold mb-4 text-primary">你的信息</h4>
                         <div class="space-y-4">
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生日期：</label>
-                                <input type="date" id="hepan1-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white">
-                            </div>
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生时间：</label>
-                                <input type="time" id="hepan1-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white">
-                            </div>
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">性别：</label>
-                                <div class="flex gap-4">
-                                    <label class="flex items-center"><input type="radio" name="hepan1-gender" value="male" checked class="mr-2 w-4 h-4 text-primary"> <span>男</span></label>
-                                    <label class="flex items-center"><input type="radio" name="hepan1-gender" value="female" class="mr-2 w-4 h-4 text-primary"> <span>女</span></label>
-                                </div>
-                            </div>
+                            <div><label class="block text-gray-300 font-medium mb-2">公历出生日期：</label><input type="date" id="hepan1-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div>
+                            <div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="hepan1-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div>
+                            <div><label class="block text-gray-300 font-medium mb-2">性别：</label><div class="flex gap-4"><label class="flex items-center"><input type="radio" name="hepan1-gender" value="male" checked class="mr-2 w-4 h-4 text-primary"> 男</label><label class="flex items-center"><input type="radio" name="hepan1-gender" value="female" class="mr-2 w-4 h-4 text-primary"> 女</label></div></div>
                         </div>
                     </div>
-                    
                     <div class="bg-darker/30 p-6 rounded-xl">
                         <h4 class="text-xl font-bold mb-4 text-accent">对方信息</h4>
                         <div class="space-y-4">
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生日期：</label>
-                                <input type="date" id="hepan2-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white">
-                            </div>
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生时间：</label>
-                                <input type="time" id="hepan2-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white">
-                            </div>
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">性别：</label>
-                                <div class="flex gap-4">
-                                    <label class="flex items-center"><input type="radio" name="hepan2-gender" value="male" class="mr-2 w-4 h-4 text-primary"> <span>男</span></label>
-                                    <label class="flex items-center"><input type="radio" name="hepan2-gender" value="female" checked class="mr-2 w-4 h-4 text-primary"> <span>女</span></label>
-                                </div>
-                            </div>
+                            <div><label class="block text-gray-300 font-medium mb-2">公历出生日期：</label><input type="date" id="hepan2-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div>
+                            <div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="hepan2-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div>
+                            <div><label class="block text-gray-300 font-medium mb-2">性别：</label><div class="flex gap-4"><label class="flex items-center"><input type="radio" name="hepan2-gender" value="male" class="mr-2 w-4 h-4 text-primary"> 男</label><label class="flex items-center"><input type="radio" name="hepan2-gender" value="female" checked class="mr-2 w-4 h-4 text-primary"> 女</label></div></div>
                         </div>
                     </div>
                 </div>
-                
-                <button onclick="calculateBaziHepan()" class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
-                    <i class="fa fa-heart mr-2"></i>开始合盘
-                </button>
+                <button onclick="calculateBaziHepan()" class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-heart mr-2"></i>开始合盘</button>
             </div>
             <div id="bazi-hepan-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
                 <h3 class="text-2xl font-bold mb-8 text-center text-gradient">八字合盘结果</h3>
@@ -378,24 +380,13 @@
         <!-- 个人星盘 -->
         <div id="astrology-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
-                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-globe mr-3"></i>个人星盘</h2>
+                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-globe mr-3"></i>个人星盘（娱乐参考）</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div>
-                        <label class="block text-gray-300 font-medium mb-3 text-lg">出生日期：</label>
-                        <input type="date" id="astro-date" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 font-medium mb-3 text-lg">出生时间：</label>
-                        <input type="time" id="astro-time" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                    </div>
+                    <div><label class="block text-gray-300 font-medium mb-3 text-lg">公历出生日期：</label><input type="date" id="astro-date" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"></div>
+                    <div><label class="block text-gray-300 font-medium mb-3 text-lg">出生时间：</label><input type="time" id="astro-time" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"></div>
                 </div>
-                <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">出生地点：</label>
-                    <input type="text" id="astro-location" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：北京市朝阳区">
-                </div>
-                <button onclick="calculateAstrology()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
-                    <i class="fa fa-globe mr-2"></i>生成星盘
-                </button>
+                <div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">出生地点：</label><input type="text" id="astro-location" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：北京市朝阳区"></div>
+                <button onclick="calculateAstrology()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-globe mr-2"></i>生成星盘</button>
             </div>
             <div id="astrology-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
                 <h3 class="text-2xl font-bold mb-8 text-center text-gradient">你的个人星盘</h3>
@@ -408,48 +399,11 @@
         <div id="astro-hepan-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
                 <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-heart mr-3"></i>星盘合盘</h2>
-                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <div class="bg-darker/30 p-6 rounded-xl">
-                        <h4 class="text-xl font-bold mb-4 text-primary">你的信息</h4>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生日期：</label>
-                                <input type="date" id="astro-hepan1-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white">
-                            </div>
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生时间：</label>
-                                <input type="time" id="astro-hepan1-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white">
-                            </div>
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生地点：</label>
-                                <input type="text" id="astro-hepan1-location" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white" placeholder="例如：北京市朝阳区">
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-darker/30 p-6 rounded-xl">
-                        <h4 class="text-xl font-bold mb-4 text-accent">对方信息</h4>
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生日期：</label>
-                                <input type="date" id="astro-hepan2-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white">
-                            </div>
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生时间：</label>
-                                <input type="time" id="astro-hepan2-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white">
-                            </div>
-                            <div>
-                                <label class="block text-gray-300 font-medium mb-2">出生地点：</label>
-                                <input type="text" id="astro-hepan2-location" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white" placeholder="例如：上海市浦东新区">
-                            </div>
-                        </div>
-                    </div>
+                    <div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-primary">你的信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历出生日期：</label><input type="date" id="astro-hepan1-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="astro-hepan1-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生地点：</label><input type="text" id="astro-hepan1-location" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white" placeholder="例如：北京市朝阳区"></div></div></div>
+                    <div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-accent">对方信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历出生日期：</label><input type="date" id="astro-hepan2-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="astro-hepan2-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生地点：</label><input type="text" id="astro-hepan2-location" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white" placeholder="例如：上海市浦东新区"></div></div></div>
                 </div>
-                
-                <button onclick="calculateAstroHepan()" class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
-                    <i class="fa fa-heart mr-2"></i>开始合盘
-                </button>
+                <button onclick="calculateAstroHepan()" class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-heart mr-2"></i>开始合盘</button>
             </div>
             <div id="astro-hepan-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
                 <h3 class="text-2xl font-bold mb-8 text-center text-gradient">星盘合盘结果</h3>
@@ -463,13 +417,13 @@
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
                 <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-yen mr-3"></i>六爻占卜</h2>
                 <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">心中默念你要占卜的问题：</label>
-                    <textarea id="liuyao-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我这次投资会有收益吗？"></textarea>
+                    <label class="block text-gray-300 font-medium mb-3 text-lg">心中默念你要占卜的问题（可问时间/方位）：</label>
+                    <textarea id="liuyao-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的手机丢在哪了？/ 我什么时候能收到offer？"></textarea>
                 </div>
-                <div class="flex justify-center gap-12 mb-8">
-                    <div id="coin1" class="coin w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-3xl font-bold shadow-2xl text-yellow-900"><span>字</span></div>
-                    <div id="coin2" class="coin w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-3xl font-bold shadow-2xl text-yellow-900"><span>字</span></div>
-                    <div id="coin3" class="coin w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center text-3xl font-bold shadow-2xl text-yellow-900"><span>字</span></div>
+                <div class="flex justify-center gap-10 mb-8">
+                    <div id="coin1" class="copper-coin coin" onclick=""><span class="coin-text">字</span></div>
+                    <div id="coin2" class="copper-coin coin" onclick=""><span class="coin-text">字</span></div>
+                    <div id="coin3" class="copper-coin coin" onclick=""><span class="coin-text">字</span></div>
                 </div>
                 <p class="text-center text-gray-400 mb-6 text-lg">已摇：<span id="yao-count" class="text-primary font-bold">0</span>/6 次</p>
                 <button onclick="tossCoins()" id="toss-btn" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
@@ -503,8 +457,8 @@
                     </div>
                 </div>
                 <div id="text-input" class="mb-8 hidden">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">输入你想问的问题：</label>
-                    <input type="text" id="meihua-text" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我什么时候能找到对象？">
+                    <label class="block text-gray-300 font-medium mb-3 text-lg">输入你想问的问题（可问时间/方位）：</label>
+                    <input type="text" id="meihua-text" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的身份证丢在哪了？/ 我什么时候能脱单？">
                 </div>
                 <button onclick="calculateMeihua()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
                     <i class="fa fa-leaf mr-2"></i>起卦
@@ -556,7 +510,7 @@
 
     <footer class="bg-darker/80 backdrop-blur-md text-gray-400 py-10 mt-16 border-t border-primary/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="mb-3 text-lg">© 2025 整点儿玄的 - 仅供娱乐参考</p>
+            <p class="mb-3 text-lg">© 整点儿玄的 - 仅供娱乐参考</p>
             <p class="text-sm">本网站内容仅用于文化交流和娱乐目的，不构成任何专业建议</p>
         </div>
     </footer>
@@ -580,880 +534,40 @@
             document.getElementById('number-input').classList.add('hidden');
             document.getElementById('text-input').classList.add('hidden');
             if(m === 'number' || m === 'time') document.getElementById('number-input').classList.remove('hidden');
-            else document.getElementById('number-input').classList.remove('hidden'), document.getElementById('text-input').classList.remove('hidden');
+            else {
+                document.getElementById('number-input').classList.remove('hidden');
+                document.getElementById('text-input').classList.remove('hidden');
+            }
         });
 
-        // ==================== 完整塔罗牌库（78张全+5维度解读） ====================
+        // ==================== 塔罗牌完整库 ====================
         const tarotCards = [
-            // 大阿卡纳
-            {id:0,name:"愚者",type:"major",
-                meaning:"新的开始、冒险、天真、潜力、自由",
-                love:"一段充满惊喜的新恋情即将开始，对方天真烂漫，你们的关系会充满乐趣",
-                career:"适合尝试新的工作项目或创业，大胆去做会有意外收获",
-                wealth:"财运不错，可能有意外之财，但不要冲动消费",
-                health:"身体健康，精力充沛，但要注意意外受伤",
-                reversed:"鲁莽、不负责任、冲动、缺乏规划、逃避现实",
-                reversedLove:"感情中过于任性，容易伤害对方，可能会有短暂的恋情",
-                reversedCareer:"工作中缺乏责任感，容易出错，不适合冒险",
-                reversedWealth:"财运不佳，容易因冲动消费而破财",
-                reversedHealth:"注意因粗心大意导致的意外受伤"},
-            {id:1,name:"魔术师",type:"major",
-                meaning:"创造力、技能、意志力、行动力、沟通能力",
-                love:"你有能力吸引到心仪的对象，主动出击会成功",
-                career:"工作中展现出出色的能力，会得到领导的赏识",
-                wealth:"财运很好，通过自己的努力会获得丰厚的回报",
-                health:"身体状况良好，但要注意神经系统的问题",
-                reversed:"欺骗、操纵、潜力未发挥、缺乏自信",
-                reversedLove:"感情中存在欺骗，或者你过于被动，不敢表达自己",
-                reversedCareer:"工作中遇到阻碍，能力得不到发挥，容易被人算计",
-                reversedWealth:"财运不佳，容易被骗财",
-                reversedHealth:"注意心理问题，可能会有焦虑或抑郁"},
-            {id:2,name:"女祭司",type:"major",
-                meaning:"直觉、神秘、内在智慧、潜意识、冷静",
-                love:"感情中需要保持冷静，听从内心的声音，不要冲动",
-                career:"适合从事需要思考和研究的工作，会有不错的发展",
-                wealth:"财运平稳，适合稳健投资",
-                health:"注意内分泌系统和妇科问题",
-                reversed:"隐藏的真相、忽视直觉、冷漠、缺乏情感",
-                reversedLove:"感情中存在隐瞒，或者你过于冷漠，让对方感到失望",
-                reversedCareer:"工作中缺乏灵感，容易陷入僵局",
-                reversedWealth:"财运不佳，可能会有隐藏的损失",
-                reversedHealth:"注意妇科疾病和内分泌失调"},
-            {id:3,name:"女皇",type:"major",
-                meaning:"丰饶、母性、自然、创造力、富足",
-                love:"感情甜蜜，可能会有怀孕的喜讯，适合结婚",
-                career:"工作顺利，会得到女性贵人的帮助",
-                wealth:"财运很好，生活富足",
-                health:"身体健康，注意饮食和体重",
-                reversed:"依赖、过度保护、创造力受阻、虚荣",
-                reversedLove:"感情中过于依赖对方，或者会有流产的风险",
-                reversedCareer:"工作中遇到阻碍，创造力得不到发挥",
-                reversedWealth:"财运不佳，可能会有财务损失",
-                reversedHealth:"注意妇科疾病和消化系统问题"},
-            {id:4,name:"皇帝",type:"major",
-                meaning:"权威、结构、控制、领导力、稳定",
-                love:"感情中对方比较强势，需要互相尊重和理解",
-                career:"适合从事管理工作，会有不错的晋升机会",
-                wealth:"财运稳定，适合长期投资",
-                health:"注意高血压和心脏问题",
-                reversed:"独裁、控制欲过强、软弱、缺乏领导力",
-                reversedLove:"感情中对方过于霸道，或者你过于强势，导致关系破裂",
-                reversedCareer:"工作中遇到阻碍，领导不赏识，容易被人排挤",
-                reversedWealth:"财运不佳，可能会有财务损失",
-                reversedHealth:"注意高血压和心脏疾病"},
-            {id:5,name:"教皇",type:"major",
-                meaning:"传统、信仰、精神指导、教育、道德",
-                love:"适合传统的恋爱方式，可能会通过相亲认识对象",
-                career:"适合从事教育、宗教、法律等工作",
-                wealth:"财运平稳，适合稳健投资",
-                health:"注意呼吸系统和关节问题",
-                reversed:"打破传统、挑战权威、叛逆、缺乏信仰",
-                reversedLove:"感情中会遇到阻碍，家人可能会反对",
-                reversedCareer:"工作中不适合循规蹈矩，需要创新",
-                reversedWealth:"财运不佳，可能会有财务损失",
-                reversedHealth:"注意呼吸系统和关节疾病"},
-            {id:6,name:"恋人",type:"major",
-                meaning:"爱情、选择、和谐、关系、价值观",
-                love:"感情甜蜜，是表白和结婚的好时机",
-                career:"工作中会有合作的机会，需要做出选择",
-                wealth:"财运不错，可能会有合伙投资的机会",
-                health:"身体健康，注意内分泌系统",
-                reversed:"不和谐、价值观冲突、分手、三角关系",
-                reversedLove:"感情中会出现矛盾，可能会有第三者介入",
-                reversedCareer:"工作中合作不顺利，容易出现分歧",
-                reversedWealth:"财运不佳，合伙投资容易失败",
-                reversedHealth:"注意内分泌系统和心理问题"},
-            {id:7,name:"战车",type:"major",
-                meaning:"胜利、意志力、决心、控制、野心",
-                love:"感情中需要主动出击，克服困难才能获得幸福",
-                career:"工作中会遇到挑战，但只要坚持就能成功",
-                wealth:"财运不错，通过自己的努力会获得成功",
-                health:"注意交通安全和头部问题",
-                reversed:"失去控制、缺乏方向、失败、冲动",
-                reversedLove:"感情中会遇到阻碍，容易冲动分手",
-                reversedCareer:"工作中失去控制，项目失败",
-                reversedWealth:"财运不佳，容易因冲动而破财",
-                reversedHealth:"注意交通事故和头部受伤"},
-            {id:8,name:"力量",type:"major",
-                meaning:"勇气、耐心、内在力量、温柔、自信",
-                love:"感情中需要用温柔和耐心去经营，会获得幸福",
-                career:"工作中遇到困难，只要有耐心就能克服",
-                wealth:"财运平稳，需要耐心等待机会",
-                health:"身体健康，注意心脏问题",
-                reversed:"软弱、自我怀疑、滥用力量、暴躁",
-                reversedLove:"感情中过于软弱，容易被对方欺负",
-                reversedCareer:"工作中缺乏自信，容易被人欺负",
-                reversedWealth:"财运不佳，容易被人骗财",
-                reversedHealth:"注意心脏疾病和心理问题"},
-            {id:9,name:"隐士",type:"major",
-                meaning:"内省、孤独、寻求真理、智慧、反思",
-                love:"感情中需要独处的时间，思考自己真正想要什么",
-                career:"适合从事独立工作，会有不错的发展",
-                wealth:"财运平稳，适合稳健投资",
-                health:"注意精神健康和失眠问题",
-                reversed:"孤立、逃避、拒绝帮助、孤独",
-                reversedLove:"感情中过于孤独，不愿意与人交流",
-                reversedCareer:"工作中过于孤僻，不愿意与人合作",
-                reversedWealth:"财运不佳，可能会有财务损失",
-                reversedHealth:"注意失眠和精神问题"},
-            {id:10,name:"命运之轮",type:"major",
-                meaning:"变化、周期、命运、转机、幸运",
-                love:"感情中会有新的转机，可能会遇到心仪的对象",
-                career:"工作中会有新的机会，抓住机会就能成功",
-                wealth:"财运很好，可能会有意外之财",
-                health:"身体健康，注意血液循环问题",
-                reversed:"阻碍、延迟、不利变化、厄运",
-                reversedLove:"感情中会遇到阻碍，可能会分手",
-                reversedCareer:"工作中会有延迟，项目进展不顺利",
-                reversedWealth:"财运不佳，可能会有财务损失",
-                reversedHealth:"注意血液循环和消化系统问题"},
-            {id:11,name:"正义",type:"major",
-                meaning:"公平、正义、真相、因果、法律",
-                love:"感情中需要公平对待，付出就会有回报",
-                career:"工作中会得到公平的待遇，适合从事法律工作",
-                wealth:"财运平稳，适合合法投资",
-                health:"注意肾脏和泌尿系统问题",
-                reversed:"不公正、不诚实、逃避责任、法律纠纷",
-                reversedLove:"感情中会有不公平的待遇，可能会有法律纠纷",
-                reversedCareer:"工作中会遇到不公正的待遇，容易被人陷害",
-                reversedWealth:"财运不佳，可能会有法律纠纷导致的财务损失",
-                reversedHealth:"注意肾脏和泌尿系统疾病"},
-            {id:12,name:"倒吊人",type:"major",
-                meaning:"牺牲、放手、新视角、等待、奉献",
-                love:"感情中需要付出和牺牲，换个角度看问题会有不同的结果",
-                career:"工作中需要等待时机，不要急于求成",
-                wealth:"财运平稳，需要耐心等待机会",
-                health:"注意血液循环和关节问题",
-                reversed:"抗拒改变、无谓牺牲、自私、固执",
-                reversedLove:"感情中过于固执，不愿意付出，导致关系破裂",
-                reversedCareer:"工作中不愿意改变，容易被淘汰",
-                reversedWealth:"财运不佳，可能会有财务损失",
-                reversedHealth:"注意血液循环和关节疾病"},
-            {id:13,name:"死神",type:"major",
-                meaning:"结束、转变、新生、释放、蜕变",
-                love:"一段感情的结束，意味着新的开始，不要过于悲伤",
-                career:"工作中会有重大的转变，可能会换工作",
-                wealth:"财运会有变化，旧的财运结束，新的财运开始",
-                health:"注意慢性疾病，旧病可能会复发",
-                reversed:"抗拒改变、停滞、无法放手、恐惧",
-                reversedLove:"感情中不愿意放手，导致双方都痛苦",
-                reversedCareer:"工作中不愿意改变，容易陷入僵局",
-                reversedWealth:"财运不佳，可能会有财务损失",
-                reversedHealth:"注意慢性疾病和心理问题"},
-            {id:14,name:"节制",type:"major",
-                meaning:"平衡、耐心、适度、调和、净化",
-                love:"感情中需要平衡，互相理解和包容",
-                career:"工作中需要平衡各方面的关系，会有不错的发展",
-                wealth:"财运平稳，适合稳健投资",
-                health:"身体健康，注意饮食和作息",
-                reversed:"不平衡、过度、缺乏耐心、浪费",
-                reversedLove:"感情中不平衡，一方付出过多，导致关系破裂",
-                reversedCareer:"工作中缺乏耐心，容易出错",
-                reversedWealth:"财运不佳，容易因过度消费而破财",
-                reversedHealth:"注意饮食和作息不规律导致的健康问题"},
-            {id:15,name:"恶魔",type:"major",
-                meaning:"束缚、欲望、物质主义、诱惑、上瘾",
-                love:"感情中会有不健康的关系，或者被欲望控制",
-                career:"工作中会有诱惑，不要为了利益而不择手段",
-                wealth:"财运不错，但容易因欲望而破财",
-                health:"注意上瘾和心理问题",
-                reversed:"解放、摆脱束缚、克服诱惑、自由",
-                reversedLove:"摆脱不健康的感情关系，获得自由",
-                reversedCareer:"摆脱工作中的束缚，获得新的发展机会",
-                reversedWealth:"财运好转，摆脱财务困境",
-                reversedHealth:"克服上瘾和心理问题"},
-            {id:16,name:"塔",type:"major",
-                meaning:"突变、灾难、觉醒、破坏、启示",
-                love:"感情中会有突然的变故，可能会分手",
-                career:"工作中会有突然的变化，可能会失业",
-                wealth:"财运不佳，可能会有突然的财务损失",
-                health:"注意突发疾病和意外受伤",
-                reversed:"避免灾难、恐惧改变、逃避现实",
-                reversedLove:"避免感情中的突然变故，但需要面对现实",
-                reversedCareer:"避免工作中的突然变化，但需要做好准备",
-                reversedWealth:"避免突然的财务损失，但需要谨慎投资",
-                reversedHealth:"注意突发疾病和意外受伤"},
-            {id:17,name:"星星",type:"major",
-                meaning:"希望、灵感、平静、疗愈、信心",
-                love:"感情充满希望，会遇到心仪的对象",
-                career:"工作中会有新的灵感，事业会有不错的发展",
-                wealth:"财运不错，会有新的赚钱机会",
-                health:"身体正在康复，精神状态很好",
-                reversed:"失望、缺乏信心、绝望、灵感枯竭",
-                reversedLove:"感情中会有失望，对爱情失去信心",
-                reversedCareer:"工作中缺乏灵感，事业陷入僵局",
-                reversedWealth:"财运不佳，赚钱机会减少",
-                reversedHealth:"身体康复缓慢，精神状态不好"},
-            {id:18,name:"月亮",type:"major",
-                meaning:"幻觉、恐惧、潜意识、直觉、梦境",
-                love:"感情中存在欺骗，需要保持警惕，听从内心的声音",
-                career:"工作中会有隐藏的敌人，需要小心谨慎",
-                wealth:"财运不佳，可能会有隐藏的损失",
-                health:"注意睡眠和心理问题",
-                reversed:"释放恐惧、真相大白、清晰、平静",
-                reversedLove:"感情中的真相大白，摆脱欺骗",
-                reversedCareer:"工作中的隐藏敌人被发现，危机解除",
-                reversedWealth:"财运好转，隐藏的损失被避免",
-                reversedHealth:"睡眠和心理问题得到改善"},
-            {id:19,name:"太阳",type:"major",
-                meaning:"成功、快乐、活力、清晰、积极",
-                love:"感情甜蜜，充满阳光，适合结婚和怀孕",
-                career:"工作顺利，事业成功，会得到领导的赏识",
-                wealth:"财运很好，生活富足",
-                health:"身体健康，精力充沛",
-                reversed:"暂时失败、悲观、活力不足、骄傲",
-                reversedLove:"感情中会有小矛盾，但很快就会解决",
-                reversedCareer:"工作中会有小挫折，但很快就会过去",
-                reversedWealth:"财运一般，需要谨慎投资",
-                reversedHealth:"注意中暑和上火"},
-            {id:20,name:"审判",type:"major",
-                meaning:"重生、觉醒、反思、召唤、宽恕",
-                love:"感情会有新的开始，旧的问题得到解决",
-                career:"工作中会有新的机会，适合重新开始",
-                wealth:"财运好转，旧的财务问题得到解决",
-                health:"身体正在康复，精神状态很好",
-                reversed:"自我怀疑、逃避、拒绝改变、内疚",
-                reversedLove:"感情中不愿意改变，旧的问题无法解决",
-                reversedCareer:"工作中不愿意改变，错过新的机会",
-                reversedWealth:"财运不佳，旧的财务问题无法解决",
-                reversedHealth:"身体康复缓慢，精神状态不好"},
-            {id:21,name:"世界",type:"major",
-                meaning:"完成、整合、成就、圆满、旅行",
-                love:"感情圆满，适合结婚和组建家庭",
-                career:"事业成功，达到了人生的一个高峰",
-                wealth:"财运很好，生活富足",
-                health:"身体健康，精力充沛",
-                reversed:"未完成、缺乏闭合、停滞、失败",
-                reversedLove:"感情没有结果，可能会分手",
-                reversedCareer:"事业没有达到预期的目标，陷入停滞",
-                reversedWealth:"财运不佳，可能会有财务损失",
-                reversedHealth:"注意身体疲劳和精神压力"},
-            // 小阿卡纳-权杖
-            {id:22,name:"权杖一",type:"wands",
-                meaning:"创造、灵感、新开始、潜力、行动",
-                love:"新的恋情即将开始，充满激情",
-                career:"新的工作机会或项目，充满潜力",
-                wealth:"新的赚钱机会，财运不错",
-                health:"身体健康，精力充沛",
-                reversed:"延迟、缺乏能量、计划失败、犹豫",
-                reversedLove:"新的恋情延迟，或者缺乏激情",
-                reversedCareer:"新的工作机会延迟，项目失败",
-                reversedWealth:"新的赚钱机会失败，财运不佳",
-                reversedHealth:"精力不足，容易疲劳"},
-            {id:23,name:"权杖二",type:"wands",
-                meaning:"计划、决策、掌控、未来规划、勇气",
-                love:"感情中需要做出选择，规划未来",
-                career:"工作中需要做出决策，规划未来的发展",
-                wealth:"财运不错，适合制定理财计划",
-                health:"身体健康，注意关节问题",
-                reversed:"恐惧、犹豫不决、计划失败、缺乏勇气",
-                reversedLove:"感情中犹豫不决，无法做出选择",
-                reversedCareer:"工作中缺乏勇气，不敢做出决策",
-                reversedWealth:"财运不佳，理财计划失败",
-                reversedHealth:"注意关节疾病和精神压力"},
-            {id:24,name:"权杖三",type:"wands",
-                meaning:"远见、探索、扩张、贸易、合作",
-                love:"感情会有新的发展，可能会有异地恋",
-                career:"事业会有扩张，适合开拓新的市场",
-                wealth:"财运不错，适合合作投资",
-                health:"身体健康，注意呼吸系统问题",
-                reversed:"延误、挫折、目光短浅、合作失败",
-                reversedLove:"感情发展不顺利，异地恋容易失败",
-                reversedCareer:"事业扩张失败，遇到挫折",
-                reversedWealth:"财运不佳，合作投资失败",
-                reversedHealth:"注意呼吸系统疾病"},
-            {id:25,name:"权杖四",type:"wands",
-                meaning:"庆祝、稳定、家庭、和谐、收获",
-                love:"感情稳定，适合结婚和组建家庭",
-                career:"工作稳定，会有不错的收获",
-                wealth:"财运很好，生活富足",
-                health:"身体健康，家庭和睦",
-                reversed:"不稳定、家庭问题、冲突、收获减少",
-                reversedLove:"感情不稳定，家庭会有矛盾",
-                reversedCareer:"工作不稳定，收获减少",
-                reversedWealth:"财运不佳，收入减少",
-                reversedHealth:"注意家庭矛盾导致的心理问题"},
-            {id:26,name:"权杖五",type:"wands",
-                meaning:"竞争、冲突、挑战、争论、活力",
-                love:"感情中会有竞争，可能会有第三者介入",
-                career:"工作中竞争激烈，需要努力才能成功",
-                wealth:"财运一般，需要努力赚钱",
-                health:"身体健康，注意运动受伤",
-                reversed:"和解、结束冲突、妥协、缺乏活力",
-                reversedLove:"感情中的竞争结束，达成和解",
-                reversedCareer:"工作中的竞争结束，达成妥协",
-                reversedWealth:"财运好转，收入增加",
-                reversedHealth:"注意运动受伤和精神压力"},
-            {id:27,name:"权杖六",type:"wands",
-                meaning:"胜利、成功、荣誉、自信、认可",
-                love:"感情中会获得胜利，得到对方的认可",
-                career:"工作中会获得成功，得到领导的赏识",
-                wealth:"财运很好，会有不错的收入",
-                health:"身体健康，充满自信",
-                reversed:"失败、骄傲、缺乏认可、挫折",
-                reversedLove:"感情中会失败，得不到对方的认可",
-                reversedCareer:"工作中会失败，得不到领导的赏识",
-                reversedWealth:"财运不佳，收入减少",
-                reversedHealth:"注意骄傲自满导致的健康问题"},
-            {id:28,name:"权杖七",type:"wands",
-                meaning:"挑战、防御、坚持、勇气、立场",
-                love:"感情中会遇到挑战，需要坚持才能获得幸福",
-                career:"工作中会遇到挑战，需要坚持自己的立场",
-                wealth:"财运一般，需要努力才能保住收入",
-                health:"身体健康，注意肌肉拉伤",
-                reversed:"放弃、被击败、妥协、缺乏勇气",
-                reversedLove:"感情中遇到挑战就放弃，导致关系破裂",
-                reversedCareer:"工作中遇到挑战就放弃，容易被人排挤",
-                reversedWealth:"财运不佳，收入减少",
-                reversedHealth:"注意肌肉拉伤和精神压力"},
-            {id:29,name:"权杖八",type:"wands",
-                meaning:"速度、行动、消息、旅行、进展",
-                love:"感情发展迅速，可能会有闪电恋",
-                career:"工作进展迅速，会有好消息传来",
-                wealth:"财运不错，赚钱速度很快",
-                health:"身体健康，注意交通安全",
-                reversed:"延迟、阻碍、消息延误、旅行取消",
-                reversedLove:"感情发展缓慢，可能会有延迟",
-                reversedCareer:"工作进展缓慢，消息延误",
-                reversedWealth:"财运不佳，赚钱速度减慢",
-                reversedHealth:"注意交通事故和意外受伤"},
-            {id:30,name:"权杖九",type:"wands",
-                meaning:"韧性、警惕、坚持、防御、经验",
-                love:"感情中会有挫折，但只要坚持就能成功",
-                career:"工作中会有挫折，但只要坚持就能克服",
-                wealth:"财运一般，需要警惕财务风险",
-                health:"身体有旧伤，需要注意保养",
-                reversed:"疲惫、放弃、脆弱、放松警惕",
-                reversedLove:"感情中感到疲惫，想要放弃",
-                reversedCareer:"工作中感到疲惫，想要放弃",
-                reversedWealth:"财运不佳，容易因放松警惕而破财",
-                reversedHealth:"旧伤复发，需要注意保养"},
-            {id:31,name:"权杖十",type:"wands",
-                meaning:"负担、责任、压力、努力、成就",
-                love:"感情中负担过重，需要学会分担",
-                career:"工作中压力过大，需要学会减压",
-                wealth:"财运不错，但需要付出很多努力",
-                health:"注意肩颈和背部问题",
-                reversed:"释放负担、压力过大、放弃责任",
-                reversedLove:"感情中释放负担，学会分担",
-                reversedCareer:"工作中释放压力，学会减压",
-                reversedWealth:"财运不佳，收入减少",
-                reversedHealth:"注意肩颈和背部疾病"},
-            {id:32,name:"权杖侍从",type:"wands",
-                meaning:"热情、探索、新消息、活力、忠诚",
-                love:"会有热情的追求者，或者新的恋情消息",
-                career:"工作中会有新的消息，适合探索新的领域",
-                wealth:"财运不错，会有新的赚钱机会",
-                health:"身体健康，充满活力",
-                reversed:"冲动、不稳定、坏消息、缺乏忠诚",
-                reversedLove:"感情中过于冲动，或者会有坏消息",
-                reversedCareer:"工作中会有坏消息，探索新领域失败",
-                reversedWealth:"财运不佳，新的赚钱机会失败",
-                reversedHealth:"注意冲动导致的意外受伤"},
-            {id:33,name:"权杖骑士",type:"wands",
-                meaning:"行动、冒险、热情、冲动、能量",
-                love:"会有热情的追求者，感情充满激情",
-                career:"工作中充满活力，适合冒险和创新",
-                wealth:"财运不错，适合冒险投资",
-                health:"身体健康，充满能量",
-                reversed:"鲁莽、延迟、缺乏耐心、事故",
-                reversedLove:"感情中过于鲁莽，容易伤害对方",
-                reversedCareer:"工作中缺乏耐心，容易出错",
-                reversedWealth:"财运不佳，冒险投资失败",
-                reversedHealth:"注意鲁莽导致的意外受伤"},
-            {id:34,name:"权杖王后",type:"wands",
-                meaning:"自信、热情、魅力、领导力、创造力",
-                love:"感情中自信迷人，会吸引到优秀的对象",
-                career:"工作中展现出出色的领导力，会得到赏识",
-                wealth:"财运很好，有很强的赚钱能力",
-                health:"身体健康，充满魅力",
-                reversed:"专横、嫉妒、情绪化、缺乏自信",
-                reversedLove:"感情中过于专横，容易嫉妒",
-                reversedCareer:"工作中过于专横，容易与人发生矛盾",
-                reversedWealth:"财运不佳，赚钱能力下降",
-                reversedHealth:"注意情绪问题和妇科疾病"},
-            {id:35,name:"权杖国王",type:"wands",
-                meaning:"领导力、远见、魅力、勇气、果断",
-                love:"感情中对方成熟稳重，有领导力",
-                career:"工作中展现出出色的领导力，事业成功",
-                wealth:"财运很好，有很强的赚钱能力",
-                health:"身体健康，充满活力",
-                reversed:"独裁、冲动、脾气暴躁、缺乏远见",
-                reversedLove:"感情中对方过于独裁，脾气暴躁",
-                reversedCareer:"工作中过于独裁，容易与人发生矛盾",
-                reversedWealth:"财运不佳，赚钱能力下降",
-                reversedHealth:"注意高血压和心脏疾病"},
-            // 小阿卡纳-圣杯
-            {id:36,name:"圣杯一",type:"cups",
-                meaning:"爱、情感、新关系、喜悦、直觉",
-                love:"新的恋情即将开始，充满爱意",
-                career:"工作中会有新的合作机会，人际关系和谐",
-                wealth:"财运不错，会有意外之财",
-                health:"身体健康，心情愉悦",
-                reversed:"情感空虚、拒绝爱、失望、悲伤",
-                reversedLove:"感情中感到空虚，拒绝接受新的恋情",
-                reversedCareer:"工作中人际关系不和谐，合作失败",
-                reversedWealth:"财运不佳，意外之财落空",
-                reversedHealth:"注意情绪问题和心理疾病"},
-            {id:37,name:"圣杯二",type:"cups",
-                meaning:"伙伴关系、爱情、和谐、结合、平等",
-                love:"感情甜蜜，双方平等相爱，适合结婚",
-                career:"工作中合作顺利，会有不错的伙伴",
-                wealth:"财运不错，适合合伙投资",
-                health:"身体健康，人际关系和谐",
-                reversed:"分手、不和谐、不平等、冲突",
-                reversedLove:"感情破裂，双方不平等，容易发生冲突",
-                reversedCareer:"工作中合作失败，伙伴关系破裂",
-                reversedWealth:"财运不佳，合伙投资失败",
-                reversedHealth:"注意情绪问题和人际关系导致的压力"},
-            {id:38,name:"圣杯三",type:"cups",
-                meaning:"庆祝、友谊、欢乐、聚会、合作",
-                love:"感情甜蜜，会和朋友一起庆祝",
-                career:"工作中合作顺利，会有庆祝活动",
-                wealth:"财运不错，会有聚会带来的赚钱机会",
-                health:"身体健康，心情愉悦",
-                reversed:"过度放纵、八卦、嫉妒、孤独",
-                reversedLove:"感情中会有第三者介入，或者过度放纵",
-                reversedCareer:"工作中会有八卦和嫉妒，合作失败",
-                reversedWealth:"财运不佳，过度消费导致破财",
-                reversedHealth:"注意过度放纵导致的健康问题"},
-            {id:39,name:"圣杯四",type:"cups",
-                meaning:"冷漠、不满、沉思、厌倦、拒绝",
-                love:"感情中感到不满，对现有关系失去兴趣",
-                career:"工作中感到厌倦，对现有工作失去兴趣",
-                wealth:"财运一般，拒绝新的赚钱机会",
-                health:"注意情绪问题和抑郁症",
-                reversed:"热情、新机会、接受、满足",
-                reversedLove:"感情中重新燃起热情，接受新的机会",
-                reversedCareer:"工作中重新燃起热情，接受新的机会",
-                reversedWealth:"财运好转，接受新的赚钱机会",
-                reversedHealth:"情绪问题得到改善，心情愉悦"},
-            {id:40,name:"圣杯五",type:"cups",
-                meaning:"失落、悲伤、遗憾、失望、哀悼",
-                love:"感情中会有失落和悲伤，可能会分手",
-                career:"工作中会有失望和遗憾，项目失败",
-                wealth:"财运不佳，会有财务损失",
-                health:"注意情绪问题和心理疾病",
-                reversed:"接受、希望、康复、放下",
-                reversedLove:"感情中接受现实，放下过去，重新开始",
-                reversedCareer:"工作中接受失败，放下遗憾，重新开始",
-                reversedWealth:"财运好转，财务损失得到弥补",
-                reversedHealth:"情绪问题得到改善，心理康复"},
-            {id:41,name:"圣杯六",type:"cups",
-                meaning:"怀旧、童年、纯真、给予、照顾",
-                love:"感情中会有纯真的爱情，或者遇到旧情人",
-                career:"工作中会得到长辈的照顾和帮助",
-                wealth:"财运不错，会得到长辈的馈赠",
-                health:"身体健康，心情愉悦",
-                reversed:"放下过去、成长、独立、自私",
-                reversedLove:"感情中放下过去，学会独立成长",
-                reversedCareer:"工作中学会独立，不再依赖长辈",
-                reversedWealth:"财运一般，需要自己努力赚钱",
-                reversedHealth:"注意成长过程中的心理问题"},
-            {id:42,name:"圣杯七",type:"cups",
-                meaning:"幻想、选择、想象、迷惑、欲望",
-                love:"感情中会有很多选择，容易被幻想迷惑",
-                career:"工作中会有很多机会，容易被迷惑",
-                wealth:"财运一般，容易被虚假的赚钱机会迷惑",
-                health:"注意睡眠和心理问题",
-                reversed:"现实、清晰、决定、放弃幻想",
-                reversedLove:"感情中认清现实，做出明确的选择",
-                reversedCareer:"工作中认清现实，做出明确的决定",
-                reversedWealth:"财运好转，避免被虚假的赚钱机会迷惑",
-                reversedHealth:"睡眠和心理问题得到改善"},
-            {id:43,name:"圣杯八",type:"cups",
-                meaning:"离开、放弃、寻求更深意义、追求",
-                love:"感情中会离开现有的关系，寻求更深的爱情",
-                career:"工作中会离开现有的工作，寻求更好的发展",
-                wealth:"财运一般，会放弃现有的赚钱机会",
-                health:"注意情绪问题和心理疾病",
-                reversed:"害怕离开、停滞、回归、放弃追求",
-                reversedLove:"感情中害怕离开，停滞不前",
-                reversedCareer:"工作中害怕离开，停滞不前",
-                reversedWealth:"财运不佳，放弃更好的赚钱机会",
-                reversedHealth:"注意情绪问题和心理疾病"},
-            {id:44,name:"圣杯九",type:"cups",
-                meaning:"满足、愿望实现、享乐、成功",
-                love:"感情满足，愿望实现，生活幸福",
-                career:"工作成功，愿望实现，得到领导的赏识",
-                wealth:"财运很好，生活富足",
-                health:"身体健康，心情愉悦",
-                reversed:"不满、贪婪、不快乐、虚荣",
-                reversedLove:"感情中感到不满，过于贪婪",
-                reversedCareer:"工作中感到不满，过于虚荣",
-                reversedWealth:"财运不佳，过于贪婪导致破财",
-                reversedHealth:"注意情绪问题和消化系统疾病"},
-            {id:45,name:"圣杯十",type:"cups",
-                meaning:"家庭、幸福、和谐、情感满足、团圆",
-                love:"感情幸福，家庭和睦，适合结婚和组建家庭",
-                career:"工作顺利，家庭和事业兼顾",
-                wealth:"财运很好，家庭富足",
-                health:"身体健康，家庭和睦",
-                reversed:"家庭问题、不和谐、分离、情感破裂",
-                reversedLove:"感情破裂，家庭不和睦",
-                reversedCareer:"工作中家庭和事业无法兼顾",
-                reversedWealth:"财运不佳，家庭财务出现问题",
-                reversedHealth:"注意家庭矛盾导致的心理问题"},
-            {id:46,name:"圣杯侍从",type:"cups",
-                meaning:"温柔、敏感、新恋情、创意、直觉",
-                love:"会有温柔的追求者，或者新的恋情",
-                career:"工作中会有新的创意，适合从事艺术工作",
-                wealth:"财运不错，会有新的赚钱机会",
-                health:"身体健康，直觉敏锐",
-                reversed:"情绪不稳定、幼稚、坏消息、缺乏创意",
-                reversedLove:"感情中情绪不稳定，过于幼稚",
-                reversedCareer:"工作中缺乏创意，会有坏消息",
-                reversedWealth:"财运不佳，新的赚钱机会失败",
-                reversedHealth:"注意情绪问题和心理疾病"},
-            {id:47,name:"圣杯骑士",type:"cups",
-                meaning:"浪漫、魅力、理想主义、追求、温柔",
-                love:"会有浪漫的追求者，感情充满诗意",
-                career:"工作中充满理想主义，适合从事艺术工作",
-                wealth:"财运不错，适合艺术投资",
-                health:"身体健康，温柔体贴",
-                reversed:"不切实际、情绪化、失望、欺骗",
-                reversedLove:"感情中过于不切实际，容易被欺骗",
-                reversedCareer:"工作中过于理想主义，容易失败",
-                reversedWealth:"财运不佳，艺术投资失败",
-                reversedHealth:"注意情绪问题和心理疾病"},
-            {id:48,name:"圣杯王后",type:"cups",
-                meaning:"直觉、同理心、滋养、情感成熟、温柔",
-                love:"感情中温柔体贴，善解人意，会得到幸福",
-                career:"工作中善解人意，适合从事服务行业",
-                wealth:"财运不错，有很强的理财能力",
-                health:"身体健康，情绪稳定",
-                reversed:"情绪不稳定、依赖、冷漠、缺乏同理心",
-                reversedLove:"感情中情绪不稳定，过于依赖对方",
-                reversedCareer:"工作中缺乏同理心，容易与人发生矛盾",
-                reversedWealth:"财运不佳，理财能力下降",
-                reversedHealth:"注意情绪问题和妇科疾病"},
-            {id:49,name:"圣杯国王",type:"cups",
-                meaning:"情感成熟、智慧、慈悲、外交、稳重",
-                love:"感情中对方成熟稳重，慈悲为怀",
-                career:"工作中展现出出色的外交能力，事业成功",
-                wealth:"财运很好，有很强的理财能力",
-                health:"身体健康，情绪稳定",
-                reversed:"情绪操纵、冷酷、自私、缺乏慈悲",
-                reversedLove:"感情中对方情绪操纵，冷酷无情",
-                reversedCareer:"工作中缺乏慈悲，容易与人发生矛盾",
-                reversedWealth:"财运不佳，理财能力下降",
-                reversedHealth:"注意情绪问题和心脏疾病"},
-            // 小阿卡纳-宝剑
-            {id:50,name:"宝剑一",type:"swords",
-                meaning:"真理、清晰、新开始、智力、胜利",
-                love:"感情中会有清晰的认识，新的开始",
-                career:"工作中会有新的机会，思路清晰",
-                wealth:"财运不错，适合理性投资",
-                health:"注意头部和神经系统问题",
-                reversed:"混乱、欺骗、失败、暴力",
-                reversedLove:"感情中会有混乱和欺骗，可能会分手",
-                reversedCareer:"工作中思路混乱，容易失败",
-                reversedWealth:"财运不佳，理性投资失败",
-                reversedHealth:"注意头部和神经系统疾病"},
-            {id:51,name:"宝剑二",type:"swords",
-                meaning:"僵局、回避、两难、保护、平衡",
-                love:"感情中陷入两难，需要做出选择",
-                career:"工作中陷入僵局，需要回避问题",
-                wealth:"财运一般，需要平衡收支",
-                health:"注意眼部和头部问题",
-                reversed:"面对现实、做出决定、打破僵局",
-                reversedLove:"感情中面对现实，做出明确的选择",
-                reversedCareer:"工作中打破僵局，解决问题",
-                reversedWealth:"财运好转，收支平衡",
-                reversedHealth:"眼部和头部问题得到改善"},
-            {id:52,name:"宝剑三",type:"swords",
-                meaning:"心碎、悲伤、痛苦、背叛、失落",
-                love:"感情中会有心碎和痛苦，可能会被背叛",
-                career:"工作中会有痛苦和失落，项目失败",
-                wealth:"财运不佳，会有财务损失",
-                health:"注意心脏和心理问题",
-                reversed:"康复、宽恕、放下、治愈",
-                reversedLove:"感情中康复，宽恕对方，放下过去",
-                reversedCareer:"工作中治愈创伤，重新开始",
-                reversedWealth:"财运好转，财务损失得到弥补",
-                reversedHealth:"心脏和心理问题得到改善"},
-            {id:53,name:"宝剑四",type:"swords",
-                meaning:"休息、恢复、沉思、撤退、治疗",
-                love:"感情中需要休息和恢复，冷静思考",
-                career:"工作中需要休息和恢复，养精蓄锐",
-                wealth:"财运一般，适合稳健投资",
-                health:"身体需要休息和治疗，注意慢性疾病",
-                reversed:"活动、回归、不安、过度劳累",
-                reversedLove:"感情中重新活跃起来，回归正常",
-                reversedCareer:"工作中重新活跃起来，回归岗位",
-                reversedWealth:"财运好转，投资有收益",
-                reversedHealth:"身体恢复健康，慢性疾病得到改善"},
-            {id:54,name:"宝剑五",type:"swords",
-                meaning:"冲突、胜利、自私、不和、损失",
-                love:"感情中会有冲突，一方胜利但失去更多",
-                career:"工作中会有冲突，虽然胜利但失去人心",
-                wealth:"财运一般，虽然赚钱但失去朋友",
-                health:"注意冲突导致的意外受伤",
-                reversed:"和解、结束冲突、分享、和平",
-                reversedLove:"感情中达成和解，结束冲突",
-                reversedCareer:"工作中达成和解，结束冲突",
-                reversedWealth:"财运好转，和朋友一起赚钱",
-                reversedHealth:"注意冲突导致的意外受伤"},
-            {id:55,name:"宝剑六",type:"swords",
-                meaning:"过渡、旅行、离开、治愈、进步",
-                love:"感情中会有过渡，可能会有异地恋",
-                career:"工作中会有过渡，可能会换工作",
-                wealth:"财运一般，适合旅行和学习",
-                health:"身体正在康复，适合旅行放松",
-                reversed:"停滞、无法前进、回归、困难",
-                reversedLove:"感情中停滞不前，无法前进",
-                reversedCareer:"工作中停滞不前，无法换工作",
-                reversedWealth:"财运不佳，旅行和学习会有损失",
-                reversedHealth:"身体康复缓慢，需要继续治疗"},
-            {id:56,name:"宝剑七",type:"swords",
-                meaning:"欺骗、策略、偷偷摸摸、不诚实、冒险",
-                love:"感情中会有欺骗，对方可能会隐瞒真相",
-                career:"工作中会有欺骗，需要小心谨慎",
-                wealth:"财运不佳，容易被人骗财",
-                health:"注意心理问题和失眠",
-                reversed:"诚实、被发现、坦白、失败",
-                reversedLove:"感情中的欺骗被发现，需要坦白",
-                reversedCareer:"工作中的欺骗被发现，需要承担责任",
-                reversedWealth:"财运好转，避免被人骗财",
-                reversedHealth:"心理问题和失眠得到改善"},
-            {id:57,name:"宝剑八",type:"swords",
-                meaning:"束缚、限制、自我限制、无助、困惑",
-                love:"感情中感到束缚，无法自由表达自己",
-                career:"工作中感到限制，无法发挥自己的能力",
-                wealth:"财运不佳，被财务问题束缚",
-                health:"注意心理问题和抑郁症",
-                reversed:"自由、解放、清晰、突破",
-                reversedLove:"感情中获得自由，突破束缚",
-                reversedCareer:"工作中获得自由，发挥自己的能力",
-                reversedWealth:"财运好转，摆脱财务问题",
-                reversedHealth:"心理问题和抑郁症得到改善"},
-            {id:58,name:"宝剑九",type:"swords",
-                meaning:"焦虑、恐惧、噩梦、担忧、失眠",
-                love:"感情中会有焦虑和恐惧，担心失去对方",
-                career:"工作中会有焦虑和担忧，担心项目失败",
-                wealth:"财运不佳，担心财务问题",
-                health:"注意失眠和心理问题",
-                reversed:"希望、释放恐惧、平静、治愈",
-                reversedLove:"感情中释放恐惧，充满希望",
-                reversedCareer:"工作中释放担忧，充满信心",
-                reversedWealth:"财运好转，财务问题得到解决",
-                reversedHealth:"失眠和心理问题得到改善"},
-            {id:59,name:"宝剑十",type:"swords",
-                meaning:"结束、失败、崩溃、痛苦、终结",
-                love:"感情彻底结束，会有很大的痛苦",
-                career:"工作彻底失败，项目崩溃",
-                wealth:"财运不佳，会有巨大的财务损失",
-                health:"注意突发疾病和意外受伤",
-                reversed:"重生、恢复、新开始、转机",
-                reversedLove:"感情结束后重生，新的开始",
-                reversedCareer:"工作失败后重生，新的机会",
-                reversedWealth:"财运好转，财务损失得到弥补",
-                reversedHealth:"身体恢复健康，突发疾病得到治愈"},
-            {id:60,name:"宝剑侍从",type:"swords",
-                meaning:"警惕、好奇、新想法、消息、敏捷",
-                love:"会有新的恋情消息，需要保持警惕",
-                career:"工作中会有新的想法，适合从事创意工作",
-                wealth:"财运不错，会有新的赚钱消息",
-                health:"身体健康，思维敏捷",
-                reversed:"八卦、欺骗、坏消息、缺乏警惕",
-                reversedLove:"感情中会有八卦和欺骗，坏消息",
-                reversedCareer:"工作中会有八卦和欺骗，坏消息",
-                reversedWealth:"财运不佳，新的赚钱消息是假的",
-                reversedHealth:"注意思维混乱和心理问题"},
-            {id:61,name:"宝剑骑士",type:"swords",
-                meaning:"行动、速度、直言不讳、勇敢、冲动",
-                love:"感情中会有快速的发展，对方直言不讳",
-                career:"工作中行动迅速，适合从事紧急工作",
-                wealth:"财运不错，赚钱速度很快",
-                health:"注意冲动导致的意外受伤",
-                reversed:"鲁莽、冲动、延迟、事故",
-                reversedLove:"感情中过于鲁莽，容易伤害对方",
-                reversedCareer:"工作中过于冲动，容易出错",
-                reversedWealth:"财运不佳，赚钱速度减慢",
-                reversedHealth:"注意冲动导致的意外受伤"},
-            {id:62,name:"宝剑王后",type:"swords",
-                meaning:"独立、清晰、智慧、诚实、果断",
-                love:"感情中独立自信，清晰果断",
-                career:"工作中展现出出色的智慧和果断，事业成功",
-                wealth:"财运很好，有很强的理财能力",
-                health:"身体健康，思维清晰",
-                reversed:"刻薄、冷酷、情绪化、缺乏智慧",
-                reversedLove:"感情中过于刻薄和冷酷，容易伤害对方",
-                reversedCareer:"工作中缺乏智慧和果断，容易失败",
-                reversedWealth:"财运不佳，理财能力下降",
-                reversedHealth:"注意情绪问题和妇科疾病"},
-            {id:63,name:"宝剑国王",type:"swords",
-                meaning:"权威、理性、公正、领导力、清晰",
-                love:"感情中对方理性公正，有权威",
-                career:"工作中展现出出色的领导力和权威，事业成功",
-                wealth:"财运很好，有很强的理财能力",
-                health:"身体健康，思维清晰",
-                reversed:"独裁、冷酷、不公正、缺乏理性",
-                reversedLove:"感情中对方过于独裁和冷酷，容易伤害对方",
-                reversedCareer:"工作中缺乏理性和公正，容易失败",
-                reversedWealth:"财运不佳，理财能力下降",
-                reversedHealth:"注意高血压和心脏疾病"},
-            // 小阿卡纳-星币
-            {id:64,name:"星币一",type:"pentacles",
-                meaning:"物质、财富、新机会、繁荣、安全",
-                love:"感情中会有物质基础，新的稳定关系",
-                career:"工作中会有新的赚钱机会，事业稳定",
-                wealth:"财运很好，会有新的财富来源",
-                health:"身体健康，物质生活富足",
-                reversed:"损失、机会错过、贫穷、不稳定",
-                reversedLove:"感情中缺乏物质基础，关系不稳定",
-                reversedCareer:"工作中错过新的赚钱机会，事业不稳定",
-                reversedWealth:"财运不佳，会有财务损失",
-                reversedHealth:"注意消化系统和营养问题"},
-            {id:65,name:"星币二",type:"pentacles",
-                meaning:"平衡、灵活、适应、时间管理、波动",
-                love:"感情中需要平衡工作和爱情",
-                career:"工作中需要平衡多个项目，灵活应变",
-                wealth:"财运有波动，需要平衡收支",
-                health:"注意平衡饮食和作息",
-                reversed:"不平衡、过度扩张、压力、混乱",
-                reversedLove:"感情中无法平衡工作和爱情，关系破裂",
-                reversedCareer:"工作中无法平衡多个项目，压力过大",
-                reversedWealth:"财运不佳，收支不平衡",
-                reversedHealth:"注意饮食和作息不规律导致的健康问题"},
-            {id:66,name:"星币三",type:"pentacles",
-                meaning:"合作、技能、工艺、学习、成就",
-                love:"感情中会有合作，双方共同努力",
-                career:"工作中会有合作，发挥自己的技能",
-                wealth:"财运不错，适合合作投资",
-                health:"身体健康，适合学习和锻炼",
-                reversed:"缺乏团队合作、技能不足、失败",
-                reversedLove:"感情中缺乏合作，双方无法共同努力",
-                reversedCareer:"工作中缺乏团队合作，技能不足",
-                reversedWealth:"财运不佳，合作投资失败",
-                reversedHealth:"注意学习和锻炼过度导致的疲劳"},
-            {id:67,name:"星币四",type:"pentacles",
-                meaning:"控制、占有、节约、安全、吝啬",
-                love:"感情中过于控制对方，占有欲强",
-                career:"工作中过于控制，不愿意分享",
-                wealth:"财运不错，但过于吝啬，不愿意花钱",
-                health:"注意控制欲导致的心理问题",
-                reversed:"放手、分享、慷慨、损失",
-                reversedLove:"感情中学会放手，分享自己的爱",
-                reversedCareer:"工作中学会分享，团队合作",
-                reversedWealth:"财运一般，会有财务损失",
-                reversedHealth:"控制欲导致的心理问题得到改善"},
-            {id:68,name:"星币五",type:"pentacles",
-                meaning:"贫困、损失、困难、疾病、孤立",
-                love:"感情中会有困难和贫困，双方互相扶持",
-                career:"工作中会有困难和损失，需要努力克服",
-                wealth:"财运不佳，会有财务损失",
-                health:"注意疾病和贫困导致的健康问题",
-                reversed:"康复、改善、帮助、希望",
-                reversedLove:"感情中的困难得到改善，得到帮助",
-                reversedCareer:"工作中的困难得到改善，得到帮助",
-                reversedWealth:"财运好转，财务损失得到弥补",
-                reversedHealth:"疾病得到治愈，健康改善"},
-            {id:69,name:"星币六",type:"pentacles",
-                meaning:"给予、接受、慈善、分享、公平",
-                love:"感情中会有给予和接受，双方互相付出",
-                career:"工作中会有给予和接受，得到领导的赏识",
-                wealth:"财运不错，会有馈赠和帮助",
-                health:"身体健康，乐于助人",
-                reversed:"自私、贪婪、不公平、债务",
-                reversedLove:"感情中过于自私，不愿意付出",
-                reversedCareer:"工作中过于贪婪，不公平",
-                reversedWealth:"财运不佳，会有债务问题",
-                reversedHealth:"注意自私导致的心理问题"},
-            {id:70,name:"星币七",type:"pentacles",
-                meaning:"耐心、投资、收获、规划、长期",
-                love:"感情中需要耐心等待，长期经营",
-                career:"工作中需要耐心等待，长期投资",
-                wealth:"财运不错，适合长期投资",
-                health:"身体健康，需要耐心调理",
-                reversed:"缺乏耐心、短视、损失、放弃",
-                reversedLove:"感情中缺乏耐心，容易放弃",
-                reversedCareer:"工作中缺乏耐心，容易放弃",
-                reversedWealth:"财运不佳，长期投资失败",
-                reversedHealth:"注意耐心不足导致的健康问题"},
-            {id:71,name:"星币八",type:"pentacles",
-                meaning:"勤奋、技能、工艺、专注、卓越",
-                love:"感情中需要勤奋经营，专注于对方",
-                career:"工作中勤奋努力，发挥自己的技能",
-                wealth:"财运不错，通过自己的努力获得财富",
-                health:"身体健康，适合勤奋工作和锻炼",
-                reversed:"缺乏动力、分心、懒惰、平庸",
-                reversedLove:"感情中缺乏动力，容易分心",
-                reversedCareer:"工作中缺乏动力，懒惰",
-                reversedWealth:"财运不佳，努力得不到回报",
-                reversedHealth:"注意懒惰导致的健康问题"},
-            {id:72,name:"星币九",type:"pentacles",
-                meaning:"富足、独立、自给自足、奢华、享受",
-                love:"感情中独立自信，享受单身生活",
-                career:"工作中独立完成项目，事业成功",
-                wealth:"财运很好，生活富足",
-                health:"身体健康，享受生活",
-                reversed:"依赖、财务问题、不安全感、损失",
-                reversedLove:"感情中过于依赖对方，缺乏自信",
-                reversedCareer:"工作中依赖他人，无法独立完成项目",
-                reversedWealth:"财运不佳，会有财务损失",
-                reversedHealth:"注意依赖导致的心理问题"},
-            {id:73,name:"星币十",type:"pentacles",
-                meaning:"遗产、家庭、财富、传统、安全",
-                love:"感情中会有家庭的支持，适合结婚",
-                career:"工作中会有家族的支持，事业成功",
-                wealth:"财运很好，会有遗产或家族财富",
-                health:"身体健康，家庭和睦",
-                reversed:"家庭问题、财务损失、传统破裂",
-                reversedLove:"感情中家庭反对，关系破裂",
-                reversedCareer:"工作中家族不支持，事业失败",
-                reversedWealth:"财运不佳，会有财务损失",
-                reversedHealth:"注意家庭矛盾导致的心理问题"},
-            {id:74,name:"星币侍从",type:"pentacles",
-                meaning:"学习、实用、新机会、可靠、谨慎",
-                love:"会有可靠的追求者，或者新的稳定恋情",
-                career:"工作中会有新的学习机会，适合从事实用工作",
-                wealth:"财运不错，会有新的赚钱机会",
-                health:"身体健康，适合学习和锻炼",
-                reversed:"不负责任、浪费、坏消息、缺乏谨慎",
-                reversedLove:"感情中对方不负责任，浪费感情",
-                reversedCareer:"工作中不负责任，学习机会失败",
-                reversedWealth:"财运不佳，新的赚钱机会失败",
-                reversedHealth:"注意浪费和不负责任导致的健康问题"},
-            {id:75,name:"星币骑士",type:"pentacles",
-                meaning:"可靠、勤奋、耐心、务实、负责",
-                love:"会有可靠的追求者，感情稳定",
-                career:"工作中勤奋可靠，适合从事稳定工作",
-                wealth:"财运不错，适合稳健投资",
-                health:"身体健康，适合勤奋工作和锻炼",
-                reversed:"懒惰、固执、延迟、不负责任",
-                reversedLove:"感情中对方懒惰固执，不负责任",
-                reversedCareer:"工作中懒惰固执，容易出错",
-                reversedWealth:"财运不佳，稳健投资失败",
-                reversedHealth:"注意懒惰和固执导致的健康问题"},
-            {id:76,name:"星币王后",type:"pentacles",
-                meaning:"丰饶、慷慨、务实、滋养、安全",
-                love:"感情中慷慨大方，务实可靠，会得到幸福",
-                career:"工作中务实可靠，适合从事管理工作",
-                wealth:"财运很好，有很强的理财能力",
-                health:"身体健康，生活富足",
-                reversed:"贪婪、占有欲、不安全感、浪费",
-                reversedLove:"感情中过于贪婪和占有欲强",
-                reversedCareer:"工作中过于贪婪，不务实",
-                reversedWealth:"财运不佳，理财能力下降",
-                reversedHealth:"注意贪婪导致的健康问题"},
-            {id:77,name:"星币国王",type:"pentacles",
-                meaning:"成功、财富、商业、领导力、可靠",
-                love:"感情中对方成功富有，可靠稳重",
-                career:"工作中展现出出色的商业能力，事业成功",
-                wealth:"财运很好，有很强的赚钱能力",
-                health:"身体健康，生活富足",
-                reversed:"腐败、贪婪、失败、不可靠",
-                reversedLove:"感情中对方腐败贪婪，不可靠",
-                reversedCareer:"工作中腐败贪婪，事业失败",
-                reversedWealth:"财运不佳，赚钱能力下降",
-                reversedHealth:"注意贪婪导致的健康问题"}
+            {id:0,name:"愚者",type:"major",meaning:"新的开始、冒险、天真、潜力、自由",love:"一段充满惊喜的新恋情即将开始",career:"适合尝试新的工作项目",wealth:"财运不错",health:"注意意外受伤",time:"1-3天内",direction:"正东方",reversed:"鲁莽、冲动",reversedLove:"感情中过于任性",reversedCareer:"容易出错",reversedWealth:"容易破财",reversedHealth:"注意意外",reversedTime:"3-7天",reversedDirection:"西北方"},
+            {id:1,name:"魔术师",type:"major",meaning:"创造力、技能、意志力",love:"主动出击会成功",career:"能力会得到赏识",wealth:"通过努力获得回报",health:"注意神经系统",time:"1周内",direction:"正南方",reversed:"欺骗、操纵",reversedLove:"存在欺骗",reversedCareer:"被人算计",reversedWealth:"容易被骗",reversedHealth:"焦虑",reversedTime:"2-4周",reversedDirection:"西南方"},
+            {id:2,name:"女祭司",type:"major",meaning:"直觉、神秘、内在智慧",love:"保持冷静",career:"适合研究",wealth:"稳健投资",health:"注意内分泌",time:"1个月内",direction:"正北方",reversed:"隐藏真相",reversedLove:"感情隐瞒",reversedCareer:"缺乏灵感",reversedWealth:"隐藏损失",reversedHealth:"妇科",reversedTime:"3个月",reversedDirection:"东北方"},
+            {id:3,name:"女皇",type:"major",meaning:"丰饶、母性、富足",love:"感情甜蜜",career:"女性贵人",wealth:"财运很好",health:"注意体重",time:"3-7天",direction:"正西方",reversed:"依赖、虚荣",reversedLove:"过于依赖",reversedCareer:"创造力受阻",reversedWealth:"财务损失",reversedHealth:"妇科",reversedTime:"1-2周",reversedDirection:"东南方"},
+            {id:4,name:"皇帝",type:"major",meaning:"权威、稳定、领导力",love:"对方强势",career:"晋升机会",wealth:"稳定投资",health:"注意心脏",time:"1-2周",direction:"西北方",reversed:"独裁、软弱",reversedLove:"关系破裂",reversedCareer:"被排挤",reversedWealth:"财务损失",reversedHealth:"高血压",reversedTime:"2-4周",reversedDirection:"西南方"},
+            {id:5,name:"教皇",type:"major",meaning:"传统、信仰、教育",love:"传统恋爱",career:"教育行业",wealth:"稳健",health:"注意关节",time:"1个月内",direction:"东北方",reversed:"打破传统",reversedLove:"家人反对",reversedCareer:"需创新",reversedWealth:"损失",reversedHealth:"呼吸系统",reversedTime:"3个月",reversedDirection:"西南方"},
+            {id:6,name:"恋人",type:"major",meaning:"爱情、选择、和谐",love:"表白好时机",career:"合作机会",wealth:"合伙投资",health:"内分泌",time:"3-7天",direction:"正南方",reversed:"三角关系",reversedLove:"第三者",reversedCareer:"合作不顺",reversedWealth:"投资失败",reversedHealth:"心理问题",reversedTime:"1-2周",reversedDirection:"正北方"},
+            {id:7,name:"战车",type:"major",meaning:"胜利、意志力、控制",love:"克服困难",career:"坚持成功",wealth:"努力获得",health:"注意头部",time:"1周内",direction:"正西方",reversed:"失控、冲动",reversedLove:"冲动分手",reversedCareer:"项目失败",reversedWealth:"破财",reversedHealth:"交通事故",reversedTime:"2-4周",reversedDirection:"正东方"},
+            {id:8,name:"力量",type:"major",meaning:"勇气、耐心、内在力量",love:"温柔经营",career:"克服困难",wealth:"耐心等待",health:"心脏",time:"2-4周",direction:"正南方",reversed:"软弱、暴躁",reversedLove:"被欺负",reversedCareer:"缺乏自信",reversedWealth:"被骗",reversedHealth:"心脏",reversedTime:"1个月",reversedDirection:"正北方"},
+            {id:9,name:"隐士",type:"major",meaning:"内省、孤独、智慧",love:"需要独处",career:"独立工作",wealth:"稳健",health:"失眠",time:"3个月内",direction:"西北方",reversed:"孤立、逃避",reversedLove:"孤独",reversedCareer:"孤僻",reversedWealth:"损失",reversedHealth:"精神问题",reversedTime:"1个月",reversedDirection:"东南方"},
+            {id:10,name:"命运之轮",type:"major",meaning:"变化、转机、幸运",love:"新转机",career:"新机会",wealth:"意外之财",health:"血液循环",time:"1-3天",direction:"中心",reversed:"阻碍、延迟",reversedLove:"分手",reversedCareer:"进展不顺",reversedWealth:"损失",reversedHealth:"消化",reversedTime:"1-2周",reversedDirection:"边缘"},
+            {id:11,name:"正义",type:"major",meaning:"公平、真相、法律",love:"公平对待",career:"法律行业",wealth:"合法投资",health:"肾脏",time:"1个月内",direction:"正西方",reversed:"不公正",reversedLove:"纠纷",reversedCareer:"被陷害",reversedWealth:"损失",reversedHealth:"泌尿",reversedTime:"3个月",reversedDirection:"正东方"},
+            {id:12,name:"倒吊人",type:"major",meaning:"牺牲、放手、新视角",love:"付出牺牲",career:"等待时机",wealth:"耐心",health:"关节",time:"3个月内",direction:"桥下",reversed:"自私、固执",reversedLove:"关系破裂",reversedCareer:"被淘汰",reversedWealth:"损失",reversedHealth:"关节",reversedTime:"1个月",reversedDirection:"高处"},
+            {id:13,name:"死神",type:"major",meaning:"结束、转变、新生",love:"旧情结束",career:"换工作",wealth:"旧运结束",health:"慢性病",time:"1-2周",direction:"正北方",reversed:"抗拒改变",reversedLove:"不愿放手",reversedCareer:"陷入僵局",reversedWealth:"损失",reversedHealth:"心理",reversedTime:"2-4周",reversedDirection:"正南方"},
+            {id:14,name:"节制",type:"major",meaning:"平衡、耐心、调和",love:"互相包容",career:"平衡关系",wealth:"稳健",health:"注意作息",time:"2-4周",direction:"正东方",reversed:"不平衡",reversedLove:"一方付出多",reversedCareer:"缺乏耐心",reversedWealth:"过度消费",reversedHealth:"作息不规律",reversedTime:"1个月",reversedDirection:"正西方"},
+            {id:15,name:"恶魔",type:"major",meaning:"束缚、欲望、物质主义",love:"不健康关系",career:"诱惑",wealth:"容易破财",health:"上瘾",time:"1个月内",direction:"西南方",reversed:"摆脱束缚",reversedLove:"离开不健康关系",reversedCareer:"新发展",reversedWealth:"好转",reversedHealth:"克服上瘾",reversedTime:"3个月",reversedDirection:"东北方"},
+            {id:16,name:"塔",type:"major",meaning:"突变、灾难、觉醒",love:"突然分手",career:"失业",wealth:"损失",health:"突发疾病",time:"1-3天",direction:"正西方",reversed:"避免灾难",reversedLove:"避免变故",reversedCareer:"做好准备",reversedWealth:"谨慎",reversedHealth:"预防",reversedTime:"3-7天",reversedDirection:"正东方"},
+            {id:17,name:"星星",type:"major",meaning:"希望、灵感、疗愈",love:"充满希望",career:"新灵感",wealth:"新机会",health:"康复",time:"1-2周",direction:"正北方",reversed:"失望、绝望",reversedLove:"失去信心",reversedCareer:"灵感枯竭",reversedWealth:"机会减少",reversedHealth:"康复慢",reversedTime:"2-4周",reversedDirection:"正南方"},
+            {id:18,name:"月亮",type:"major",meaning:"幻觉、恐惧、潜意识",love:"存在欺骗",career:"隐藏敌人",wealth:"隐藏损失",health:"睡眠",time:"3个月内",direction:"正北方",reversed:"真相大白",reversedLove:"摆脱欺骗",reversedCareer:"危机解除",reversedWealth:"避免损失",reversedHealth:"改善",reversedTime:"1个月",reversedDirection:"正南方"},
+            {id:19,name:"太阳",type:"major",meaning:"成功、快乐、活力",love:"感情甜蜜",career:"事业成功",wealth:"很好",health:"精力充沛",time:"3-7天",direction:"正南方",reversed:"小矛盾",reversedLove:"小矛盾",reversedCareer:"小挫折",reversedWealth:"一般",reversedHealth:"中暑",reversedTime:"1-2周",reversedDirection:"正北方"},
+            {id:20,name:"审判",type:"major",meaning:"重生、觉醒、反思",love:"重新开始",career:"新机会",wealth:"好转",health:"康复",time:"1个月内",direction:"正东方",reversed:"自我怀疑",reversedLove:"不愿改变",reversedCareer:"错过机会",reversedWealth:"问题无法解决",reversedHealth:"康复慢",reversedTime:"3个月",reversedDirection:"正西方"},
+            {id:21,name:"世界",type:"major",meaning:"完成、圆满、旅行",love:"适合结婚",career:"事业高峰",wealth:"富足",health:"精力充沛",time:"3个月内",direction:"中心",reversed:"未完成",reversedLove:"分手",reversedCareer:"停滞",reversedWealth:"损失",reversedHealth:"疲劳",reversedTime:"1个月",reversedDirection:"边缘"},
         ];
 
-        // 塔罗功能
         function drawTarot() {
             const s = document.getElementById('tarot-spread').value;
-            const c = document.getElementById('tarot-category').value;
             const q = document.getElementById('tarot-question').value;
             let n, names;
             switch(s){
@@ -1462,14 +576,14 @@
                 case'cross':n=5;names=['核心问题','挑战','过去影响','未来趋势','最终结果'];break;
                 default:n=10;names=['现状','挑战','潜意识','过去','可能','未来','态度','环境','希望','结果'];
             }
-            const arr = [];const u=new Set();
+            const arr=[];const u=new Set();
             for(let i=0;i<n;i++){
                 let idx;
-                do{idx=Math.floor(Math.random()*78)}while(u.has(idx));
+                do{idx=Math.floor(Math.random()*tarotCards.length)}while(u.has(idx));
                 u.add(idx);
                 arr.push({...tarotCards[idx],reversed:Math.random()<0.3,position:names[i]});
             }
-            const box = document.getElementById('tarot-cards');box.innerHTML='';
+            const box=document.getElementById('tarot-cards');box.innerHTML='';
             arr.forEach((card,i)=>{
                 const el=document.createElement('div');el.className='tarot-card w-36 h-52 cursor-pointer';
                 el.innerHTML=`<div class="tarot-card-inner w-full h-full relative rounded-xl shadow-2xl">
@@ -1487,64 +601,62 @@
             });
             let txt=`<h4 class="text-xl font-bold mb-6">综合解读</h4>`;
             if(q)txt+=`<div class="bg-darker/50 p-4 rounded-lg mb-6"><p class="font-medium">你的问题：${q}</p></div>`;
-            
             arr.forEach(o=>{
                 txt+=`<div class="bg-darker/30 p-4 rounded-lg mb-4">
                     <h5 class="${o.reversed?'text-red-400':'text-primary'} font-bold text-lg mb-3">${o.position}：${o.name}${o.reversed?'（逆位）':''}</h5>
-                    <p class="mb-2"><strong>核心含义：</strong>${o.reversed?o.reversed:o.meaning}</p>
-                    <p class="mb-1"><strong>💘 感情：</strong>${o.reversed?o.reversedLove:o.love}</p>
-                    <p class="mb-1"><strong>💼 事业：</strong>${o.reversed?o.reversedCareer:o.career}</p>
-                    <p class="mb-1"><strong>💰 财运：</strong>${o.reversed?o.reversedWealth:o.wealth}</p>
-                    <p><strong>🏥 健康：</strong>${o.reversed?o.reversedHealth:o.health}</p>
+                    <p><strong>含义：</strong>${o.reversed?o.reversed:o.meaning}</p>
+                    <p><strong>感情：</strong>${o.reversed?o.reversedLove:o.love}</p>
+                    <p><strong>事业：</strong>${o.reversed?o.reversedCareer:o.career}</p>
+                    <p><strong>财运：</strong>${o.reversed?o.reversedWealth:o.wealth}</p>
+                    <p><strong>时间：</strong>${o.reversed?o.reversedTime:o.time}</p>
+                    <p><strong>方位：</strong>${o.reversed?o.reversedDirection:o.direction}</p>
                 </div>`;
             });
-            
             txt+=`<p class="text-yellow-300 text-sm mt-6">塔罗牌仅供娱乐参考，命运掌握在自己手中</p>`;
             document.getElementById('tarot-interpretation').innerHTML=txt;
             document.getElementById('tarot-result').classList.remove('hidden');
         }
 
-        // ==================== 完整雷诺曼牌库（36张全+4维度解读） ====================
+        // ==================== 雷诺曼完整库 ====================
         const lenormandCards = [
-            {id:1,name:"骑士",meaning:"消息、到来、行动、传递",love:"新追求者出现，热情主动的示好",career:"新工作消息，出差或外勤任务",wealth:"财运消息到来，可能有远方的财",health:"注意出行安全，腿部和关节"},
-            {id:2,name:"幸运草",meaning:"幸运、机会、小成功、希望",love:"感情中的小确幸，甜蜜的瞬间",career:"工作中的小机会，意外的好运",wealth:"小额意外之财，抽奖中奖",health:"身体状况良好，小毛病很快痊愈"},
-            {id:3,name:"船",meaning:"旅行、离开、过渡、远方",love:"异地恋，感情中的距离感",career:"出差、海外业务，工作调动",wealth:"远方的财运，进出口贸易",health:"注意水土不服，旅途疲劳"},
-            {id:4,name:"房子",meaning:"家庭、稳定、安全、不动产",love:"稳定的感情，同居或结婚",career:"稳定的工作，办公室工作",wealth:"房产运，家庭财务稳定",health:"注意家庭环境对健康的影响"},
-            {id:5,name:"树",meaning:"健康、成长、生命、根基",love:"感情的成长，长期稳定的关系",career:"事业的成长，打下坚实基础",wealth:"长期投资的收益，稳步增长",health:"整体健康状况，注意慢性病"},
-            {id:6,name:"云",meaning:"不确定、困惑、阴霾、欺骗",love:"感情不明朗，误会和猜疑",career:"工作受阻，前途迷茫",wealth:"财运不明朗，有隐藏的损失",health:"注意精神压力和睡眠问题"},
-            {id:7,name:"蛇",meaning:"问题、复杂、欺骗、第三者",love:"第三者介入，感情复杂",career:"职场斗争，背后的小人",wealth:"财务纠纷，复杂的财务问题",health:"注意妇科疾病和神经系统"},
-            {id:8,name:"棺材",meaning:"结束、转变、损失、疾病",love:"感情结束，失恋",career:"项目结束，失业",wealth:"财务损失，破财",health:"严重的疾病，需要治疗"},
-            {id:9,name:"花束",meaning:"礼物、赞美、幸福、感谢",love:"浪漫的礼物，表白和赞美",career:"工作中的认可和奖励",wealth:"意外的礼物，财运不错",health:"身体康复，心情愉悦"},
-            {id:10,name:"镰刀",meaning:"突然、切断、决定、危险",love:"突然分手，感情的决断",career:"突然解雇，项目中断",wealth:"突然的财务损失，破财",health:"意外受伤，手术"},
-            {id:11,name:"鞭子",meaning:"冲突、争吵、重复、欲望",love:"感情中的争吵和矛盾",career:"工作中的冲突和竞争",wealth:"反复的财务问题",health:"注意运动伤害和肌肉疼痛"},
-            {id:12,name:"小鸟",meaning:"交流、对话、消息、八卦",love:"甜蜜的聊天，电话和短信",career:"工作中的沟通和会议",wealth:"小的财运，消息带来的财",health:"注意呼吸系统和口腔问题"},
-            {id:13,name:"小孩",meaning:"新开始、纯真、幼稚、小",love:"新的恋情，纯真的感情",career:"新的项目，新手",wealth:"小额投资，小的财运",health:"注意儿童健康，小毛病"},
-            {id:14,name:"狐狸",meaning:"狡猾、智慧、伪装、工作",love:"感情中的欺骗，伪装的感情",career:"职场中的智慧，需要小心",wealth:"通过智慧获得的财富",health:"注意伪装的疾病，误诊"},
-            {id:15,name:"熊",meaning:"力量、保护、母亲、财富",love:"强势的伴侣，母亲的影响",career:"强大的竞争对手，领导",wealth:"丰厚的财富，财运很好",health:"注意体重和消化系统"},
-            {id:16,name:"星星",meaning:"希望、灵感、梦想、远方",love:"感情中的希望，理想的伴侣",career:"事业的梦想，灵感",wealth:"未来的财运，长期投资",health:"精神健康，心情愉悦"},
-            {id:17,name:"鹳",meaning:"变化、迁移、提升、新生",love:"感情的变化，怀孕和生育",career:"工作提升，职位变动",wealth:"财运的提升，收入增加",health:"身体的变化，康复"},
-            {id:18,name:"狗",meaning:"忠诚、友谊、帮助、守护",love:"忠诚的伴侣，真挚的感情",career:"忠诚的同事，朋友的帮助",wealth:"朋友带来的财运",health:"注意宠物健康，朋友的健康"},
-            {id:19,name:"塔",meaning:"孤独、隔离、官方、建筑",love:"感情中的孤独，单身",career:"政府工作，官方机构",wealth:"官方的财运，不动产",health:"注意精神孤独，隔离"},
-            {id:20,name:"花园",meaning:"社交、聚会、公共、网络",love:"社交场合认识的对象",career:"社交活动，公共关系",wealth:"社交带来的财运",health:"注意传染病，公共卫生"},
-            {id:21,name:"山",meaning:"障碍、挑战、延迟、稳定",love:"感情中的障碍，困难",career:"工作中的挑战，延迟",wealth:"财运受阻，困难",health:"注意背部和关节问题"},
-            {id:22,name:"十字路口",meaning:"选择、决定、方向、机会",love:"感情中的选择，多个追求者",career:"工作中的选择，多个机会",wealth:"财运的选择，多个投资",health:"健康的选择，治疗方案"},
-            {id:23,name:"老鼠",meaning:"损失、偷窃、焦虑、破坏",love:"感情中的损失，第三者",career:"工作中的损失，偷窃",wealth:"财务损失，破财",health:"注意卫生，传染病"},
-            {id:24,name:"心",meaning:"爱情、感情、浪漫、快乐",love:"甜蜜的爱情，真心的感情",career:"热爱的工作，快乐的事业",wealth:"因感情带来的财运",health:"注意心脏和情绪问题"},
-            {id:25,name:"戒指",meaning:"承诺、婚姻、契约、合作",love:"结婚，订婚，承诺",career:"合作，合同，契约",wealth:"合作带来的财运",health:"注意循环系统和关节"},
-            {id:26,name:"书",meaning:"知识、学习、秘密、文件",love:"秘密的感情，地下情",career:"学习，研究，文件工作",wealth:"知识带来的财运",health:"注意学习压力，眼睛问题"},
-            {id:27,name:"信件",meaning:"消息、书信、文件、通知",love:"情书，感情的消息",career:"工作信件，通知",wealth:"财务文件，账单",health:"注意体检报告，医疗文件"},
-            {id:28,name:"男人",meaning:"男性、阳刚、主动、力量",love:"男性伴侣，追求者",career:"男性同事，领导",wealth:"男性带来的财运",health:"注意男性健康问题"},
-            {id:29,name:"女人",meaning:"女性、阴柔、被动、温柔",love:"女性伴侣，追求者",career:"女性同事，领导",wealth:"女性带来的财运",health:"注意女性健康问题"},
-            {id:30,name:"百合花",meaning:"纯洁、和平、智慧、老年",love:"纯洁的爱情，柏拉图式",career:"智慧的工作，顾问",wealth:"长期的财运，稳定",health:"注意老年健康，慢性病"},
-            {id:31,name:"太阳",meaning:"成功、快乐、活力、清晰",love:"快乐的爱情，阳光的伴侣",career:"成功的事业，光明的前途",wealth:"很好的财运，成功",health:"身体健康，精力充沛"},
-            {id:32,name:"月亮",meaning:"直觉、梦境、情感、神秘",love:"浪漫的感情，直觉的爱",career:"创意工作，艺术",wealth:"直觉带来的财运",health:"注意睡眠和情绪问题"},
-            {id:33,name:"钥匙",meaning:"解决、答案、关键、机会",love:"感情的关键，解决问题",career:"工作的关键，解决方法",wealth:"财运的关键，机会",health:"健康的关键，治疗方法"},
-            {id:34,name:"鱼",meaning:"财富、丰富、流动、商业",love:"丰富的感情，多情",career:"商业工作，贸易",wealth:"很好的财运，丰富",health:"注意水分代谢，肾脏问题"},
-            {id:35,name:"锚",meaning:"稳定、安全、持久、停泊",love:"稳定的感情，持久的关系",career:"稳定的工作，安全",wealth:"稳定的财运，安全",health:"注意安全，稳定的健康"},
-            {id:36,name:"十字架",meaning:"痛苦、负担、信仰、牺牲",love:"感情的痛苦，牺牲",career:"工作的负担，压力",wealth:"财务负担，损失",health:"严重的疾病，痛苦"}
+            {id:1,name:"骑士",meaning:"消息、到来、行动",love:"新追求者出现",career:"出差任务",wealth:"远方财",health:"注意腿部",time:"1-3天内",direction:"正北方"},
+            {id:2,name:"幸运草",meaning:"幸运、机会",love:"小确幸",career:"意外好运",wealth:"小额意外财",health:"小毛病痊愈",time:"3-7天",direction:"正东方"},
+            {id:3,name:"船",meaning:"旅行、离开",love:"异地恋",career:"出差",wealth:"远方财",health:"旅途疲劳",time:"1-2周",direction:"正西方"},
+            {id:4,name:"房子",meaning:"家庭、稳定",love:"同居",career:"稳定工作",wealth:"房产运",health:"家庭环境影响",time:"1个月内",direction:"正南方"},
+            {id:5,name:"树",meaning:"健康、成长",love:"长期关系",career:"成长",wealth:"长期投资",health:"慢性病",time:"3个月内",direction:"正东方"},
+            {id:6,name:"云",meaning:"困惑、阴霾",love:"误会",career:"迷茫",wealth:"隐藏损失",health:"精神压力",time:"2-4周",direction:"西北方"},
+            {id:7,name:"蛇",meaning:"问题、欺骗",love:"第三者",career:"职场斗争",wealth:"财务纠纷",health:"妇科",time:"1周内",direction:"西南方"},
+            {id:8,name:"棺材",meaning:"结束、损失",love:"失恋",career:"失业",wealth:"破财",health:"疾病",time:"1-3天",direction:"正北方"},
+            {id:9,name:"花束",meaning:"礼物、赞美",love:"浪漫礼物",career:"奖励",wealth:"意外礼物",health:"康复",time:"3-7天",direction:"正东方"},
+            {id:10,name:"镰刀",meaning:"突然、切断",love:"突然分手",career:"解雇",wealth:"突然损失",health:"手术",time:"当天",direction:"正西方"},
+            {id:11,name:"鞭子",meaning:"冲突、争吵",love:"矛盾",career:"竞争",wealth:"反复财务问题",health:"肌肉疼痛",time:"1-2周",direction:"正南方"},
+            {id:12,name:"小鸟",meaning:"交流、消息",love:"聊天",career:"沟通",wealth:"小财运",health:"呼吸系统",time:"1-3天",direction:"正东方"},
+            {id:13,name:"小孩",meaning:"新开始、纯真",love:"新恋情",career:"新项目",wealth:"小额投资",health:"小毛病",time:"3-7天",direction:"正南方"},
+            {id:14,name:"狐狸",meaning:"狡猾、智慧",love:"欺骗",career:"小心",wealth:"智慧获财",health:"误诊",time:"1周内",direction:"西北方"},
+            {id:15,name:"熊",meaning:"力量、财富",love:"强势伴侣",career:"领导",wealth:"丰厚",health:"消化",time:"1个月内",direction:"正北方"},
+            {id:16,name:"星星",meaning:"希望、梦想",love:"理想伴侣",career:"灵感",wealth:"未来财运",health:"精神好",time:"3个月内",direction:"正北方"},
+            {id:17,name:"鹳",meaning:"变化、迁移",love:"怀孕",career:"职位变动",wealth:"收入增加",health:"康复",time:"2-4周",direction:"正东方"},
+            {id:18,name:"狗",meaning:"忠诚、友谊",love:"忠诚伴侣",career:"朋友帮助",wealth:"朋友带财",health:"宠物健康",time:"1-2周",direction:"正西方"},
+            {id:19,name:"塔",meaning:"孤独、隔离",love:"单身",career:"政府机构",wealth:"不动产",health:"精神孤独",time:"3个月内",direction:"正南方"},
+            {id:20,name:"花园",meaning:"社交、聚会",love:"社交场合认识",career:"公关",wealth:"社交得财",health:"传染病",time:"1周内",direction:"正西方"},
+            {id:21,name:"山",meaning:"障碍、挑战",love:"困难",career:"延迟",wealth:"受阻",health:"背部",time:"2-4周",direction:"东北方"},
+            {id:22,name:"十字路口",meaning:"选择、方向",love:"多个追求者",career:"多个机会",wealth:"投资选择",health:"治疗方案",time:"1周内",direction:"正西方"},
+            {id:23,name:"老鼠",meaning:"损失、偷窃",love:"第三者",career:"损失",wealth:"破财",health:"卫生",time:"1-3天",direction:"东北方"},
+            {id:24,name:"心",meaning:"爱情、浪漫",love:"甜蜜爱情",career:"热爱工作",wealth:"感情得财",health:"心脏",time:"3-7天",direction:"正南方"},
+            {id:25,name:"戒指",meaning:"承诺、婚姻",love:"结婚",career:"合同",wealth:"合作得财",health:"循环系统",time:"1个月内",direction:"正西方"},
+            {id:26,name:"书",meaning:"知识、秘密",love:"秘密恋情",career:"学习",wealth:"知识得财",health:"眼睛",time:"2-4周",direction:"正东方"},
+            {id:27,name:"信件",meaning:"消息、文件",love:"情书",career:"通知",wealth:"账单",health:"体检报告",time:"1-3天",direction:"正东方"},
+            {id:28,name:"男人",meaning:"男性",love:"男性伴侣",career:"男同事",wealth:"男性带财",health:"男性健康",time:"任何",direction:"正南方"},
+            {id:29,name:"女人",meaning:"女性",love:"女性伴侣",career:"女同事",wealth:"女性带财",health:"女性健康",time:"任何",direction:"正北方"},
+            {id:30,name:"百合花",meaning:"纯洁、智慧",love:"柏拉图式",career:"顾问",wealth:"长期财",health:"老年健康",time:"3个月内",direction:"正北方"},
+            {id:31,name:"太阳",meaning:"成功、快乐",love:"快乐爱情",career:"成功",wealth:"很好",health:"精力充沛",time:"1周内",direction:"正南方"},
+            {id:32,name:"月亮",meaning:"直觉、梦境",love:"浪漫",career:"艺术",wealth:"直觉得财",health:"睡眠",time:"2-4周",direction:"正北方"},
+            {id:33,name:"钥匙",meaning:"解决、关键",love:"解决问题",career:"关键",wealth:"机会",health:"治疗方法",time:"3-7天",direction:"正东方"},
+            {id:34,name:"鱼",meaning:"财富、丰富",love:"多情",career:"商业",wealth:"很好",health:"肾脏",time:"1个月内",direction:"正西方"},
+            {id:35,name:"锚",meaning:"稳定、安全",love:"稳定关系",career:"稳定工作",wealth:"安全",health:"安全",time:"3个月内",direction:"正北方"},
+            {id:36,name:"十字架",meaning:"痛苦、负担",love:"痛苦",career:"压力",wealth:"财务负担",health:"严重疾病",time:"1-2周",direction:"正西方"}
         ];
 
-        // 雷诺曼功能
         function drawLenormand() {
             const s=document.getElementById('lenormand-spread').value;
             const q=document.getElementById('lenormand-question').value;
@@ -1579,779 +691,316 @@
             });
             let txt=`<h4 class="text-xl font-bold mb-6">详细解读</h4>`;
             if(q)txt+=`<div class="bg-darker/50 p-4 rounded-lg mb-6"><p class="font-medium">你的问题：${q}</p></div>`;
-            
             arr.forEach(c=>{
                 txt+=`<div class="bg-darker p-4 rounded-lg mb-4">
                     <h5 class="text-secondary font-bold text-lg mb-3">${c.position}：${c.name}</h5>
-                    <p class="mb-2"><strong>核心含义：</strong>${c.meaning}</p>
-                    <p class="mb-1"><strong>💘 感情：</strong>${c.love}</p>
-                    <p class="mb-1"><strong>💼 事业：</strong>${c.career}</p>
-                    <p class="mb-1"><strong>💰 财运：</strong>${c.wealth}</p>
-                    <p><strong>🏥 健康：</strong>${c.health}</p>
+                    <p><strong>含义：</strong>${c.meaning}</p>
+                    <p><strong>感情：</strong>${c.love}</p>
+                    <p><strong>事业：</strong>${c.career}</p>
+                    <p><strong>时间：</strong>${c.time}</p>
+                    <p><strong>方位：</strong>${c.direction}</p>
                 </div>`;
             });
-            
             txt+=`<p class="text-yellow-300 text-sm mt-6">雷诺曼侧重现实事件预测，仅供娱乐参考</p>`;
             document.getElementById('lenormand-interpretation').innerHTML=txt;
             document.getElementById('lenormand-result').classList.remove('hidden');
         }
 
-        // ==================== 修正后的八字排盘算法（100%准确） ====================
-        const tianGan = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
-        const diZhi = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
-        const jieQi = ['小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至'];
-        
-        // 节气日期（简化版，实际项目中应使用精确的节气计算）
-        function getJieQi(year, month) {
-            const dates = [
-                [5,20], [4,19], [5,20], [4,19], [5,20], [5,21], [5,21], [6,22],
-                [5,21], [5,21], [6,21], [7,22], [7,23], [7,23], [7,23], [8,23],
-                [7,23], [8,23], [8,23], [8,23], [7,22], [7,22], [7,22], [7,22]
-            ];
-            return dates[(month-1)*2 + (year%2)];
-        }
-        
-        // 计算年柱
-        function getYearZhu(year) {
-            const tg = (year - 4) % 10;
-            const dz = (year - 4) % 12;
-            return tianGan[tg] + diZhi[dz];
-        }
-        
-        // 计算月柱
-        function getMonthZhu(year, month, day) {
-            const jq = getJieQi(year, month);
-            let yueZhi;
-            if(day < jq[0]) {
-                yueZhi = (month + 10) % 12;
-            } else {
-                yueZhi = (month + 11) % 12;
-            }
-            
-            // 年上起月法
-            const yearTG = (year - 4) % 10;
-            let yueTG;
-            if(yearTG === 0 || yearTG === 5) yueTG = (yueZhi + 2) % 10; // 甲己之年丙作首
-            else if(yearTG === 1 || yearTG === 6) yueTG = (yueZhi + 4) % 10; // 乙庚之年戊为头
-            else if(yearTG === 2 || yearTG === 7) yueTG = (yueZhi + 6) % 10; // 丙辛必定寻庚起
-            else if(yearTG === 3 || yearTG === 8) yueTG = (yueZhi + 8) % 10; // 丁壬壬位顺行流
-            else yueTG = yueZhi % 10; // 戊癸何方发，甲寅之上好追求
-            
-            return tianGan[yueTG] + diZhi[yueZhi];
-        }
-        
-        // 计算日柱（简化版，实际项目中应使用精确的儒略日计算）
-        function getDayZhu(year, month, day) {
-            const base = 1900;
-            let days = 0;
-            for(let i=base; i<year; i++) {
-                days += (i%4===0 && i%100!==0) || i%400===0 ? 366 : 365;
-            }
-            const months = [31,28,31,30,31,30,31,31,30,31,30,31];
-            if((year%4===0 && year%100!==0) || year%400===0) months[1] = 29;
-            for(let i=0; i<month-1; i++) {
-                days += months[i];
-            }
-            days += day - 1;
-            
-            const tg = (days + 9) % 10;
-            const dz = (days + 1) % 12;
-            return tianGan[tg] + diZhi[dz];
-        }
-        
-        // 计算时柱
-        function getShiZhu(dayTG, hour) {
-            let shiZhi = Math.floor((hour + 1) / 2) % 12;
-            
-            // 日上起时法
-            let shiTG;
-            if(dayTG === 0 || dayTG === 5) shiTG = (shiZhi) % 10; // 甲己还加甲
-            else if(dayTG === 1 || dayTG === 6) shiTG = (shiZhi + 2) % 10; // 乙庚丙作初
-            else if(dayTG === 2 || dayTG === 7) shiTG = (shiZhi + 4) % 10; // 丙辛从戊起
-            else if(dayTG === 3 || dayTG === 8) shiTG = (shiZhi + 6) % 10; // 丁壬庚子居
-            else shiTG = (shiZhi + 8) % 10; // 戊癸何方发，壬子是真途
-            
-            return tianGan[shiTG] + diZhi[shiZhi];
-        }
-
-        // 八字排盘功能
-        function calculateBazi(){
+        // 八字排盘（使用lunar库）
+        function calculateBazi() {
             const dateStr = document.getElementById('bazi-date').value;
             const timeStr = document.getElementById('bazi-time').value;
             const gender = document.querySelector('input[name="bazi-gender"]:checked').value;
-            
-            if(!dateStr){alert('请选择出生日期');return;}
-            
-            const year = parseInt(dateStr.split('-')[0]);
-            const month = parseInt(dateStr.split('-')[1]);
-            const day = parseInt(dateStr.split('-')[2]);
+            if (!dateStr) { alert('请选择出生日期'); return; }
+            const [year, month, day] = dateStr.split('-').map(Number);
             const hour = timeStr ? parseInt(timeStr.split(':')[0]) : 12;
-            
-            // 计算八字
-            const yearZhu = getYearZhu(year);
-            const monthZhu = getMonthZhu(year, month, day);
-            const dayZhu = getDayZhu(year, month, day);
-            const shiZhu = getShiZhu(tianGan.indexOf(dayZhu[0]), hour);
-            
-            // 分析格局（基于《八字实战讲义》）
-            const riGan = dayZhu[0];
-            const yueZhi = monthZhu[1];
-            let wangShuai = 0;
-            
-            // 月令旺度
-            if(['子','午','卯','酉'].includes(yueZhi)) wangShuai += 50;
-            else if(['寅','申','巳','亥'].includes(yueZhi)) wangShuai += 35;
-            else wangShuai += 30;
-            
-            // 日支影响
-            const riZhi = dayZhu[1];
-            if(['寅','卯'].includes(riZhi) && ['甲','乙'].includes(riGan)) wangShuai +=15;
-            if(['巳','午'].includes(riZhi) && ['丙','丁'].includes(riGan)) wangShuai +=15;
-            if(['辰','戌','丑','未'].includes(riZhi) && ['戊','己'].includes(riGan)) wangShuai +=15;
-            if(['申','酉'].includes(riZhi) && ['庚','辛'].includes(riGan)) wangShuai +=15;
-            if(['亥','子'].includes(riZhi) && ['壬','癸'].includes(riGan)) wangShuai +=15;
-            
-            // 天干帮扶
-            if(yearZhu[0] === riGan || monthZhu[0] === riGan || shiZhu[0] === riGan) wangShuai +=10;
-            
-            // 判断格局
-            let geJu, yongShen, jiShen;
-            if(wangShuai > 60){
-                geJu = "身旺扶抑格";
-                yongShen = "官杀、财星、食伤";
-                jiShen = "印星、比劫";
-            } else if(wangShuai < 40){
-                geJu = "身弱扶抑格";
-                yongShen = "印星、比劫";
-                jiShen = "官杀、财星、食伤";
-            } else {
-                geJu = "中和平衡格";
-                yongShen = "根据流年调整";
-                jiShen = "根据流年调整";
-            }
-            
-            // 性格分析
-            let xingGe = "";
-            if(['甲','乙'].includes(riGan)) xingGe = "仁慈善良，有同情心，性格直爽，有上进心";
-            else if(['丙','丁'].includes(riGan)) xingGe = "热情开朗，积极向上，有礼貌，善于表达";
-            else if(['戊','己'].includes(riGan)) xingGe = "稳重踏实，有耐心，诚实守信，责任感强";
-            else if(['庚','辛'].includes(riGan)) xingGe = "果断勇敢，有正义感，做事认真，意志坚定";
-            else xingGe = "聪明机智，反应灵敏，善于思考，适应能力强";
-            
-            // 婚姻分析
-            let hunYin = "";
-            if(gender === 'male'){
-                hunYin = "男命以财星为妻，日支为夫妻宫。";
-                if(wangShuai > 60) hunYin += "身旺用财，财运好则婚姻顺利，妻子贤惠能干。";
-                else hunYin += "身弱忌财，财运不佳则婚姻不顺，需要注意沟通。";
-            } else {
-                hunYin = "女命以官星为夫，日支为夫妻宫。";
-                if(wangShuai > 60) hunYin += "身旺用官，官运好则婚姻顺利，丈夫有能力。";
-                else hunYin += "身弱忌官，官运不佳则婚姻不顺，需要注意感情。";
-            }
-            
-            // 财运分析
-            let caiYun = "";
-            if(wangShuai > 60) caiYun = "身旺胜财，有赚钱的能力，适合投资创业，中年后财运更佳。";
-            else if(wangShuai < 40) caiYun = "身弱不胜财，赚钱比较辛苦，适合稳定工作，不宜冒险投资。";
-            else caiYun = "中和平衡，财运平稳，适合稳健理财，量入为出。";
-            
-            // 健康分析
-            let jianKang = "";
-            if(['甲','乙'].includes(riGan)) jianKang = "注意肝胆、眼睛、关节方面的问题，保持心情舒畅。";
-            else if(['丙','丁'].includes(riGan)) jianKang = "注意心脏、血液、眼睛方面的问题，避免过度劳累。";
-            else if(['戊','己'].includes(riGan)) jianKang = "注意脾胃、消化系统方面的问题，注意饮食规律。";
-            else if(['庚','辛'].includes(riGan)) jianKang = "注意肺部、呼吸系统、皮肤方面的问题，避免吸烟。";
-            else jianKang = "注意肾脏、泌尿系统、生殖系统方面的问题，注意休息。";
-            
-            // 渲染结果
+            const solar = Solar.fromYmd(year, month, day);
+            const lunar = solar.getLunar();
+            const bazi = lunar.getEightChar();
+            const yearZhu = bazi.getYear();
+            const monthZhu = bazi.getMonth();
+            const dayZhu = bazi.getDay();
+            const shiZhu = bazi.getTime(hour);
+            const riGan = dayZhu.charAt(0);
+            const geJu = "普通格局";
+            const xingGe = {
+                '甲':'仁慈正直，有上进心',
+                '乙':'柔韧温和，心思细腻',
+                '丙':'热情开朗，积极大方',
+                '丁':'文雅温和，重情义',
+                '戊':'稳重踏实，诚信可靠',
+                '己':'温和包容，勤奋务实',
+                '庚':'刚毅果断，讲义气',
+                '辛':'锐利敏感，追求完美',
+                '壬':'聪明灵活，善变',
+                '癸':'内向细腻，直觉敏锐'
+            }[riGan] || '个性鲜明';
+            const caiYun = '财运良好';
+            const hunYin = '婚姻和谐';
+            const jianKang = '健康良好';
             document.getElementById('bazi-chart').innerHTML = `
                 <div class="bg-darker p-6 rounded-xl text-center">
-                    <h4 class="text-xl font-bold mb-4 text-gradient">八字排盘</h4>
+                    <h4 class="text-xl font-bold mb-4 text-gradient">八字排盘（公历：${year}年${month}月${day}日）</h4>
                     <div class="grid grid-cols-4 gap-4">
-                        <div class="p-3 bg-primary/20 rounded-lg">
-                            <p class="font-bold">年柱</p>
-                            <p class="text-2xl">${yearZhu}</p>
-                        </div>
-                        <div class="p-3 bg-primary/20 rounded-lg">
-                            <p class="font-bold">月柱</p>
-                            <p class="text-2xl">${monthZhu}</p>
-                        </div>
-                        <div class="p-3 bg-primary/20 rounded-lg">
-                            <p class="font-bold">日柱</p>
-                            <p class="text-2xl">${dayZhu}</p>
-                        </div>
-                        <div class="p-3 bg-primary/20 rounded-lg">
-                            <p class="font-bold">时柱</p>
-                            <p class="text-2xl">${shiZhu}</p>
-                        </div>
+                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">年柱</p><p class="text-2xl">${yearZhu}</p></div>
+                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">月柱</p><p class="text-2xl">${monthZhu}</p></div>
+                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">日柱</p><p class="text-2xl">${dayZhu}</p></div>
+                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">时柱</p><p class="text-2xl">${shiZhu}</p></div>
                     </div>
                     <p class="mt-4 text-sm text-gray-400">日主：${riGan}（${gender === 'male'?'男命':'女命'}）</p>
-                </div>
-            `;
-            
+                </div>`;
             document.getElementById('bazi-analysis').innerHTML = `
                 <div class="space-y-4">
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">格局判断</h5>
-                        <p>${geJu}</p>
-                        <p><strong>用神：</strong>${yongShen}</p>
-                        <p><strong>忌神：</strong>${jiShen}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">性格分析</h5>
-                        <p>${xingGe}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">婚姻分析</h5>
-                        <p>${hunYin}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">财运分析</h5>
-                        <p>${caiYun}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">健康提示</h5>
-                        <p>${jianKang}</p>
-                    </div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">格局判断</h5><p>${geJu}</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">性格分析</h5><p>${xingGe}</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">婚姻分析</h5><p>${hunYin}</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">财运分析</h5><p>${caiYun}</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">健康提示</h5><p>${jianKang}</p></div>
                 </div>
-                <p class="text-yellow-300 text-sm mt-6">八字命理仅供娱乐参考，命运掌握在自己手中</p>
-            `;
-            
+                <p class="text-yellow-300 text-sm mt-6">八字命理仅供娱乐参考，命运掌握在自己手中</p>`;
             document.getElementById('bazi-result').classList.remove('hidden');
         }
 
-        // ==================== 新增八字合盘功能 ====================
+        // 八字合盘
         function calculateBaziHepan() {
             const date1 = document.getElementById('hepan1-date').value;
-            const time1 = document.getElementById('hepan1-time').value;
             const date2 = document.getElementById('hepan2-date').value;
-            const time2 = document.getElementById('hepan2-time').value;
-            
-            if(!date1 || !date2) {alert('请选择两个人的出生日期');return;}
-            
-            // 计算第一个人的八字
-            const y1 = parseInt(date1.split('-')[0]);
-            const m1 = parseInt(date1.split('-')[1]);
-            const d1 = parseInt(date1.split('-')[2]);
-            const h1 = time1 ? parseInt(time1.split(':')[0]) : 12;
-            
-            const yz1 = getYearZhu(y1);
-            const mz1 = getMonthZhu(y1, m1, d1);
-            const dz1 = getDayZhu(y1, m1, d1);
-            const sz1 = getShiZhu(tianGan.indexOf(dz1[0]), h1);
-            
-            // 计算第二个人的八字
-            const y2 = parseInt(date2.split('-')[0]);
-            const m2 = parseInt(date2.split('-')[1]);
-            const d2 = parseInt(date2.split('-')[2]);
-            const h2 = time2 ? parseInt(time2.split(':')[0]) : 12;
-            
-            const yz2 = getYearZhu(y2);
-            const mz2 = getMonthZhu(y2, m2, d2);
-            const dz2 = getDayZhu(y2, m2, d2);
-            const sz2 = getShiZhu(tianGan.indexOf(dz2[0]), h2);
-            
-            // 计算五行互补度
-            const wuxing1 = calculateWuxing(yz1, mz1, dz1, sz1);
-            const wuxing2 = calculateWuxing(yz2, mz2, dz2, sz2);
-            
-            let score = 0;
-            // 五行互补
-            if((wuxing1.mu < 2 && wuxing2.mu > 2) || (wuxing1.mu > 2 && wuxing2.mu < 2)) score += 15;
-            if((wuxing1.huo < 2 && wuxing2.huo > 2) || (wuxing1.huo > 2 && wuxing2.huo < 2)) score += 15;
-            if((wuxing1.tu < 2 && wuxing2.tu > 2) || (wuxing1.tu > 2 && wuxing2.tu < 2)) score += 15;
-            if((wuxing1.jin < 2 && wuxing2.jin > 2) || (wuxing1.jin > 2 && wuxing2.jin < 2)) score += 15;
-            if((wuxing1.shui < 2 && wuxing2.shui > 2) || (wuxing1.shui > 2 && wuxing2.shui < 2)) score += 15;
-            
-            // 日柱相生相合
-            if(isXiangSheng(dz1[0], dz2[0]) || isXiangHe(dz1[1], dz2[1])) score += 20;
-            
-            // 综合评分
+            if (!date1 || !date2) { alert('请选择出生日期'); return; }
+            const [y1,m1,d1] = date1.split('-').map(Number);
+            const [y2,m2,d2] = date2.split('-').map(Number);
+            const h1 = document.getElementById('hepan1-time').value ? parseInt(document.getElementById('hepan1-time').value.split(':')[0]) : 12;
+            const h2 = document.getElementById('hepan2-time').value ? parseInt(document.getElementById('hepan2-time').value.split(':')[0]) : 12;
+            const bazi1 = Solar.fromYmd(y1,m1,d1).getLunar().getEightChar();
+            const bazi2 = Solar.fromYmd(y2,m2,d2).getLunar().getEightChar();
+            const yz1 = bazi1.getYear(); const mz1 = bazi1.getMonth(); const dz1 = bazi1.getDay(); const sz1 = bazi1.getTime(h1);
+            const yz2 = bazi2.getYear(); const mz2 = bazi2.getMonth(); const dz2 = bazi2.getDay(); const sz2 = bazi2.getTime(h2);
+            let score = 60;
+            if (dz1.charAt(0) === dz2.charAt(0)) score += 10;
+            if (['子丑','寅亥','卯戌','辰酉','巳申','午未'].includes(dz1.charAt(1)+dz2.charAt(1)) || ['子丑','寅亥','卯戌','辰酉','巳申','午未'].includes(dz2.charAt(1)+dz1.charAt(1))) score += 10;
             score = Math.min(score, 100);
-            
-            let level, comment;
-            if(score >= 85) {
-                level = "天作之合";
-                comment = "你们是天生一对，五行互补，性格相投，婚姻会非常幸福美满。";
-            } else if(score >= 70) {
-                level = "非常合适";
-                comment = "你们非常合适，互相理解包容，只要用心经营，会有美好的未来。";
-            } else if(score >= 55) {
-                level = "比较合适";
-                comment = "你们比较合适，虽然有一些小矛盾，但只要互相迁就，就能走下去。";
-            } else if(score >= 40) {
-                level = "一般合适";
-                comment = "你们需要更多的磨合，性格和生活习惯有一些差异，需要互相理解。";
-            } else {
-                level = "不太合适";
-                comment = "你们的性格和五行差异较大，在一起会有很多矛盾，需要慎重考虑。";
-            }
-            
-            document.getElementById('bazi-hepan-score').innerHTML = `
-                <div class="inline-block p-8 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full">
-                    <p class="text-6xl font-bold text-gradient">${score}</p>
-                    <p class="text-xl mt-2">${level}</p>
-                </div>
-            `;
-            
+            let level = score>=90?'天作之合':score>=75?'非常合适':score>=60?'比较合适':score>=45?'一般':'不太合适';
+            document.getElementById('bazi-hepan-score').innerHTML = `<div class="inline-block p-8 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full"><p class="text-6xl font-bold text-gradient">${score}</p><p class="text-xl mt-2">${level}</p></div>`;
             document.getElementById('bazi-hepan-analysis').innerHTML = `
                 <div class="space-y-4">
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">你的八字</h5>
-                        <p>年柱：${yz1} 月柱：${mz1} 日柱：${dz1} 时柱：${sz1}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-accent mb-2">对方八字</h5>
-                        <p>年柱：${yz2} 月柱：${mz2} 日柱：${dz2} 时柱：${sz2}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">合盘分析</h5>
-                        <p class="text-lg mb-2">${comment}</p>
-                        <p><strong>五行互补度：</strong>${Math.round(score * 0.7)}%</p>
-                        <p><strong>性格匹配度：</strong>${Math.round(score * 0.8)}%</p>
-                        <p><strong>婚姻幸福度：</strong>${Math.round(score * 0.9)}%</p>
-                    </div>
-                </div>
-                <p class="text-yellow-300 text-sm mt-6">八字合盘仅供娱乐参考，感情需要用心经营</p>
-            `;
-            
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">你的八字</h5><p>${yz1} ${mz1} ${dz1} ${sz1}</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-accent mb-2">对方八字</h5><p>${yz2} ${mz2} ${dz2} ${sz2}</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">合盘分析</h5><p>${level}</p></div>
+                </div>`;
             document.getElementById('bazi-hepan-result').classList.remove('hidden');
         }
-        
-        // 计算五行数量
-        function calculateWuxing(yz, mz, dz, sz) {
-            const wuxing = {mu:0, huo:0, tu:0, jin:0, shui:0};
-            const all = yz + mz + dz + sz;
-            for(let c of all) {
-                if(['甲','乙','寅','卯'].includes(c)) wuxing.mu++;
-                else if(['丙','丁','巳','午'].includes(c)) wuxing.huo++;
-                else if(['戊','己','辰','戌','丑','未'].includes(c)) wuxing.tu++;
-                else if(['庚','辛','申','酉'].includes(c)) wuxing.jin++;
-                else if(['壬','癸','亥','子'].includes(c)) wuxing.shui++;
-            }
-            return wuxing;
-        }
-        
-        // 判断相生
-        function isXiangSheng(a, b) {
-            const sheng = {
-                '甲':'丙','乙':'丁','丙':'戊','丁':'己','戊':'庚','己':'辛','庚':'壬','辛':'癸','壬':'甲','癸':'乙'
-            };
-            return sheng[a] === b || sheng[b] === a;
-        }
-        
-        // 判断相合
-        function isXiangHe(a, b) {
-            const he = ['子丑','寅亥','卯戌','辰酉','巳申','午未'];
-            return he.includes(a+b) || he.includes(b+a);
-        }
 
-        // ==================== 升级后的十二宫位星盘 ====================
+        // 星盘
         const zodiacSigns = ['白羊座','金牛座','双子座','巨蟹座','狮子座','处女座','天秤座','天蝎座','射手座','摩羯座','水瓶座','双鱼座'];
-        const planets = ['太阳','月亮','水星','金星','火星','木星','土星','天王星','海王星','冥王星'];
-        
-        function calculateAstrology(){
+        function calculateAstrology() {
             const dateStr = document.getElementById('astro-date').value;
             const timeStr = document.getElementById('astro-time').value;
-            const location = document.getElementById('astro-location').value || '未知';
-            
-            if(!dateStr){alert('请选择出生日期');return;}
-            
-            const month = parseInt(dateStr.split('-')[1]);
-            const day = parseInt(dateStr.split('-')[2]);
+            if (!dateStr) { alert('请选择出生日期'); return; }
+            const [year, month, day] = dateStr.split('-').map(Number);
             const hour = timeStr ? parseInt(timeStr.split(':')[0]) : 12;
-            
-            // 计算太阳星座
             let sunSign;
-            if((month === 3 && day >=21) || (month ===4 && day <=19)) sunSign = 0;
-            else if((month ===4 && day >=20) || (month ===5 && day <=20)) sunSign = 1;
-            else if((month ===5 && day >=21) || (month ===6 && day <=21)) sunSign = 2;
-            else if((month ===6 && day >=22) || (month ===7 && day <=22)) sunSign = 3;
-            else if((month ===7 && day >=23) || (month ===8 && day <=22)) sunSign = 4;
-            else if((month ===8 && day >=23) || (month ===9 && day <=22)) sunSign = 5;
-            else if((month ===9 && day >=23) || (month ===10 && day <=23)) sunSign = 6;
-            else if((month ===10 && day >=24) || (month ===11 && day <=22)) sunSign = 7;
-            else if((month ===11 && day >=23) || (month ===12 && day <=21)) sunSign = 8;
-            else if((month ===12 && day >=22) || (month ===1 && day <=19)) sunSign = 9;
-            else if((month ===1 && day >=20) || (month ===2 && day <=18)) sunSign = 10;
-            else sunSign = 11;
-            
-            // 计算其他行星位置（简化版）
-            const planetPositions = {};
-            planetPositions['太阳'] = sunSign;
-            planetPositions['月亮'] = (sunSign + hour) % 12;
-            planetPositions['水星'] = (sunSign + 11) % 12;
-            planetPositions['金星'] = (sunSign + 7) % 12;
-            planetPositions['火星'] = (sunSign + 4) % 12;
-            planetPositions['上升'] = (sunSign + hour + 3) % 12;
-            
-            // 生成十二宫位图
-            let svg = `<svg width="400" height="400" viewBox="0 0 400 400" class="zodiac-wheel">
-                <circle cx="200" cy="200" r="180" fill="none" stroke="#7c3aed" stroke-width="2"/>
-                <circle cx="200" cy="200" r="140" fill="none" stroke="#7c3aed" stroke-width="1"/>
-                <circle cx="200" cy="200" r="100" fill="none" stroke="#7c3aed" stroke-width="1"/>
-                <circle cx="200" cy="200" r="60" fill="none" stroke="#7c3aed" stroke-width="1"/>`;
-            
-            // 绘制宫位线
-            for(let i=0; i<12; i++) {
-                const angle = i * 30 * Math.PI / 180;
-                const x1 = 200 + 60 * Math.cos(angle - Math.PI/2);
-                const y1 = 200 + 60 * Math.sin(angle - Math.PI/2);
-                const x2 = 200 + 180 * Math.cos(angle - Math.PI/2);
-                const y2 = 200 + 180 * Math.sin(angle - Math.PI/2);
-                svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#7c3aed" stroke-width="1"/>`;
-                
-                // 宫位数字
-                const tx = 200 + 80 * Math.cos(angle - Math.PI/2 + 15 * Math.PI/180);
-                const ty = 200 + 80 * Math.sin(angle - Math.PI/2 + 15 * Math.PI/180);
-                svg += `<text x="${tx}" y="${ty}" fill="#a855f7" font-size="12" text-anchor="middle">${i+1}宫</text>`;
-            }
-            
-            // 绘制行星
-            const planetColors = {
-                '太阳':'#fbbf24','月亮':'#94a3b8','水星':'#60a5fa','金星':'#ec4899','火星':'#ef4444','上升':'#10b981'
+            if ((month==3 && day>=21) || (month==4 && day<=19)) sunSign=0;
+            else if ((month==4 && day>=20) || (month==5 && day<=20)) sunSign=1;
+            else if ((month==5 && day>=21) || (month==6 && day<=21)) sunSign=2;
+            else if ((month==6 && day>=22) || (month==7 && day<=22)) sunSign=3;
+            else if ((month==7 && day>=23) || (month==8 && day<=22)) sunSign=4;
+            else if ((month==8 && day>=23) || (month==9 && day<=22)) sunSign=5;
+            else if ((month==9 && day>=23) || (month==10 && day<=23)) sunSign=6;
+            else if ((month==10 && day>=24) || (month==11 && day<=22)) sunSign=7;
+            else if ((month==11 && day>=23) || (month==12 && day<=21)) sunSign=8;
+            else if ((month==12 && day>=22) || (month==1 && day<=19)) sunSign=9;
+            else if ((month==1 && day>=20) || (month==2 && day<=18)) sunSign=10;
+            else sunSign=11;
+            const planetPositions = {
+                '太阳': sunSign,
+                '月亮': (sunSign + Math.floor(hour/2)) % 12,
+                '水星': (sunSign + 10) % 12,
+                '金星': (sunSign + 6) % 12,
+                '火星': (sunSign + 3) % 12,
+                '上升': (sunSign + hour) % 12
             };
-            for(let planet in planetPositions) {
-                const sign = planetPositions[planet];
-                const angle = sign * 30 * Math.PI / 180 + 15 * Math.PI / 180;
-                const x = 200 + 120 * Math.cos(angle - Math.PI/2);
-                const y = 200 + 120 * Math.sin(angle - Math.PI/2);
-                svg += `<circle cx="${x}" cy="${y}" r="8" fill="${planetColors[planet] || '#7c3aed'}"/>`;
-                svg += `<text x="${x}" y="${y+20}" fill="white" font-size="10" text-anchor="middle">${planet}</text>`;
+            let svg = `<svg width="400" height="400" viewBox="0 0 400 400"><circle cx="200" cy="200" r="180" fill="none" stroke="#7c3aed" stroke-width="2"/>`;
+            for (let i=0; i<12; i++) {
+                const angle = i * 30 * Math.PI / 180;
+                const x1 = 200 + 60*Math.cos(angle - Math.PI/2);
+                const y1 = 200 + 60*Math.sin(angle - Math.PI/2);
+                const x2 = 200 + 180*Math.cos(angle - Math.PI/2);
+                const y2 = 200 + 180*Math.sin(angle - Math.PI/2);
+                svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#7c3aed" stroke-width="1"/>`;
+                svg += `<text x="${200 + 80*Math.cos(angle - Math.PI/2 + 15*Math.PI/180)}" y="${200 + 80*Math.sin(angle - Math.PI/2 + 15*Math.PI/180)}" fill="#a855f7" font-size="12" text-anchor="middle">${i+1}宫</text>`;
             }
-            
+            const planetColors = {'太阳':'#fbbf24','月亮':'#94a3b8','水星':'#60a5fa','金星':'#ec4899','火星':'#ef4444','上升':'#10b981'};
+            for (let p in planetPositions) {
+                const sign = planetPositions[p];
+                const angle = sign * 30 * Math.PI / 180 + 15 * Math.PI / 180;
+                const x = 200 + 130 * Math.cos(angle - Math.PI/2);
+                const y = 200 + 130 * Math.sin(angle - Math.PI/2);
+                svg += `<circle cx="${x}" cy="${y}" r="8" fill="${planetColors[p]}"/><text x="${x}" y="${y+18}" fill="white" font-size="10" text-anchor="middle">${p}</text>`;
+            }
             svg += `</svg>`;
-            
             document.getElementById('astro-chart').innerHTML = svg;
-            
-            // 星盘解析
-            let analysis = `
+            document.getElementById('astro-analysis').innerHTML = `
                 <div class="space-y-4">
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">太阳星座：${zodiacSigns[sunSign]}</h5>
-                        <p>代表你的核心性格、自我认知和人生目标。${zodiacSigns[sunSign]}的人通常${getSignTrait(zodiacSigns[sunSign])}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">月亮星座：${zodiacSigns[planetPositions['月亮']]}</h5>
-                        <p>代表你的情感需求、内心世界和潜意识。${zodiacSigns[planetPositions['月亮']]}的人情感丰富，${getSignTrait(zodiacSigns[planetPositions['月亮']])}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">上升星座：${zodiacSigns[planetPositions['上升']]}</h5>
-                        <p>代表你的外在形象、给人的第一印象和行为方式。${zodiacSigns[planetPositions['上升']]}的人给人的印象是${getSignTrait(zodiacSigns[planetPositions['上升']])}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">水星星座：${zodiacSigns[planetPositions['水星']]}</h5>
-                        <p>代表你的思维方式、沟通能力和学习能力。水星在${zodiacSigns[planetPositions['水星']]}的人思维${getSignTrait(zodiacSigns[planetPositions['水星']])}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">金星星座：${zodiacSigns[planetPositions['金星']]}</h5>
-                        <p>代表你的爱情观、审美和价值观。金星在${zodiacSigns[planetPositions['金星']]}的人在感情中${getSignTrait(zodiacSigns[planetPositions['金星']])}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">火星星座：${zodiacSigns[planetPositions['火星']]}</h5>
-                        <p>代表你的行动力、欲望和脾气。火星在${zodiacSigns[planetPositions['火星']]}的人行动力${getSignTrait(zodiacSigns[planetPositions['火星']])}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">出生地点：${location}</h5>
-                        <p>出生地影响你的宫位划分和行星落点，进而影响你人生各个领域的发展。</p>
-                    </div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">太阳星座：${zodiacSigns[sunSign]}</h5><p>代表核心性格</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">上升星座：${zodiacSigns[planetPositions['上升']]}</h5><p>外在形象</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">月亮星座：${zodiacSigns[planetPositions['月亮']]}</h5><p>情感需求</p></div>
                 </div>
-                <p class="text-yellow-300 text-sm mt-6">星盘测算仅供娱乐参考，命运掌握在自己手中</p>
-            `;
-            
-            document.getElementById('astro-analysis').innerHTML = analysis;
+                <p class="text-yellow-300 text-sm mt-6">星盘仅供娱乐，非天文精确计算</p>`;
             document.getElementById('astrology-result').classList.remove('hidden');
         }
-        
-        function getSignTrait(sign){
-            const traits = {
-                '白羊座':'热情冲动，勇敢自信，喜欢挑战，有领导能力',
-                '金牛座':'稳重踏实，忠诚可靠，喜欢美食和艺术，有耐心',
-                '双子座':'聪明机智，善于沟通，好奇心强，多才多艺',
-                '巨蟹座':'温柔体贴，恋家顾家，情感丰富，有同情心',
-                '狮子座':'自信大方，热情开朗，有领导力，喜欢被赞美',
-                '处女座':'追求完美，细心谨慎，有责任心，善于分析',
-                '天秤座':'优雅迷人，善于交际，追求公平，有艺术天赋',
-                '天蝎座':'神秘性感，洞察力强，意志坚定，爱恨分明',
-                '射手座':'乐观开朗，热爱自由，喜欢旅行，有哲学思维',
-                '摩羯座':'严谨认真，有野心，责任感强，脚踏实地',
-                '水瓶座':'特立独行，思想前卫，人道主义，有创造力',
-                '双鱼座':'浪漫多情，善良温柔，想象力丰富，有艺术天赋'
-            };
-            return traits[sign];
-        }
 
-        // ==================== 新增星盘合盘功能 ====================
+        // 星盘合盘
         function calculateAstroHepan() {
             const date1 = document.getElementById('astro-hepan1-date').value;
             const date2 = document.getElementById('astro-hepan2-date').value;
-            
-            if(!date1 || !date2) {alert('请选择两个人的出生日期');return;}
-            
-            // 计算第一个人的星座
-            const m1 = parseInt(date1.split('-')[1]);
-            const d1 = parseInt(date1.split('-')[2]);
-            let sign1;
-            if((m1 === 3 && d1 >=21) || (m1 ===4 && d1 <=19)) sign1 = 0;
-            else if((m1 ===4 && d1 >=20) || (m1 ===5 && d1 <=20)) sign1 = 1;
-            else if((m1 ===5 && d1 >=21) || (m1 ===6 && d1 <=21)) sign1 = 2;
-            else if((m1 ===6 && d1 >=22) || (m1 ===7 && d1 <=22)) sign1 = 3;
-            else if((m1 ===7 && d1 >=23) || (m1 ===8 && d1 <=22)) sign1 = 4;
-            else if((m1 ===8 && d1 >=23) || (m1 ===9 && d1 <=22)) sign1 = 5;
-            else if((m1 ===9 && d1 >=23) || (m1 ===10 && d1 <=23)) sign1 = 6;
-            else if((m1 ===10 && d1 >=24) || (m1 ===11 && d1 <=22)) sign1 = 7;
-            else if((m1 ===11 && d1 >=23) || (m1 ===12 && d1 <=21)) sign1 = 8;
-            else if((m1 ===12 && d1 >=22) || (m1 ===1 && d1 <=19)) sign1 = 9;
-            else if((m1 ===1 && d1 >=20) || (m1 ===2 && d1 <=18)) sign1 = 10;
-            else sign1 = 11;
-            
-            // 计算第二个人的星座
-            const m2 = parseInt(date2.split('-')[1]);
-            const d2 = parseInt(date2.split('-')[2]);
-            let sign2;
-            if((m2 === 3 && d2 >=21) || (m2 ===4 && d2 <=19)) sign2 = 0;
-            else if((m2 ===4 && d2 >=20) || (m2 ===5 && d2 <=20)) sign2 = 1;
-            else if((m2 ===5 && d2 >=21) || (m2 ===6 && d2 <=21)) sign2 = 2;
-            else if((m2 ===6 && d2 >=22) || (m2 ===7 && d2 <=22)) sign2 = 3;
-            else if((m2 ===7 && d2 >=23) || (m2 ===8 && d2 <=22)) sign2 = 4;
-            else if((m2 ===8 && d2 >=23) || (m2 ===9 && d2 <=22)) sign2 = 5;
-            else if((m2 ===9 && d2 >=23) || (m2 ===10 && d2 <=23)) sign2 = 6;
-            else if((m2 ===10 && d2 >=24) || (m2 ===11 && d2 <=22)) sign2 = 7;
-            else if((m2 ===11 && d2 >=23) || (m2 ===12 && d2 <=21)) sign2 = 8;
-            else if((m2 ===12 && d2 >=22) || (m2 ===1 && d2 <=19)) sign2 = 9;
-            else if((m2 ===1 && d2 >=20) || (m2 ===2 && d2 <=18)) sign2 = 10;
-            else sign2 = 11;
-            
-            // 计算匹配度
-            const compatibility = [
-                [80,70,90,60,85,75,65,95,80,70,85,60],
-                [70,85,60,90,75,85,70,65,90,80,75,85],
-                [90,60,80,70,95,65,85,75,85,60,90,70],
-                [60,90,70,85,65,90,75,60,70,85,75,90],
-                [85,75,95,65,80,70,60,85,95,70,80,65],
-                [75,85,65,90,70,85,70,65,75,90,65,85],
-                [65,70,85,75,60,70,80,70,65,75,90,80],
-                [95,65,75,60,85,65,70,90,80,60,75,70],
-                [80,90,85,70,95,75,65,80,85,70,85,65],
-                [70,80,60,85,70,90,75,60,70,85,70,90],
-                [85,75,90,75,80,65,90,75,85,70,80,70],
-                [60,85,70,90,65,85,80,70,65,90,70,85]
-            ];
-            
-            const score = compatibility[sign1][sign2];
-            
-            let level, comment;
-            if(score >= 90) {
-                level = "灵魂伴侣";
-                comment = "你们是灵魂伴侣，有着天生的默契和吸引力，在一起会非常幸福。";
-            } else if(score >= 80) {
-                level = "非常契合";
-                comment = "你们非常契合，互相吸引，能够理解和支持对方。";
-            } else if(score >= 70) {
-                level = "比较契合";
-                comment = "你们比较契合，有很多共同点，只要用心经营，会有美好的未来。";
-            } else if(score >= 60) {
-                level = "一般契合";
-                comment = "你们需要更多的磨合，虽然有一些差异，但可以互相学习。";
-            } else {
-                level = "不太契合";
-                comment = "你们的性格和价值观有较大差异，在一起会有很多挑战。";
-            }
-            
-            // 生成合盘图
-            let svg = `<svg width="400" height="400" viewBox="0 0 400 400">
-                <circle cx="200" cy="200" r="180" fill="none" stroke="#7c3aed" stroke-width="2"/>
-                <circle cx="200" cy="200" r="100" fill="none" stroke="#7c3aed" stroke-width="1"/>`;
-            
-            // 绘制第一个人的行星
-            const angle1 = sign1 * 30 * Math.PI / 180 + 15 * Math.PI / 180;
-            const x1 = 200 + 140 * Math.cos(angle1 - Math.PI/2);
-            const y1 = 200 + 140 * Math.sin(angle1 - Math.PI/2);
-            svg += `<circle cx="${x1}" cy="${y1}" r="12" fill="#7c3aed"/>`;
-            svg += `<text x="${x1}" y="${y1+4}" fill="white" font-size="10" text-anchor="middle">你</text>`;
-            
-            // 绘制第二个人的行星
-            const angle2 = sign2 * 30 * Math.PI / 180 + 15 * Math.PI / 180;
-            const x2 = 200 + 140 * Math.cos(angle2 - Math.PI/2);
-            const y2 = 200 + 140 * Math.sin(angle2 - Math.PI/2);
-            svg += `<circle cx="${x2}" cy="${y2}" r="12" fill="#ec4899"/>`;
-            svg += `<text x="${x2}" y="${y2+4}" fill="white" font-size="10" text-anchor="middle">TA</text>`;
-            
-            // 绘制连线
-            svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${score >= 70 ? '#10b981' : '#ef4444'}" stroke-width="2" stroke-dasharray="5,5"/>`;
-            
-            svg += `</svg>`;
-            
-            document.getElementById('astro-hepan-chart').innerHTML = `
-                <div class="inline-block">
-                    ${svg}
-                    <div class="mt-4 text-center">
-                        <p class="text-4xl font-bold text-gradient">${score}分</p>
-                        <p class="text-xl">${level}</p>
-                    </div>
-                </div>
-            `;
-            
-            document.getElementById('astro-hepan-analysis').innerHTML = `
-                <div class="space-y-4">
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">你的太阳星座：${zodiacSigns[sign1]}</h5>
-                        <p>${getSignTrait(zodiacSigns[sign1])}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-accent mb-2">对方太阳星座：${zodiacSigns[sign2]}</h5>
-                        <p>${getSignTrait(zodiacSigns[sign2])}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">合盘分析</h5>
-                        <p class="text-lg mb-2">${comment}</p>
-                        <p><strong>吸引力指数：</strong>${score}%</p>
-                        <p><strong>沟通指数：</strong>${Math.round(score * 0.9)}%</p>
-                        <p><strong>长久指数：</strong>${Math.round(score * 0.85)}%</p>
-                    </div>
-                </div>
-                <p class="text-yellow-300 text-sm mt-6">星盘合盘仅供娱乐参考，感情需要用心经营</p>
-            `;
-            
+            if (!date1 || !date2) { alert('请选择出生日期'); return; }
+            const getSign = (dateStr) => {
+                const [y,m,d] = dateStr.split('-').map(Number);
+                if ((m==3 && d>=21) || (m==4 && d<=19)) return 0;
+                if ((m==4 && d>=20) || (m==5 && d<=20)) return 1;
+                if ((m==5 && d>=21) || (m==6 && d<=21)) return 2;
+                if ((m==6 && d>=22) || (m==7 && d<=22)) return 3;
+                if ((m==7 && d>=23) || (m==8 && d<=22)) return 4;
+                if ((m==8 && d>=23) || (m==9 && d<=22)) return 5;
+                if ((m==9 && d>=23) || (m==10 && d<=23)) return 6;
+                if ((m==10 && d>=24) || (m==11 && d<=22)) return 7;
+                if ((m==11 && d>=23) || (m==12 && d<=21)) return 8;
+                if ((m==12 && d>=22) || (m==1 && d<=19)) return 9;
+                if ((m==1 && d>=20) || (m==2 && d<=18)) return 10;
+                return 11;
+            };
+            const s1 = getSign(date1);
+            const s2 = getSign(date2);
+            const compatibility = [[80,70,90,60,85,75,65,95,80,70,85,60],[70,85,60,90,75,85,70,65,90,80,75,85],[90,60,80,70,95,65,85,75,85,60,90,70],[60,90,70,85,65,90,75,60,70,85,75,90],[85,75,95,65,80,70,60,85,95,70,80,65],[75,85,65,90,70,85,70,65,75,90,65,85],[65,70,85,75,60,70,80,70,65,75,90,80],[95,65,75,60,85,65,70,90,80,60,75,70],[80,90,85,70,95,75,65,80,85,70,85,65],[70,80,60,85,70,90,75,60,70,85,70,90],[85,75,90,75,80,65,90,75,85,70,80,70],[60,85,70,90,65,85,80,70,65,90,70,85]];
+            const score = compatibility[s1][s2];
+            let level = score>=90?'灵魂伴侣':score>=80?'非常契合':score>=70?'比较契合':'需要磨合';
+            document.getElementById('astro-hepan-chart').innerHTML = `<div class="inline-block"><svg width="300" height="300"><circle cx="150" cy="150" r="120" fill="none" stroke="#7c3aed" stroke-width="2"/><circle cx="${150+100*Math.cos(s1*30*Math.PI/180 - Math.PI/2)}" cy="${150+100*Math.sin(s1*30*Math.PI/180 - Math.PI/2)}" r="10" fill="#7c3aed"/><circle cx="${150+100*Math.cos(s2*30*Math.PI/180 - Math.PI/2)}" cy="${150+100*Math.sin(s2*30*Math.PI/180 - Math.PI/2)}" r="10" fill="#ec4899"/></svg><p class="text-4xl font-bold text-gradient mt-2">${score}分 ${level}</p></div>`;
+            document.getElementById('astro-hepan-analysis').innerHTML = `<div class="space-y-4"><div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">合盘分析</h5><p>${level}</p></div></div>`;
             document.getElementById('astro-hepan-result').classList.remove('hidden');
         }
 
-        // 六爻
-        let yaoCount=0,gua=[];
-        function tossCoins(){
-            if(yaoCount>=6){alert('卦象已完成，请查看结果');return;}
-            [coin1,coin2,coin3].forEach(c=>{
-                c.classList.add('flipped');
-                setTimeout(()=>c.querySelector('span').innerText=Math.random()>0.5?'字':'背',250);
+        // 六爻占卜
+        let yaoCount = 0;
+        let yaoList = [];
+        let isAnimating = false;
+        function tossCoins() {
+            if (yaoCount >= 6 || isAnimating) return;
+            isAnimating = true;
+            const coins = [document.getElementById('coin1'), document.getElementById('coin2'), document.getElementById('coin3')];
+            coins.forEach(c => { c.classList.remove('flipped'); c.querySelector('.coin-text').innerText = ''; });
+            const results = coins.map(() => Math.random() < 0.5 ? '字' : '背');
+            coins.forEach((c, i) => {
+                setTimeout(() => { c.classList.add('flipped'); }, i * 100);
             });
-            setTimeout(()=>{
+            setTimeout(() => {
+                coins.forEach((c, i) => { c.querySelector('.coin-text').innerText = results[i]; });
+                const backCount = results.filter(r => r === '背').length;
+                let yao, isMoving;
+                if (backCount === 0) { yao = 0; isMoving = true; }
+                else if (backCount === 1) { yao = 1; isMoving = false; }
+                else if (backCount === 2) { yao = 0; isMoving = false; }
+                else { yao = 1; isMoving = true; }
+                yaoList.push({ yao, isMoving });
                 yaoCount++;
-                document.getElementById('yao-count').innerText=yaoCount;
-                // 计算爻：0=阴爻，1=阳爻
-                const count = [coin1,coin2,coin3].filter(c=>c.querySelector('span').innerText==='背').length;
-                let yao;
-                if(count === 0 || count === 3) yao = 1; // 老阴或老阳
-                else if(count === 1) yao = 1; // 少阳
-                else yao = 0; // 少阴
-                gua.push(yao);
-                if(yaoCount===6)renderGua();
-            },600);
+                document.getElementById('yao-count').innerText = yaoCount;
+                if (yaoCount === 6) renderGua();
+                isAnimating = false;
+            }, 1500);
         }
-        
-        function renderGua(){
-            const h=document.getElementById('liuyao-chart');
-            let html=`<div class="bg-darker p-6 rounded-xl max-w-md mx-auto">
-                <h4 class="text-xl font-bold mb-4 text-center">本卦</h4>`;
-            // 从下往上画卦
-            for(let i=5;i>=0;i--){
-                html+=`<div class="h-6 bg-primary/30 my-2 rounded flex items-center justify-center">
-                    ${gua[i]?'██████ 阳爻':'██  ██ 阴爻'}
-                </div>`;
+
+        function renderGua() {
+            const benGua = [], bianGua = [];
+            for (let i = 0; i < 6; i++) {
+                benGua.push(yaoList[i].yao);
+                bianGua.push(yaoList[i].isMoving ? (yaoList[i].yao === 0 ? 1 : 0) : yaoList[i].yao);
             }
-            html+=`</div>`;
-            h.innerHTML=html;
-            
-            // 简单卦辞
-            const guaNames = ['坤为地','山地剥','水地比','风地观','雷地豫','火地晋','泽地萃','天地否',
-                            '地山谦','艮为山','水山蹇','风山渐','雷山小过','火山旅','泽山咸','天山遁',
-                            '地水师','山水蒙','坎为水','风水涣','雷水解','火水未济','泽水困','天水讼',
-                            '地风升','山风蛊','水风井','巽为风','雷风恒','火风鼎','泽风大过','天风姤',
-                            '地雷复','山雷颐','水雷屯','风雷益','震为雷','火雷噬嗑','泽雷随','天雷无妄',
-                            '地火明夷','山火贲','水火既济','风火家人','雷火丰','离为火','泽火革','天火同人',
-                            '地泽临','山泽损','水泽节','风泽中孚','雷泽归妹','火泽睽','兑为泽','天泽履',
-                            '地天泰','山天大畜','水天需','风天小畜','雷天大壮','火天大有','泽天夬','乾为天'];
-            const guaIndex = parseInt(gua.join(''),2);
-            const guaName = guaNames[guaIndex] || '未知卦象';
-            
-            document.getElementById('liuyao-interpretation').innerHTML=`
+            const guaNames = ['坤为地','山地剥','水地比','风地观','雷地豫','火地晋','泽地萃','天地否','地山谦','艮为山','水山蹇','风山渐','雷山小过','火山旅','泽山咸','天山遁','地水师','山水蒙','坎为水','风水涣','雷水解','火水未济','泽水困','天水讼','地风升','山风蛊','水风井','巽为风','雷风恒','火风鼎','泽风大过','天风姤','地雷复','山雷颐','水雷屯','风雷益','震为雷','火雷噬嗑','泽雷随','天雷无妄','地火明夷','山火贲','水火既济','风火家人','雷火丰','离为火','泽火革','天火同人','地泽临','山泽损','水泽节','风泽中孚','雷泽归妹','火泽睽','兑为泽','天泽履','地天泰','山天大畜','水天需','风天小畜','雷天大壮','火天大有','泽天夬','乾为天'];
+            const benName = guaNames[parseInt(benGua.join(''), 2)] || '未知卦';
+            const bianName = guaNames[parseInt(bianGua.join(''), 2)] || '未知卦';
+            let html = `<div class="bg-darker p-6 rounded-xl max-w-md mx-auto"><h4 class="text-xl font-bold mb-4 text-center">本卦：${benName}</h4>`;
+            for (let i = 5; i >= 0; i--) {
+                html += `<div class="h-8 bg-primary/20 my-1 rounded flex items-center justify-center">${benGua[i] ? '━━━━━' : '━━  ━━'}${yaoList[i].isMoving ? ' ○' : ''}</div>`;
+            }
+            html += `<h4 class="text-xl font-bold mt-6 mb-4 text-center">变卦：${bianName}</h4>`;
+            for (let i = 5; i >= 0; i--) {
+                html += `<div class="h-8 bg-accent/20 my-1 rounded flex items-center justify-center">${bianGua[i] ? '━━━━━' : '━━  ━━'}</div>`;
+            }
+            html += `</div>`;
+            document.getElementById('liuyao-chart').innerHTML = html;
+            document.getElementById('liuyao-interpretation').innerHTML = `
                 <h4 class="text-xl font-bold mb-4">卦象解析</h4>
-                <p class="mb-2"><strong>本卦：</strong>${guaName}</p>
-                <p class="mb-2"><strong>六爻结果：</strong>${gua.join('')}</p>
-                <p class="mb-4">此卦象显示：${getGuaMeaning(guaName)}</p>
-                <p class="text-yellow-300 text-sm">六爻占卜仅供娱乐参考，重大决策请理性思考</p>
-            `;
+                <p class="mb-2"><strong>本卦：</strong>${benName}</p>
+                <p class="mb-2"><strong>变卦：</strong>${bianName}</p>
+                <p>${getGuaMeaning(benName)}</p>
+                <p class="text-yellow-300 text-sm mt-4">六爻占卜仅供娱乐参考</p>`;
             document.getElementById('liuyao-result').classList.remove('hidden');
         }
-        
-        function getGuaMeaning(name){
+
+        function getGuaMeaning(name) {
             const meanings = {
-                '乾为天':'刚健中正，自强不息，诸事顺利，大吉大利',
-                '坤为地':'柔顺包容，厚德载物，宜守不宜进，大吉',
-                '水雷屯':'万物始生，艰难困苦，宜坚守正道，终有收获',
-                '山水蒙':'启蒙教育，虚心求教，循序渐进，终有所成',
-                '水天需':'等待时机，耐心等待，不宜急躁，终有收获',
-                '天水讼':'争讼是非，宜和解不宜争斗，退一步海阔天空',
-                '地水师':'统兵征战，宜以德服人，正义之师必胜',
-                '水地比':'亲密合作，团结互助，贵人相助，大吉大利',
-                '风天小畜':'积蓄力量，小有成就，宜继续努力，不可骄傲',
-                '天泽履':'履行职责，小心谨慎，脚踏实地，终有收获',
-                '地天泰':'天地交泰，阴阳和谐，诸事顺利，大吉大利',
-                '天地否':'天地不交，阴阳不和，诸事不顺，宜守不宜进',
-                '天火同人':'志同道合，团结一心，共同奋斗，终有收获',
-                '火天大有':'丰收富足，大有作为，宜谦虚谨慎，不可骄傲'
+                '乾为天':'刚健中正，自强不息',
+                '坤为地':'柔顺包容，厚德载物',
+                '水雷屯':'艰难困苦，宜坚守正道',
+                '山水蒙':'虚心求教，循序渐进',
+                '水天需':'等待时机，不宜急躁',
+                '天水讼':'争讼是非，退一步海阔天空',
+                '地水师':'以德服人，正义之师必胜',
+                '水地比':'亲密合作，贵人相助',
+                '风天小畜':'小有成就，继续努力',
+                '天泽履':'脚踏实地，履行职责',
+                '地天泰':'天地交泰，大吉大利',
+                '天地否':'诸事不顺，宜守不宜进',
+                '天火同人':'志同道合，团结一心',
+                '火天大有':'丰收富足，大有作为'
             };
-            return meanings[name] || '运势平稳，守中为吉，静待时机，不宜冒进';
+            return meanings[name] || '运势平稳，静待时机';
         }
 
         // 梅花易数
-        function calculateMeihua(){
+        function calculateMeihua() {
             const n1 = parseInt(document.getElementById('num1').value) || 1;
             const n2 = parseInt(document.getElementById('num2').value) || 1;
-            
-            // 计算卦象
-            const shangGua = n1 % 8 || 8;
-            const xiaGua = n2 % 8 || 8;
-            const bianYao = (n1 + n2) % 6 || 6;
-            
+            const shangGua = n1 % 8 === 0 ? 8 : n1 % 8;
+            const xiaGua = n2 % 8 === 0 ? 8 : n2 % 8;
+            const bianYao = (n1 + n2) % 6 === 0 ? 6 : (n1 + n2) % 6;
             const guaNames = ['坤','艮','坎','巽','震','离','兑','乾'];
-            const benGua = guaNames[shangGua-1] + '为' + guaNames[xiaGua-1];
-            const bianGua = guaNames[shangGua-1] + '风' + guaNames[xiaGua-1]; // 简化变卦
-            
-            document.getElementById('meihua-chart').innerHTML=`
+            const benGuaName = guaNames[shangGua-1] + '为' + guaNames[xiaGua-1];
+            // 计算变卦
+            const shangYao = (shangGua-1).toString(2).padStart(3,'0').split('').map(Number);
+            const xiaYao = (xiaGua-1).toString(2).padStart(3,'0').split('').map(Number);
+            const benYao = [...shangYao, ...xiaYao];
+            const bianYaoIndex = bianYao - 1;
+            benYao[bianYaoIndex] = benYao[bianYaoIndex] === 0 ? 1 : 0;
+            const newShang = parseInt(benYao.slice(0,3).join(''),2);
+            const newXia = parseInt(benYao.slice(3,6).join(''),2);
+            const bianGuaName = guaNames[newShang] + '为' + guaNames[newXia];
+            document.getElementById('meihua-chart').innerHTML = `
                 <div class="bg-darker p-6 rounded-xl inline-block">
-                    <h4 class="text-xl font-bold mb-2">本卦：${benGua}</h4>
-                    <h4 class="text-xl font-bold">变卦：${bianGua}</h4>
+                    <h4 class="text-xl font-bold mb-2">本卦：${benGuaName}</h4>
+                    <h4 class="text-xl font-bold">变卦：${bianGuaName}</h4>
                     <p class="mt-2 text-sm text-gray-400">动爻：第${bianYao}爻</p>
-                </div>
-            `;
-            
-            document.getElementById('meihua-interpretation').innerHTML=`
-                <p class="mb-4">本卦为${benGua}，变卦为${bianGua}，动爻在第${bianYao}爻。</p>
-                <p class="mb-4">卦象显示：运势上扬，有贵人相助，做事顺利，宜主动进取。</p>
-                <p class="text-yellow-300 text-sm">梅花易数仅供娱乐参考，重大决策请理性思考</p>
-            `;
+                </div>`;
+            document.getElementById('meihua-interpretation').innerHTML = `
+                <p class="mb-4">本卦为${benGuaName}，变卦为${bianGuaName}，动爻在第${bianYao}爻。</p>
+                <p>卦象显示：运势上扬，有贵人相助。</p>
+                <p class="text-yellow-300 text-sm mt-4">梅花易数仅供娱乐参考</p>`;
             document.getElementById('meihua-result').classList.remove('hidden');
         }
 
-        // ==================== 答案之书（50个经典答案） ====================
-        const answers = [
-            '是的','毫无疑问','当然','肯定会','一定可以',
-            '不是','绝对不是','不可能','别想了','不会',
-            '可以','没问题','大胆去做','放手去干','当然可以',
-            '不行','最好不要','别尝试','放弃吧','不可以',
-            '别着急','再等等','时机未到','耐心等待','静观其变',
-            '顺其自然','随缘吧','不要强求','听天由命','随遇而安',
-            '会有转机','柳暗花明','峰回路转','绝处逢生','有希望',
-            '顺其自然','船到桥头自然直','车到山前必有路','一切都会好的','会好起来的',
-            '问问你的心','相信直觉','跟着感觉走','你已经知道答案了','听从内心',
-            '会有惊喜','意外之喜','好事将近','好运来临','心想事成'
-        ];
-        
-        function getAnswer(){
+        // 答案之书
+        const answers = ['是的','毫无疑问','当然','肯定会','一定可以','不是','绝对不是','不可能','别想了','不会','可以','没问题','大胆去做','放手去干','当然可以','不行','最好不要','别尝试','放弃吧','不可以','别着急','再等等','时机未到','耐心等待','静观其变','顺其自然','随缘吧','不要强求','听天由命','随遇而安','会有转机','柳暗花明','峰回路转','绝处逢生','有希望','顺其自然','船到桥头自然直','车到山前必有路','一切都会好的','会好起来的','问问你的心','相信直觉','跟着感觉走','你已经知道答案了','听从内心','会有惊喜','意外之喜','好事将近','好运来临','心想事成'];
+        function getAnswer() {
             document.querySelector('.book-page').classList.add('flipped');
-            setTimeout(()=>{
-                const a=answers[Math.floor(Math.random()*answers.length)];
-                document.getElementById('answer-text-display').innerText=a;
-                document.getElementById('answer-final').innerText=a;
+            setTimeout(() => {
+                const a = answers[Math.floor(Math.random()*answers.length)];
+                document.getElementById('answer-text-display').innerText = a;
+                document.getElementById('answer-final').innerText = a;
                 document.getElementById('answers-result').classList.remove('hidden');
-            },800);
+            }, 800);
         }
-        
-        function resetAnswer(){
+        function resetAnswer() {
             document.querySelector('.book-page').classList.remove('flipped');
             document.getElementById('answers-result').classList.add('hidden');
-            document.getElementById('answer-question').value='';
+            document.getElementById('answer-question').value = '';
         }
     </script>
 </body>
