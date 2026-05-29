@@ -7,8 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- 引入 lunar 库进行农历和八字计算 -->
+    <!-- 八字库 -->
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.min.js"></script>
+    <!-- 天文库（修复加载方式） -->
+    <script src="https://cdn.jsdelivr.net/npm/astronomia@2.1.0/lib/astronomia.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -21,9 +23,7 @@
                         darker: '#020617',
                         card: '#1e293b'
                     },
-                    fontFamily: {
-                        serif: ['Noto Serif SC', 'serif'],
-                    },
+                    fontFamily: { serif: ['Noto Serif SC', 'serif'] },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
                         'glow': 'glow 2s ease-in-out infinite alternate',
@@ -34,35 +34,13 @@
                         'spinCoin': 'spinCoin 1.5s ease-in-out forwards',
                     },
                     keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-10px)' }
-                        },
-                        glow: {
-                            from: { boxShadow: '0 0 20px #7c3aed40' },
-                            to: { boxShadow: '0 0 30px #7c3aed80, 0 0 40px #7c3aed40' }
-                        },
-                        flip: {
-                            '0%': { transform: 'rotateY(0deg)' },
-                            '100%': { transform: 'rotateY(180deg)' }
-                        },
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' }
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: '0' },
-                            '100%': { transform: 'translateY(0)', opacity: '1' }
-                        },
-                        pageFlip: {
-                            '0%': { transform: 'rotateY(0deg)' },
-                            '100%': { transform: 'rotateY(-180deg)' }
-                        },
-                        spinCoin: {
-                            '0%': { transform: 'rotateY(0deg) rotateX(0deg)' },
-                            '50%': { transform: 'rotateY(720deg) rotateX(360deg)' },
-                            '100%': { transform: 'rotateY(0deg) rotateX(0deg)' }
-                        }
+                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } },
+                        glow: { from: { boxShadow: '0 0 20px #7c3aed40' }, to: { boxShadow: '0 0 30px #7c3aed80, 0 0 40px #7c3aed40' } },
+                        flip: { '0%': { transform: 'rotateY(0deg)' }, '100%': { transform: 'rotateY(180deg)' } },
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(20px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        pageFlip: { '0%': { transform: 'rotateY(0deg)' }, '100%': { transform: 'rotateY(-180deg)' } },
+                        spinCoin: { '0%': { transform: 'rotateY(0deg) rotateX(0deg)' }, '50%': { transform: 'rotateY(720deg) rotateX(360deg)' }, '100%': { transform: 'rotateY(0deg) rotateX(0deg)' } }
                     }
                 }
             }
@@ -70,106 +48,44 @@
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .text-gradient {
-                background-clip: text;
-                -webkit-background-clip: text;
-                color: transparent;
-                background-image: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
-            }
-            .bg-gradient-main {
-                background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
-            }
-            .card-hover {
-                transition: all 0.3s ease;
-            }
-            .card-hover:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.1), 0 10px 10px -5px rgba(124, 58, 237, 0.04);
-            }
-            .tarot-card {
-                perspective: 1500px;
-            }
-            .tarot-card-inner {
-                transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                transform-style: preserve-3d;
-            }
-            .tarot-card.flipped .tarot-card-inner {
-                transform: rotateY(180deg);
-            }
-            .tarot-card-front, .tarot-card-back {
-                backface-visibility: hidden;
-                -webkit-backface-visibility: hidden;
-            }
-            .tarot-card-back {
-                transform: rotateY(180deg);
-            }
-            .lenormand-card {
-                perspective: 1000px;
-            }
-            .lenormand-card-inner {
-                transition: transform 0.6s ease;
-                transform-style: preserve-3d;
-            }
-            .lenormand-card.flipped .lenormand-card-inner {
-                transform: rotateY(180deg);
-            }
-            .lenormand-card-front, .lenormand-card-back {
-                backface-visibility: hidden;
-                -webkit-backface-visibility: hidden;
-            }
-            .lenormand-card-back {
-                transform: rotateY(180deg);
-            }
-            .book-container {
-                perspective: 2000px;
-            }
-            .book-page {
-                transform-origin: left center;
-                transform-style: preserve-3d;
-                transition: transform 1.2s ease-in-out;
-            }
-            .book-page.flipped {
-                transform: rotateY(-180deg);
-            }
-            .book-front, .book-back {
-                backface-visibility: hidden;
-                -webkit-backface-visibility: hidden;
-            }
-            .book-back {
-                transform: rotateY(180deg);
-            }
+            .text-gradient { background-clip: text; -webkit-background-clip: text; color: transparent; background-image: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%); }
+            .bg-gradient-main { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%); }
+            .card-hover { transition: all 0.3s ease; }
+            .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.1), 0 10px 10px -5px rgba(124, 58, 237, 0.04); }
+            .tarot-card { perspective: 1500px; }
+            .tarot-card-inner { transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+            .tarot-card.flipped .tarot-card-inner { transform: rotateY(180deg); }
+            .tarot-card-front, .tarot-card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+            .tarot-card-back { transform: rotateY(180deg); }
+            .lenormand-card { perspective: 1000px; }
+            .lenormand-card-inner { transition: transform 0.6s ease; transform-style: preserve-3d; }
+            .lenormand-card.flipped .lenormand-card-inner { transform: rotateY(180deg); }
+            .lenormand-card-front, .lenormand-card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+            .lenormand-card-back { transform: rotateY(180deg); }
+            .book-container { perspective: 2000px; }
+            .book-page { transform-origin: left center; transform-style: preserve-3d; transition: transform 1.2s ease-in-out; }
+            .book-page.flipped { transform: rotateY(-180deg); }
+            .book-front, .book-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+            .book-back { transform: rotateY(180deg); }
             .copper-coin {
-                width: 80px;
-                height: 80px;
-                border-radius: 50%;
+                width: 80px; height: 80px; border-radius: 50%;
                 background: radial-gradient(circle at 30% 30%, #d4a017, #b8860b);
                 box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,200,0.5);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
+                display: flex; align-items: center; justify-content: center; position: relative;
             }
             .copper-coin::after {
-                content: "";
-                position: absolute;
-                width: 24px;
-                height: 24px;
-                background: #3a2c0a;
-                border: 2px solid #8b6508;
-                transform: rotate(45deg);
+                content: ""; position: absolute; width: 24px; height: 24px;
+                background: #3a2c0a; border: 2px solid #8b6508; transform: rotate(45deg);
             }
             .coin-text {
-                font-family: 'KaiTi', '楷体', serif;
-                font-size: 36px;
-                font-weight: bold;
-                color: #3a2c0a;
-                position: relative;
-                z-index: 1;
+                font-family: 'KaiTi', '楷体', serif; font-size: 36px; font-weight: bold;
+                color: #3a2c0a; position: relative; z-index: 1;
             }
         }
     </style>
 </head>
 <body class="bg-gradient-main min-h-screen text-gray-100 font-serif">
+    <!-- 星空背景 -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute w-1 h-1 bg-white rounded-full top-[10%] left-[20%] animate-pulse"></div>
         <div class="absolute w-1 h-1 bg-white rounded-full top-[15%] left-[80%] animate-pulse" style="animation-delay: 0.5s"></div>
@@ -185,9 +101,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <span class="text-2xl font-bold text-gradient animate-glow">
-                        <i class="fa fa-moon-o mr-2"></i>整点儿玄的
-                    </span>
+                    <span class="text-2xl font-bold text-gradient animate-glow"><i class="fa fa-moon-o mr-2"></i>整点儿玄的</span>
                 </div>
                 <div class="flex items-center">
                     <span class="text-sm text-gray-400 bg-primary/10 px-3 py-1 rounded-full">仅供娱乐参考</span>
@@ -199,46 +113,22 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div class="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 mb-8 rounded-r-lg animate-fadeIn">
             <div class="flex">
-                <div class="flex-shrink-0">
-                    <i class="fa fa-exclamation-triangle text-yellow-500 text-xl"></i>
-                </div>
-                <div class="ml-3">
-                    <p class="text-sm text-yellow-200">
-                        <strong>重要声明：</strong>本网站所有内容仅供娱乐休闲和传统文化交流使用，不构成任何人生决策建议。命理占卜是传统文化的一部分，其科学性未被证实，请理性对待。
-                    </p>
-                </div>
+                <div class="flex-shrink-0"><i class="fa fa-exclamation-triangle text-yellow-500 text-xl"></i></div>
+                <div class="ml-3"><p class="text-sm text-yellow-200"><strong>重要声明：</strong>本网站所有内容仅供娱乐休闲和传统文化交流使用，不构成任何人生决策建议。</p></div>
             </div>
         </div>
 
         <div class="mb-10">
             <div class="flex flex-wrap gap-3 justify-center">
-                <button onclick="showTool('tarot')" class="tool-tab active px-5 py-3 rounded-full bg-primary text-white font-medium transition-all hover:bg-primary/90 card-hover">
-                    <i class="fa fa-magic mr-2"></i>塔罗牌
-                </button>
-                <button onclick="showTool('lenormand')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover">
-                    <i class="fa fa-diamond mr-2"></i>雷诺曼
-                </button>
-                <button onclick="showTool('bazi')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover">
-                    <i class="fa fa-calendar mr-2"></i>八字排盘
-                </button>
-                <button onclick="showTool('bazi-hepan')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover">
-                    <i class="fa fa-heart mr-2"></i>八字合盘
-                </button>
-                <button onclick="showTool('astrology')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover">
-                    <i class="fa fa-globe mr-2"></i>个人星盘
-                </button>
-                <button onclick="showTool('astro-hepan')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover">
-                    <i class="fa fa-heart mr-2"></i>星盘合盘
-                </button>
-                <button onclick="showTool('liuyao')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover">
-                    <i class="fa fa-yen mr-2"></i>六爻占卜
-                </button>
-                <button onclick="showTool('meihua')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover">
-                    <i class="fa fa-leaf mr-2"></i>梅花易数
-                </button>
-                <button onclick="showTool('answers')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover">
-                    <i class="fa fa-book mr-2"></i>答案之书
-                </button>
+                <button onclick="showTool('tarot')" class="tool-tab active px-5 py-3 rounded-full bg-primary text-white font-medium transition-all hover:bg-primary/90 card-hover"><i class="fa fa-magic mr-2"></i>塔罗牌</button>
+                <button onclick="showTool('lenormand')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-diamond mr-2"></i>雷诺曼</button>
+                <button onclick="showTool('bazi')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-calendar mr-2"></i>八字排盘</button>
+                <button onclick="showTool('bazi-hepan')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-heart mr-2"></i>八字合盘</button>
+                <button onclick="showTool('astrology')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-globe mr-2"></i>星座命盘</button>
+                <button onclick="showTool('astro-hepan')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-heart mr-2"></i>星座合盘</button>
+                <button onclick="showTool('liuyao')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-yen mr-2"></i>六爻占卜</button>
+                <button onclick="showTool('meihua')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-leaf mr-2"></i>梅花易数</button>
+                <button onclick="showTool('answers')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-book mr-2"></i>答案之书</button>
             </div>
         </div>
 
@@ -247,576 +137,238 @@
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
                 <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-magic mr-3"></i>塔罗牌占卜</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div>
-                        <label class="block text-gray-300 font-medium mb-3 text-lg">选择牌阵：</label>
-                        <select id="tarot-spread" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                            <option value="single">单张牌 - 今日运势/快速答案</option>
-                            <option value="three">三牌阵 - 过去·现在·未来</option>
-                            <option value="cross">十字牌阵 - 综合分析</option>
-                            <option value="celtic">凯尔特十字 - 深度解析</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 font-medium mb-3 text-lg">问题类型：</label>
-                        <select id="tarot-category" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                            <option value="general">综合运势</option>
-                            <option value="love">感情爱情</option>
-                            <option value="career">事业学业</option>
-                            <option value="wealth">财运健康</option>
-                            <option value="lost">寻物找人</option>
-                        </select>
-                    </div>
+                    <div><label class="block text-gray-300 font-medium mb-3 text-lg">选择牌阵：</label><select id="tarot-spread" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"><option value="single">单张牌</option><option value="three">三牌阵</option><option value="cross">十字牌阵</option><option value="celtic">凯尔特十字</option></select></div>
+                    <div><label class="block text-gray-300 font-medium mb-3 text-lg">问题类型：</label><select id="tarot-category" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"><option value="general">综合运势</option><option value="love">感情爱情</option><option value="career">事业学业</option><option value="wealth">财运健康</option></select></div>
                 </div>
-                <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">心中默念你的问题（可问时间/方位）：</label>
-                    <textarea id="tarot-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的钥匙丢在哪了？/ 我什么时候能找到工作？"></textarea>
-                </div>
-                <button onclick="drawTarot()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
-                    <i class="fa fa-hand-paper-o mr-2"></i>开始抽牌
-                </button>
+                <div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">默念问题：</label><textarea id="tarot-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的钥匙丢在哪了？"></textarea></div>
+                <button onclick="drawTarot()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-hand-paper-o mr-2"></i>开始抽牌</button>
             </div>
-            <div id="tarot-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
-                <h3 class="text-2xl font-bold mb-8 text-center text-gradient">占卜结果</h3>
-                <div id="tarot-cards" class="flex flex-wrap justify-center gap-6 mb-10"></div>
-                <div id="tarot-interpretation" class="prose prose-invert max-w-none"></div>
-            </div>
+            <div id="tarot-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">占卜结果</h3><div id="tarot-cards" class="flex flex-wrap justify-center gap-6 mb-10"></div><div id="tarot-interpretation" class="prose prose-invert max-w-none"></div></div>
         </div>
 
         <!-- 雷诺曼 -->
         <div id="lenormand-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
                 <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-diamond mr-3"></i>雷诺曼牌占卜</h2>
-                <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">选择牌阵：</label>
-                    <select id="lenormand-spread" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                        <option value="single">单张牌 - 快速答案/时间方位</option>
-                        <option value="three">三牌阵 - 问题发展</option>
-                        <option value="five">五牌阵 - 详细分析</option>
-                        <option value="nine">九宫格 - 全面解读</option>
-                    </select>
-                </div>
-                <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">心中默念你的问题（可问时间/方位）：</label>
-                    <textarea id="lenormand-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的钱包丢在哪了？/ 他什么时候会联系我？"></textarea>
-                </div>
-                <button onclick="drawLenormand()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
-                    <i class="fa fa-hand-paper-o mr-2"></i>开始抽牌
-                </button>
+                <div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">选择牌阵：</label><select id="lenormand-spread" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"><option value="single">单张牌</option><option value="three">三牌阵</option><option value="five">五牌阵</option><option value="nine">九宫格</option></select></div>
+                <div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">默念问题：</label><textarea id="lenormand-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的钱包丢在哪了？"></textarea></div>
+                <button onclick="drawLenormand()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-hand-paper-o mr-2"></i>开始抽牌</button>
             </div>
-            <div id="lenormand-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
-                <h3 class="text-2xl font-bold mb-8 text-center text-gradient">雷诺曼占卜结果</h3>
-                <div id="lenormand-cards" class="flex flex-wrap justify-center gap-4 mb-10"></div>
-                <div id="lenormand-interpretation" class="prose prose-invert max-w-none"></div>
-            </div>
+            <div id="lenormand-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">雷诺曼占卜结果</h3><div id="lenormand-cards" class="flex flex-wrap justify-center gap-4 mb-10"></div><div id="lenormand-interpretation" class="prose prose-invert max-w-none"></div></div>
         </div>
 
-        <!-- 八字排盘（详尽版） -->
+        <!-- 八字排盘 -->
         <div id="bazi-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
-                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-calendar mr-3"></i>八字排盘（公历自动转农历）</h2>
+                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-calendar mr-3"></i>八字排盘（公历转农历）</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div>
-                        <label class="block text-gray-300 font-medium mb-3 text-lg">出生公历日期：</label>
-                        <input type="date" id="bazi-date" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                    </div>
-                    <div>
-                        <label class="block text-gray-300 font-medium mb-3 text-lg">出生时间（公历）：</label>
-                        <input type="time" id="bazi-time" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                    </div>
+                    <div><label class="block text-gray-300 font-medium mb-3 text-lg">公历日期：</label><input type="date" id="bazi-date" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"></div>
+                    <div><label class="block text-gray-300 font-medium mb-3 text-lg">出生时间：</label><input type="time" id="bazi-time" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"></div>
                 </div>
-                <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">性别：</label>
-                    <div class="flex gap-8">
-                        <label class="flex items-center text-lg"><input type="radio" name="bazi-gender" value="male" checked class="mr-3 w-5 h-5 text-primary"> <span>男</span></label>
-                        <label class="flex items-center text-lg"><input type="radio" name="bazi-gender" value="female" class="mr-3 w-5 h-5 text-primary"> <span>女</span></label>
-                    </div>
-                </div>
-                <button onclick="calculateBazi()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
-                    <i class="fa fa-calculator mr-2"></i>开始排盘
-                </button>
+                <div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">性别：</label><div class="flex gap-8"><label class="flex items-center text-lg"><input type="radio" name="bazi-gender" value="male" checked class="mr-3 w-5 h-5 text-primary"> 男</label><label class="flex items-center text-lg"><input type="radio" name="bazi-gender" value="female" class="mr-3 w-5 h-5 text-primary"> 女</label></div></div>
+                <button onclick="calculateBazi()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-calculator mr-2"></i>开始排盘</button>
             </div>
-            <div id="bazi-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
-                <h3 class="text-2xl font-bold mb-8 text-center text-gradient">你的八字命盘</h3>
-                <div id="bazi-chart" class="mb-10"></div>
-                <div id="bazi-analysis" class="prose prose-invert max-w-none"></div>
-            </div>
+            <div id="bazi-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">你的八字命盘</h3><div id="bazi-chart" class="mb-10"></div><div id="bazi-analysis" class="prose prose-invert max-w-none"></div></div>
         </div>
 
         <!-- 八字合盘 -->
         <div id="bazi-hepan-tool" class="tool-content hidden animate-slideUp">
-            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
-                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-heart mr-3"></i>八字合盘</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <div class="bg-darker/30 p-6 rounded-xl">
-                        <h4 class="text-xl font-bold mb-4 text-primary">你的信息</h4>
-                        <div class="space-y-4">
-                            <div><label class="block text-gray-300 font-medium mb-2">公历出生日期：</label><input type="date" id="hepan1-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div>
-                            <div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="hepan1-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div>
-                            <div><label class="block text-gray-300 font-medium mb-2">性别：</label><div class="flex gap-4"><label class="flex items-center"><input type="radio" name="hepan1-gender" value="male" checked class="mr-2 w-4 h-4 text-primary"> 男</label><label class="flex items-center"><input type="radio" name="hepan1-gender" value="female" class="mr-2 w-4 h-4 text-primary"> 女</label></div></div>
-                        </div>
-                    </div>
-                    <div class="bg-darker/30 p-6 rounded-xl">
-                        <h4 class="text-xl font-bold mb-4 text-accent">对方信息</h4>
-                        <div class="space-y-4">
-                            <div><label class="block text-gray-300 font-medium mb-2">公历出生日期：</label><input type="date" id="hepan2-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div>
-                            <div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="hepan2-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div>
-                            <div><label class="block text-gray-300 font-medium mb-2">性别：</label><div class="flex gap-4"><label class="flex items-center"><input type="radio" name="hepan2-gender" value="male" class="mr-2 w-4 h-4 text-primary"> 男</label><label class="flex items-center"><input type="radio" name="hepan2-gender" value="female" checked class="mr-2 w-4 h-4 text-primary"> 女</label></div></div>
-                        </div>
-                    </div>
-                </div>
-                <button onclick="calculateBaziHepan()" class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-heart mr-2"></i>开始合盘</button>
-            </div>
-            <div id="bazi-hepan-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
-                <h3 class="text-2xl font-bold mb-8 text-center text-gradient">八字合盘结果</h3>
-                <div id="bazi-hepan-score" class="mb-10 text-center"></div>
-                <div id="bazi-hepan-analysis" class="prose prose-invert max-w-none"></div>
-            </div>
+            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover"><h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-heart mr-3"></i>八字合盘</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8"><div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-primary">你的信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历日期：</label><input type="date" id="hepan1-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="hepan1-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">性别：</label><div class="flex gap-4"><label class="flex items-center"><input type="radio" name="hepan1-gender" value="male" checked class="mr-2 w-4 h-4 text-primary"> 男</label><label class="flex items-center"><input type="radio" name="hepan1-gender" value="female" class="mr-2 w-4 h-4 text-primary"> 女</label></div></div></div></div><div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-accent">对方信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历日期：</label><input type="date" id="hepan2-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="hepan2-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">性别：</label><div class="flex gap-4"><label class="flex items-center"><input type="radio" name="hepan2-gender" value="male" class="mr-2 w-4 h-4 text-primary"> 男</label><label class="flex items-center"><input type="radio" name="hepan2-gender" value="female" checked class="mr-2 w-4 h-4 text-primary"> 女</label></div></div></div></div></div><button onclick="calculateBaziHepan()" class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-heart mr-2"></i>开始合盘</button></div>
+            <div id="bazi-hepan-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">八字合盘结果</h3><div id="bazi-hepan-score" class="mb-10 text-center"></div><div id="bazi-hepan-analysis" class="prose prose-invert max-w-none"></div></div>
         </div>
 
-        <!-- 个人星盘（优化版） -->
+        <!-- 星座命盘（已修复天文计算Bug） -->
         <div id="astrology-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
-                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-globe mr-3"></i>个人星盘（娱乐参考）</h2>
+                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-globe mr-3"></i>星座命盘（真实天文计算）</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <div><label class="block text-gray-300 font-medium mb-3 text-lg">公历出生日期：</label><input type="date" id="astro-date" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"></div>
                     <div><label class="block text-gray-300 font-medium mb-3 text-lg">出生时间：</label><input type="time" id="astro-time" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"></div>
                 </div>
-                <div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">出生地点：</label><input type="text" id="astro-location" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：北京市朝阳区"></div>
-                <button onclick="calculateAstrology()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-globe mr-2"></i>生成星盘</button>
-            </div>
-            <div id="astrology-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
-                <h3 class="text-2xl font-bold mb-8 text-center text-gradient">你的个人星盘</h3>
-                <div id="astro-chart" class="mb-10 text-center"></div>
-                <div id="astro-analysis" class="prose prose-invert max-w-none"></div>
-            </div>
-        </div>
-
-        <!-- 星盘合盘 -->
-        <div id="astro-hepan-tool" class="tool-content hidden animate-slideUp">
-            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
-                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-heart mr-3"></i>星盘合盘</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                    <div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-primary">你的信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历出生日期：</label><input type="date" id="astro-hepan1-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="astro-hepan1-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生地点：</label><input type="text" id="astro-hepan1-location" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white" placeholder="例如：北京市朝阳区"></div></div></div>
-                    <div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-accent">对方信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历出生日期：</label><input type="date" id="astro-hepan2-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="astro-hepan2-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生地点：</label><input type="text" id="astro-hepan2-location" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white" placeholder="例如：上海市浦东新区"></div></div></div>
+                <div class="mb-6">
+                    <label class="block text-gray-300 font-medium mb-3 text-lg">出生地点或经纬度：</label>
+                    <input type="text" id="astro-location" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="城市名 或 经度,纬度 (如 116.41,39.91)">
+                    <div class="flex items-center justify-between mt-2">
+                        <p class="text-xs text-gray-400">📍 输入地点名称自动解析，或直接输入“经度,纬度”</p>
+                        <a href="https://www.latlong.net/" target="_blank" class="text-xs text-primary hover:text-secondary flex items-center gap-1">
+                            <i class="fa fa-external-link"></i> 查询经纬度
+                        </a>
+                    </div>
                 </div>
-                <button onclick="calculateAstroHepan()" class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-heart mr-2"></i>开始合盘</button>
+                <button onclick="calculateAstrology()" id="astro-btn" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
+                    <i class="fa fa-globe mr-2"></i>生成命盘
+                </button>
             </div>
-            <div id="astro-hepan-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
-                <h3 class="text-2xl font-bold mb-8 text-center text-gradient">星盘合盘结果</h3>
-                <div id="astro-hepan-chart" class="mb-10 text-center"></div>
-                <div id="astro-hepan-analysis" class="prose prose-invert max-w-none"></div>
-            </div>
+            <div id="astrology-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">你的星座命盘</h3><div id="astro-chart" class="mb-10 text-center"></div><div id="astro-analysis" class="prose prose-invert max-w-none"></div></div>
         </div>
 
-        <!-- 六爻占卜（铜钱UI） -->
+        <!-- 星座合盘 -->
+        <div id="astro-hepan-tool" class="tool-content hidden animate-slideUp">
+            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover"><h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-heart mr-3"></i>星座合盘</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8"><div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-primary">你的信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历日期：</label><input type="date" id="astro-hepan1-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="astro-hepan1-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div></div></div><div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-accent">对方信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历日期：</label><input type="date" id="astro-hepan2-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="astro-hepan2-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div></div></div></div><button onclick="calculateAstroHepan()" class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-heart mr-2"></i>开始合盘</button></div>
+            <div id="astro-hepan-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">星座合盘结果</h3><div id="astro-hepan-chart" class="mb-10 text-center"></div><div id="astro-hepan-analysis" class="prose prose-invert max-w-none"></div></div>
+        </div>
+
+        <!-- 六爻占卜 -->
         <div id="liuyao-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
                 <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-yen mr-3"></i>六爻占卜</h2>
-                <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">心中默念你要占卜的问题（可问时间/方位）：</label>
-                    <textarea id="liuyao-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的手机丢在哪了？/ 我什么时候能收到offer？"></textarea>
-                </div>
+                <div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">默念占卜问题：</label><textarea id="liuyao-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的手机丢在哪了？"></textarea></div>
                 <div class="flex justify-center gap-10 mb-8">
-                    <div id="coin1" class="copper-coin coin" onclick=""><span class="coin-text">字</span></div>
-                    <div id="coin2" class="copper-coin coin" onclick=""><span class="coin-text">字</span></div>
-                    <div id="coin3" class="copper-coin coin" onclick=""><span class="coin-text">字</span></div>
+                    <div id="coin1" class="copper-coin coin"><span class="coin-text">⚊</span></div>
+                    <div id="coin2" class="copper-coin coin"><span class="coin-text">⚊</span></div>
+                    <div id="coin3" class="copper-coin coin"><span class="coin-text">⚊</span></div>
                 </div>
                 <p class="text-center text-gray-400 mb-6 text-lg">已摇：<span id="yao-count" class="text-primary font-bold">0</span>/6 次</p>
-                <button onclick="tossCoins()" id="toss-btn" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
-                    <i class="fa fa-refresh mr-2"></i>摇卦
-                </button>
+                <button onclick="tossCoins()" id="toss-btn" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-refresh mr-2"></i>摇卦</button>
             </div>
-            <div id="liuyao-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
-                <h3 class="text-2xl font-bold mb-8 text-center text-gradient">六爻卦象结果</h3>
-                <div id="liuyao-chart" class="mb-10 text-center"></div>
-                <div id="liuyao-interpretation" class="prose prose-invert max-w-none"></div>
-            </div>
+            <div id="liuyao-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">六爻卦象结果</h3><div id="liuyao-chart" class="mb-10 text-center"></div><div id="liuyao-interpretation" class="prose prose-invert max-w-none"></div></div>
         </div>
 
         <!-- 梅花易数 -->
         <div id="meihua-tool" class="tool-content hidden animate-slideUp">
-            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
-                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-leaf mr-3"></i>梅花易数</h2>
-                <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">选择起卦方式：</label>
-                    <select id="meihua-method" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white">
-                        <option value="number">数字起卦</option>
-                        <option value="time">时间起卦</option>
-                        <option value="text">文字起卦</option>
-                    </select>
-                </div>
-                <div id="number-input" class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">输入两个数字（1-99）：</label>
-                    <div class="grid grid-cols-2 gap-6">
-                        <input type="number" id="num1" min="1" max="99" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="第一个数字">
-                        <input type="number" id="num2" min="1" max="99" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="第二个数字">
-                    </div>
-                </div>
-                <div id="text-input" class="mb-8 hidden">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">输入你想问的问题（可问时间/方位）：</label>
-                    <input type="text" id="meihua-text" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的身份证丢在哪了？/ 我什么时候能脱单？">
-                </div>
-                <button onclick="calculateMeihua()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
-                    <i class="fa fa-leaf mr-2"></i>起卦
-                </button>
-            </div>
-            <div id="meihua-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
-                <h3 class="text-2xl font-bold mb-8 text-center text-gradient">梅花易数卦象结果</h3>
-                <div id="meihua-chart" class="mb-10 text-center"></div>
-                <div id="meihua-interpretation" class="prose prose-invert max-w-none"></div>
-            </div>
+            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover"><h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-leaf mr-3"></i>梅花易数</h2><div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">起卦方式：</label><select id="meihua-method" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"><option value="number">数字起卦</option><option value="time">时间起卦</option><option value="text">文字起卦</option></select></div><div id="number-input" class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">输入两个数字（1-99）：</label><div class="grid grid-cols-2 gap-6"><input type="number" id="num1" min="1" max="99" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="第一个数字"><input type="number" id="num2" min="1" max="99" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="第二个数字"></div></div><div id="text-input" class="mb-8 hidden"><label class="block text-gray-300 font-medium mb-3 text-lg">输入问题：</label><input type="text" id="meihua-text" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的身份证丢在哪了？"></div><button onclick="calculateMeihua()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-leaf mr-2"></i>起卦</button></div>
+            <div id="meihua-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">梅花易数卦象结果</h3><div id="meihua-chart" class="mb-10 text-center"></div><div id="meihua-interpretation" class="prose prose-invert max-w-none"></div></div>
         </div>
 
         <!-- 答案之书 -->
         <div id="answers-tool" class="tool-content hidden animate-slideUp">
-            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
-                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-book mr-3"></i>答案之书</h2>
-                <div class="mb-8">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">在心中默念一个可以用"是"或"否"回答的问题：</label>
-                    <textarea id="answer-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我应该接受这份工作吗？"></textarea>
-                </div>
-                <div class="flex justify-center mb-8 book-container">
-                    <div id="answer-book" class="w-72 h-96 relative cursor-pointer hover:scale-105 transition-transform" onclick="getAnswer()">
-                        <div class="book-page absolute w-full h-full">
-                            <div class="book-front absolute w-full h-full bg-gradient-to-br from-indigo-800 to-purple-900 rounded-lg shadow-2xl flex items-center justify-center border-4 border-primary/30">
-                                <div class="text-white text-center p-8">
-                                    <i class="fa fa-book text-7xl mb-6 text-gradient"></i>
-                                    <p class="text-2xl font-bold">点击翻开答案</p>
-                                    <p class="text-sm text-gray-300 mt-2">心诚则灵</p>
-                                </div>
-                            </div>
-                            <div class="book-back absolute w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-2xl flex items-center justify-center border-4 border-primary/30">
-                                <div id="answer-content" class="text-center p-8">
-                                    <p id="answer-text-display" class="text-2xl font-bold text-primary"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="answers-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp">
-                <h3 class="text-2xl font-bold mb-8 text-center text-gradient">答案之书告诉你</h3>
-                <div id="answer-final" class="text-3xl font-bold text-center text-gradient p-10 bg-darker/50 rounded-xl mb-8"></div>
-                <button onclick="resetAnswer()" class="w-full bg-gray-700 text-white font-bold py-4 px-6 rounded-xl hover:bg-gray-600 transition-colors text-lg">
-                    <i class="fa fa-refresh mr-2"></i>再问一次
-                </button>
-            </div>
+            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover"><h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-book mr-3"></i>答案之书</h2><div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">默念一个是/否问题：</label><textarea id="answer-question" rows="2" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我应该接受这份工作吗？"></textarea></div><div class="flex justify-center mb-8 book-container"><div id="answer-book" class="w-72 h-96 relative cursor-pointer hover:scale-105 transition-transform" onclick="getAnswer()"><div class="book-page absolute w-full h-full"><div class="book-front absolute w-full h-full bg-gradient-to-br from-indigo-800 to-purple-900 rounded-lg shadow-2xl flex items-center justify-center border-4 border-primary/30"><div class="text-white text-center p-8"><i class="fa fa-book text-7xl mb-6 text-gradient"></i><p class="text-2xl font-bold">点击翻开答案</p><p class="text-sm text-gray-300 mt-2">心诚则灵</p></div></div><div class="book-back absolute w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-2xl flex items-center justify-center border-4 border-primary/30"><div id="answer-content" class="text-center p-8"><p id="answer-text-display" class="text-2xl font-bold text-primary"></p></div></div></div></div></div></div>
+            <div id="answers-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">答案之书告诉你</h3><div id="answer-final" class="text-3xl font-bold text-center text-gradient p-10 bg-darker/50 rounded-xl mb-8"></div><button onclick="resetAnswer()" class="w-full bg-gray-700 text-white font-bold py-4 px-6 rounded-xl hover:bg-gray-600 transition-colors text-lg"><i class="fa fa-refresh mr-2"></i>再问一次</button></div>
         </div>
     </main>
 
-    <footer class="bg-darker/80 backdrop-blur-md text-gray-400 py-10 mt-16 border-t border-primary/20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p class="mb-3 text-lg">© 整点儿玄的 - 仅供娱乐参考</p>
-            <p class="text-sm">本网站内容仅用于文化交流和娱乐目的，不构成任何专业建议</p>
-        </div>
-    </footer>
+    <footer class="bg-darker/80 backdrop-blur-md text-gray-400 py-10 mt-16 border-t border-primary/20"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"><p class="mb-3 text-lg">© 整点儿玄的 - 仅供娱乐参考</p><p class="text-sm">本网站内容仅用于文化交流和娱乐目的，不构成任何专业建议</p></div></footer>
 
     <script>
         // 全局切换
         function showTool(toolId) {
             document.querySelectorAll('.tool-content').forEach(t => t.classList.add('hidden'));
-            document.querySelectorAll('.tool-tab').forEach(t => {
-                t.classList.remove('active', 'bg-primary', 'text-white');
-                t.classList.add('bg-card', 'text-gray-300');
-            });
+            document.querySelectorAll('.tool-tab').forEach(t => { t.classList.remove('active', 'bg-primary', 'text-white'); t.classList.add('bg-card', 'text-gray-300'); });
             document.getElementById(toolId + '-tool').classList.remove('hidden');
             event.target.classList.remove('bg-card', 'text-gray-300');
             event.target.classList.add('active', 'bg-primary', 'text-white');
         }
-
-        // 梅花易数切换
-        document.getElementById('meihua-method').addEventListener('change', function() {
+        document.getElementById('meihua-method')?.addEventListener('change', function() {
             const m = this.value;
             document.getElementById('number-input').classList.add('hidden');
             document.getElementById('text-input').classList.add('hidden');
             if(m === 'number' || m === 'time') document.getElementById('number-input').classList.remove('hidden');
-            else {
-                document.getElementById('number-input').classList.remove('hidden');
-                document.getElementById('text-input').classList.remove('hidden');
-            }
+            else { document.getElementById('number-input').classList.remove('hidden'); document.getElementById('text-input').classList.remove('hidden'); }
         });
 
-        // ==================== 塔罗牌完整库 ====================
+        // 塔罗牌
         const tarotCards = [
-            {id:0,name:"愚者",type:"major",meaning:"新的开始、冒险、天真、潜力、自由",love:"一段充满惊喜的新恋情即将开始",career:"适合尝试新的工作项目",wealth:"财运不错",health:"注意意外受伤",time:"1-3天内",direction:"正东方",reversed:"鲁莽、冲动",reversedLove:"感情中过于任性",reversedCareer:"容易出错",reversedWealth:"容易破财",reversedHealth:"注意意外",reversedTime:"3-7天",reversedDirection:"西北方"},
-            {id:1,name:"魔术师",type:"major",meaning:"创造力、技能、意志力",love:"主动出击会成功",career:"能力会得到赏识",wealth:"通过努力获得回报",health:"注意神经系统",time:"1周内",direction:"正南方",reversed:"欺骗、操纵",reversedLove:"存在欺骗",reversedCareer:"被人算计",reversedWealth:"容易被骗",reversedHealth:"焦虑",reversedTime:"2-4周",reversedDirection:"西南方"},
-            {id:2,name:"女祭司",type:"major",meaning:"直觉、神秘、内在智慧",love:"保持冷静",career:"适合研究",wealth:"稳健投资",health:"注意内分泌",time:"1个月内",direction:"正北方",reversed:"隐藏真相",reversedLove:"感情隐瞒",reversedCareer:"缺乏灵感",reversedWealth:"隐藏损失",reversedHealth:"妇科",reversedTime:"3个月",reversedDirection:"东北方"},
-            {id:3,name:"女皇",type:"major",meaning:"丰饶、母性、富足",love:"感情甜蜜",career:"女性贵人",wealth:"财运很好",health:"注意体重",time:"3-7天",direction:"正西方",reversed:"依赖、虚荣",reversedLove:"过于依赖",reversedCareer:"创造力受阻",reversedWealth:"财务损失",reversedHealth:"妇科",reversedTime:"1-2周",reversedDirection:"东南方"},
-            {id:4,name:"皇帝",type:"major",meaning:"权威、稳定、领导力",love:"对方强势",career:"晋升机会",wealth:"稳定投资",health:"注意心脏",time:"1-2周",direction:"西北方",reversed:"独裁、软弱",reversedLove:"关系破裂",reversedCareer:"被排挤",reversedWealth:"财务损失",reversedHealth:"高血压",reversedTime:"2-4周",reversedDirection:"西南方"},
-            {id:5,name:"教皇",type:"major",meaning:"传统、信仰、教育",love:"传统恋爱",career:"教育行业",wealth:"稳健",health:"注意关节",time:"1个月内",direction:"东北方",reversed:"打破传统",reversedLove:"家人反对",reversedCareer:"需创新",reversedWealth:"损失",reversedHealth:"呼吸系统",reversedTime:"3个月",reversedDirection:"西南方"},
-            {id:6,name:"恋人",type:"major",meaning:"爱情、选择、和谐",love:"表白好时机",career:"合作机会",wealth:"合伙投资",health:"内分泌",time:"3-7天",direction:"正南方",reversed:"三角关系",reversedLove:"第三者",reversedCareer:"合作不顺",reversedWealth:"投资失败",reversedHealth:"心理问题",reversedTime:"1-2周",reversedDirection:"正北方"},
-            {id:7,name:"战车",type:"major",meaning:"胜利、意志力、控制",love:"克服困难",career:"坚持成功",wealth:"努力获得",health:"注意头部",time:"1周内",direction:"正西方",reversed:"失控、冲动",reversedLove:"冲动分手",reversedCareer:"项目失败",reversedWealth:"破财",reversedHealth:"交通事故",reversedTime:"2-4周",reversedDirection:"正东方"},
-            {id:8,name:"力量",type:"major",meaning:"勇气、耐心、内在力量",love:"温柔经营",career:"克服困难",wealth:"耐心等待",health:"心脏",time:"2-4周",direction:"正南方",reversed:"软弱、暴躁",reversedLove:"被欺负",reversedCareer:"缺乏自信",reversedWealth:"被骗",reversedHealth:"心脏",reversedTime:"1个月",reversedDirection:"正北方"},
-            {id:9,name:"隐士",type:"major",meaning:"内省、孤独、智慧",love:"需要独处",career:"独立工作",wealth:"稳健",health:"失眠",time:"3个月内",direction:"西北方",reversed:"孤立、逃避",reversedLove:"孤独",reversedCareer:"孤僻",reversedWealth:"损失",reversedHealth:"精神问题",reversedTime:"1个月",reversedDirection:"东南方"},
-            {id:10,name:"命运之轮",type:"major",meaning:"变化、转机、幸运",love:"新转机",career:"新机会",wealth:"意外之财",health:"血液循环",time:"1-3天",direction:"中心",reversed:"阻碍、延迟",reversedLove:"分手",reversedCareer:"进展不顺",reversedWealth:"损失",reversedHealth:"消化",reversedTime:"1-2周",reversedDirection:"边缘"},
-            {id:11,name:"正义",type:"major",meaning:"公平、真相、法律",love:"公平对待",career:"法律行业",wealth:"合法投资",health:"肾脏",time:"1个月内",direction:"正西方",reversed:"不公正",reversedLove:"纠纷",reversedCareer:"被陷害",reversedWealth:"损失",reversedHealth:"泌尿",reversedTime:"3个月",reversedDirection:"正东方"},
-            {id:12,name:"倒吊人",type:"major",meaning:"牺牲、放手、新视角",love:"付出牺牲",career:"等待时机",wealth:"耐心",health:"关节",time:"3个月内",direction:"桥下",reversed:"自私、固执",reversedLove:"关系破裂",reversedCareer:"被淘汰",reversedWealth:"损失",reversedHealth:"关节",reversedTime:"1个月",reversedDirection:"高处"},
-            {id:13,name:"死神",type:"major",meaning:"结束、转变、新生",love:"旧情结束",career:"换工作",wealth:"旧运结束",health:"慢性病",time:"1-2周",direction:"正北方",reversed:"抗拒改变",reversedLove:"不愿放手",reversedCareer:"陷入僵局",reversedWealth:"损失",reversedHealth:"心理",reversedTime:"2-4周",reversedDirection:"正南方"},
-            {id:14,name:"节制",type:"major",meaning:"平衡、耐心、调和",love:"互相包容",career:"平衡关系",wealth:"稳健",health:"注意作息",time:"2-4周",direction:"正东方",reversed:"不平衡",reversedLove:"一方付出多",reversedCareer:"缺乏耐心",reversedWealth:"过度消费",reversedHealth:"作息不规律",reversedTime:"1个月",reversedDirection:"正西方"},
-            {id:15,name:"恶魔",type:"major",meaning:"束缚、欲望、物质主义",love:"不健康关系",career:"诱惑",wealth:"容易破财",health:"上瘾",time:"1个月内",direction:"西南方",reversed:"摆脱束缚",reversedLove:"离开不健康关系",reversedCareer:"新发展",reversedWealth:"好转",reversedHealth:"克服上瘾",reversedTime:"3个月",reversedDirection:"东北方"},
-            {id:16,name:"塔",type:"major",meaning:"突变、灾难、觉醒",love:"突然分手",career:"失业",wealth:"损失",health:"突发疾病",time:"1-3天",direction:"正西方",reversed:"避免灾难",reversedLove:"避免变故",reversedCareer:"做好准备",reversedWealth:"谨慎",reversedHealth:"预防",reversedTime:"3-7天",reversedDirection:"正东方"},
-            {id:17,name:"星星",type:"major",meaning:"希望、灵感、疗愈",love:"充满希望",career:"新灵感",wealth:"新机会",health:"康复",time:"1-2周",direction:"正北方",reversed:"失望、绝望",reversedLove:"失去信心",reversedCareer:"灵感枯竭",reversedWealth:"机会减少",reversedHealth:"康复慢",reversedTime:"2-4周",reversedDirection:"正南方"},
-            {id:18,name:"月亮",type:"major",meaning:"幻觉、恐惧、潜意识",love:"存在欺骗",career:"隐藏敌人",wealth:"隐藏损失",health:"睡眠",time:"3个月内",direction:"正北方",reversed:"真相大白",reversedLove:"摆脱欺骗",reversedCareer:"危机解除",reversedWealth:"避免损失",reversedHealth:"改善",reversedTime:"1个月",reversedDirection:"正南方"},
-            {id:19,name:"太阳",type:"major",meaning:"成功、快乐、活力",love:"感情甜蜜",career:"事业成功",wealth:"很好",health:"精力充沛",time:"3-7天",direction:"正南方",reversed:"小矛盾",reversedLove:"小矛盾",reversedCareer:"小挫折",reversedWealth:"一般",reversedHealth:"中暑",reversedTime:"1-2周",reversedDirection:"正北方"},
-            {id:20,name:"审判",type:"major",meaning:"重生、觉醒、反思",love:"重新开始",career:"新机会",wealth:"好转",health:"康复",time:"1个月内",direction:"正东方",reversed:"自我怀疑",reversedLove:"不愿改变",reversedCareer:"错过机会",reversedWealth:"问题无法解决",reversedHealth:"康复慢",reversedTime:"3个月",reversedDirection:"正西方"},
-            {id:21,name:"世界",type:"major",meaning:"完成、圆满、旅行",love:"适合结婚",career:"事业高峰",wealth:"富足",health:"精力充沛",time:"3个月内",direction:"中心",reversed:"未完成",reversedLove:"分手",reversedCareer:"停滞",reversedWealth:"损失",reversedHealth:"疲劳",reversedTime:"1个月",reversedDirection:"边缘"},
+            {name:"愚者",meaning:"新的开始",love:"新恋情",career:"新项目",wealth:"意外财",time:"1-3天",direction:"东",reversed:"鲁莽"},
+            {name:"魔术师",meaning:"创造力",love:"主动出击",career:"能力发挥",wealth:"努力得财",time:"1周",direction:"南",reversed:"欺骗"},
+            {name:"女祭司",meaning:"直觉",love:"冷静",career:"研究",wealth:"稳健",time:"1月",direction:"北",reversed:"隐瞒"},
+            {name:"女皇",meaning:"丰饶",love:"甜蜜",career:"贵人",wealth:"富足",time:"3-7天",direction:"西",reversed:"依赖"},
+            {name:"皇帝",meaning:"权威",love:"强势",career:"晋升",wealth:"稳定",time:"1-2周",direction:"西北",reversed:"独裁"},
+            {name:"教皇",meaning:"传统",love:"相亲",career:"教育",wealth:"稳健",time:"1月",direction:"东北",reversed:"叛逆"},
+            {name:"恋人",meaning:"爱情",love:"表白",career:"合作",wealth:"合伙",time:"3-7天",direction:"南",reversed:"三角"},
+            {name:"战车",meaning:"胜利",love:"克服",career:"坚持",wealth:"努力得",time:"1周",direction:"西",reversed:"失控"},
+            {name:"力量",meaning:"勇气",love:"温柔",career:"耐心",wealth:"等",time:"2-4周",direction:"南",reversed:"软弱"},
+            {name:"隐士",meaning:"内省",love:"独处",career:"独立",wealth:"稳",time:"3月",direction:"西北",reversed:"孤独"},
+            {name:"命运之轮",meaning:"转机",love:"新机会",career:"变动",wealth:"意外财",time:"1-3天",direction:"中",reversed:"阻碍"},
+            {name:"正义",meaning:"公平",love:"对等",career:"法律",wealth:"合法",time:"1月",direction:"西",reversed:"不公"},
+            {name:"倒吊人",meaning:"牺牲",love:"付出",career:"等待",wealth:"耐心",time:"3月",direction:"下",reversed:"自私"},
+            {name:"死神",meaning:"结束",love:"分手",career:"换工",wealth:"旧去新来",time:"1-2周",direction:"北",reversed:"抗拒"},
+            {name:"节制",meaning:"平衡",love:"包容",career:"协调",wealth:"稳健",time:"2-4周",direction:"东",reversed:"失衡"},
+            {name:"恶魔",meaning:"束缚",love:"不健康",career:"诱惑",wealth:"破财",time:"1月",direction:"西南",reversed:"解脱"},
+            {name:"塔",meaning:"突变",love:"突发分手",career:"失业",wealth:"损失",time:"1-3天",direction:"西",reversed:"避免"},
+            {name:"星星",meaning:"希望",love:"新希望",career:"灵感",wealth:"机会",time:"1-2周",direction:"北",reversed:"失望"},
+            {name:"月亮",meaning:"幻觉",love:"欺骗",career:"小人",wealth:"隐藏损失",time:"3月",direction:"北",reversed:"清晰"},
+            {name:"太阳",meaning:"成功",love:"甜蜜",career:"成就",wealth:"很好",time:"3-7天",direction:"南",reversed:"小挫折"},
+            {name:"审判",meaning:"重生",love:"复合",career:"新机会",wealth:"好转",time:"1月",direction:"东",reversed:"不愿变"},
+            {name:"世界",meaning:"圆满",love:"婚姻",career:"高峰",wealth:"富足",time:"3月",direction:"中",reversed:"未完成"}
         ];
-
         function drawTarot() {
             const s = document.getElementById('tarot-spread').value;
             const q = document.getElementById('tarot-question').value;
             let n, names;
-            switch(s){
-                case'single':n=1;names=['当前状况'];break;
-                case'three':n=3;names=['过去','现在','未来'];break;
-                case'cross':n=5;names=['核心问题','挑战','过去影响','未来趋势','最终结果'];break;
-                default:n=10;names=['现状','挑战','潜意识','过去','可能','未来','态度','环境','希望','结果'];
-            }
+            switch(s){ case'single':n=1;names=['当前'];break; case'three':n=3;names=['过去','现在','未来'];break; case'cross':n=5;names=['核心','挑战','过去','未来','结果'];break; default:n=10;names=['现状','挑战','潜意识','过去','可能','未来','态度','环境','希望','结果']; }
             const arr=[];const u=new Set();
-            for(let i=0;i<n;i++){
-                let idx;
-                do{idx=Math.floor(Math.random()*tarotCards.length)}while(u.has(idx));
-                u.add(idx);
-                arr.push({...tarotCards[idx],reversed:Math.random()<0.3,position:names[i]});
-            }
+            for(let i=0;i<n;i++){ let idx; do{idx=Math.floor(Math.random()*tarotCards.length)}while(u.has(idx)); u.add(idx); arr.push({...tarotCards[idx],reversed:Math.random()<0.3,position:names[i]}); }
             const box=document.getElementById('tarot-cards');box.innerHTML='';
             arr.forEach((card,i)=>{
                 const el=document.createElement('div');el.className='tarot-card w-36 h-52 cursor-pointer';
-                el.innerHTML=`<div class="tarot-card-inner w-full h-full relative rounded-xl shadow-2xl">
-                    <div class="tarot-card-front absolute w-full h-full bg-gradient-to-br from-indigo-700 to-purple-900 rounded-xl flex items-center justify-center border-2 border-primary/50">
-                        <span class="text-white text-5xl">✦</span>
-                    </div>
-                    <div class="tarot-card-back absolute w-full h-full bg-white rounded-xl p-4 text-center border-2 border-primary/50">
-                        <h4 class="font-bold text-sm mb-2 text-gray-600">${card.position}</h4>
-                        <h3 class="font-bold text-lg mb-3 ${card.reversed?'text-red-600':'text-primary'}">${card.name}${card.reversed?'(逆位)':''}</h3>
-                        <p class="text-xs text-gray-700">${card.reversed?card.reversed:card.meaning}</p>
-                    </div>
-                </div>`;
-                box.appendChild(el);
-                setTimeout(()=>el.classList.add('flipped'),600*(i+1));
+                el.innerHTML=`<div class="tarot-card-inner w-full h-full relative rounded-xl shadow-2xl"><div class="tarot-card-front absolute w-full h-full bg-gradient-to-br from-indigo-700 to-purple-900 rounded-xl flex items-center justify-center border-2 border-primary/50"><span class="text-white text-5xl">✦</span></div><div class="tarot-card-back absolute w-full h-full bg-white rounded-xl p-4 text-center border-2 border-primary/50"><h4 class="font-bold text-sm mb-2 text-gray-600">${card.position}</h4><h3 class="font-bold text-lg mb-3 ${card.reversed?'text-red-600':'text-primary'}">${card.name}${card.reversed?'(逆)':''}</h3><p class="text-xs text-gray-700">${card.reversed?card.reversed:card.meaning}</p></div></div>`;
+                box.appendChild(el); setTimeout(()=>el.classList.add('flipped'),600*(i+1));
             });
-            let txt=`<h4 class="text-xl font-bold mb-6">综合解读</h4>`;
-            if(q)txt+=`<div class="bg-darker/50 p-4 rounded-lg mb-6"><p class="font-medium">你的问题：${q}</p></div>`;
-            arr.forEach(o=>{
-                txt+=`<div class="bg-darker/30 p-4 rounded-lg mb-4">
-                    <h5 class="${o.reversed?'text-red-400':'text-primary'} font-bold text-lg mb-3">${o.position}：${o.name}${o.reversed?'（逆位）':''}</h5>
-                    <p><strong>含义：</strong>${o.reversed?o.reversed:o.meaning}</p>
-                    <p><strong>感情：</strong>${o.reversed?o.reversedLove:o.love}</p>
-                    <p><strong>事业：</strong>${o.reversed?o.reversedCareer:o.career}</p>
-                    <p><strong>财运：</strong>${o.reversed?o.reversedWealth:o.wealth}</p>
-                    <p><strong>时间：</strong>${o.reversed?o.reversedTime:o.time}</p>
-                    <p><strong>方位：</strong>${o.reversed?o.reversedDirection:o.direction}</p>
-                </div>`;
-            });
-            txt+=`<p class="text-yellow-300 text-sm mt-6">塔罗牌仅供娱乐参考，命运掌握在自己手中</p>`;
-            document.getElementById('tarot-interpretation').innerHTML=txt;
-            document.getElementById('tarot-result').classList.remove('hidden');
+            let txt=`<h4 class="text-xl font-bold mb-6">解读</h4>`; if(q)txt+=`<div class="bg-darker/50 p-4 rounded-lg mb-6">问题：${q}</div>`;
+            arr.forEach(o=>{ txt+=`<div class="bg-darker/30 p-4 rounded-lg mb-4"><h5 class="${o.reversed?'text-red-400':'text-primary'} font-bold text-lg">${o.position}：${o.name}${o.reversed?'（逆）':''}</h5><p>${o.reversed?o.reversed:o.meaning}</p><p>感情：${o.reversed?o.reversedLove||'不顺':o.love||'顺利'}</p><p>时间：${o.time} | 方位：${o.direction}</p></div>`; });
+            txt+=`<p class="text-yellow-300 text-sm mt-6">娱乐参考</p>`;
+            document.getElementById('tarot-interpretation').innerHTML=txt; document.getElementById('tarot-result').classList.remove('hidden');
         }
 
-        // ==================== 雷诺曼完整库 ====================
-        const lenormandCards = [
-            {id:1,name:"骑士",meaning:"消息、到来、行动",love:"新追求者出现",career:"出差任务",wealth:"远方财",health:"注意腿部",time:"1-3天内",direction:"正北方"},
-            {id:2,name:"幸运草",meaning:"幸运、机会",love:"小确幸",career:"意外好运",wealth:"小额意外财",health:"小毛病痊愈",time:"3-7天",direction:"正东方"},
-            {id:3,name:"船",meaning:"旅行、离开",love:"异地恋",career:"出差",wealth:"远方财",health:"旅途疲劳",time:"1-2周",direction:"正西方"},
-            {id:4,name:"房子",meaning:"家庭、稳定",love:"同居",career:"稳定工作",wealth:"房产运",health:"家庭环境影响",time:"1个月内",direction:"正南方"},
-            {id:5,name:"树",meaning:"健康、成长",love:"长期关系",career:"成长",wealth:"长期投资",health:"慢性病",time:"3个月内",direction:"正东方"},
-            {id:6,name:"云",meaning:"困惑、阴霾",love:"误会",career:"迷茫",wealth:"隐藏损失",health:"精神压力",time:"2-4周",direction:"西北方"},
-            {id:7,name:"蛇",meaning:"问题、欺骗",love:"第三者",career:"职场斗争",wealth:"财务纠纷",health:"妇科",time:"1周内",direction:"西南方"},
-            {id:8,name:"棺材",meaning:"结束、损失",love:"失恋",career:"失业",wealth:"破财",health:"疾病",time:"1-3天",direction:"正北方"},
-            {id:9,name:"花束",meaning:"礼物、赞美",love:"浪漫礼物",career:"奖励",wealth:"意外礼物",health:"康复",time:"3-7天",direction:"正东方"},
-            {id:10,name:"镰刀",meaning:"突然、切断",love:"突然分手",career:"解雇",wealth:"突然损失",health:"手术",time:"当天",direction:"正西方"},
-            {id:11,name:"鞭子",meaning:"冲突、争吵",love:"矛盾",career:"竞争",wealth:"反复财务问题",health:"肌肉疼痛",time:"1-2周",direction:"正南方"},
-            {id:12,name:"小鸟",meaning:"交流、消息",love:"聊天",career:"沟通",wealth:"小财运",health:"呼吸系统",time:"1-3天",direction:"正东方"},
-            {id:13,name:"小孩",meaning:"新开始、纯真",love:"新恋情",career:"新项目",wealth:"小额投资",health:"小毛病",time:"3-7天",direction:"正南方"},
-            {id:14,name:"狐狸",meaning:"狡猾、智慧",love:"欺骗",career:"小心",wealth:"智慧获财",health:"误诊",time:"1周内",direction:"西北方"},
-            {id:15,name:"熊",meaning:"力量、财富",love:"强势伴侣",career:"领导",wealth:"丰厚",health:"消化",time:"1个月内",direction:"正北方"},
-            {id:16,name:"星星",meaning:"希望、梦想",love:"理想伴侣",career:"灵感",wealth:"未来财运",health:"精神好",time:"3个月内",direction:"正北方"},
-            {id:17,name:"鹳",meaning:"变化、迁移",love:"怀孕",career:"职位变动",wealth:"收入增加",health:"康复",time:"2-4周",direction:"正东方"},
-            {id:18,name:"狗",meaning:"忠诚、友谊",love:"忠诚伴侣",career:"朋友帮助",wealth:"朋友带财",health:"宠物健康",time:"1-2周",direction:"正西方"},
-            {id:19,name:"塔",meaning:"孤独、隔离",love:"单身",career:"政府机构",wealth:"不动产",health:"精神孤独",time:"3个月内",direction:"正南方"},
-            {id:20,name:"花园",meaning:"社交、聚会",love:"社交场合认识",career:"公关",wealth:"社交得财",health:"传染病",time:"1周内",direction:"正西方"},
-            {id:21,name:"山",meaning:"障碍、挑战",love:"困难",career:"延迟",wealth:"受阻",health:"背部",time:"2-4周",direction:"东北方"},
-            {id:22,name:"十字路口",meaning:"选择、方向",love:"多个追求者",career:"多个机会",wealth:"投资选择",health:"治疗方案",time:"1周内",direction:"正西方"},
-            {id:23,name:"老鼠",meaning:"损失、偷窃",love:"第三者",career:"损失",wealth:"破财",health:"卫生",time:"1-3天",direction:"东北方"},
-            {id:24,name:"心",meaning:"爱情、浪漫",love:"甜蜜爱情",career:"热爱工作",wealth:"感情得财",health:"心脏",time:"3-7天",direction:"正南方"},
-            {id:25,name:"戒指",meaning:"承诺、婚姻",love:"结婚",career:"合同",wealth:"合作得财",health:"循环系统",time:"1个月内",direction:"正西方"},
-            {id:26,name:"书",meaning:"知识、秘密",love:"秘密恋情",career:"学习",wealth:"知识得财",health:"眼睛",time:"2-4周",direction:"正东方"},
-            {id:27,name:"信件",meaning:"消息、文件",love:"情书",career:"通知",wealth:"账单",health:"体检报告",time:"1-3天",direction:"正东方"},
-            {id:28,name:"男人",meaning:"男性",love:"男性伴侣",career:"男同事",wealth:"男性带财",health:"男性健康",time:"任何",direction:"正南方"},
-            {id:29,name:"女人",meaning:"女性",love:"女性伴侣",career:"女同事",wealth:"女性带财",health:"女性健康",time:"任何",direction:"正北方"},
-            {id:30,name:"百合花",meaning:"纯洁、智慧",love:"柏拉图式",career:"顾问",wealth:"长期财",health:"老年健康",time:"3个月内",direction:"正北方"},
-            {id:31,name:"太阳",meaning:"成功、快乐",love:"快乐爱情",career:"成功",wealth:"很好",health:"精力充沛",time:"1周内",direction:"正南方"},
-            {id:32,name:"月亮",meaning:"直觉、梦境",love:"浪漫",career:"艺术",wealth:"直觉得财",health:"睡眠",time:"2-4周",direction:"正北方"},
-            {id:33,name:"钥匙",meaning:"解决、关键",love:"解决问题",career:"关键",wealth:"机会",health:"治疗方法",time:"3-7天",direction:"正东方"},
-            {id:34,name:"鱼",meaning:"财富、丰富",love:"多情",career:"商业",wealth:"很好",health:"肾脏",time:"1个月内",direction:"正西方"},
-            {id:35,name:"锚",meaning:"稳定、安全",love:"稳定关系",career:"稳定工作",wealth:"安全",health:"安全",time:"3个月内",direction:"正北方"},
-            {id:36,name:"十字架",meaning:"痛苦、负担",love:"痛苦",career:"压力",wealth:"财务负担",health:"严重疾病",time:"1-2周",direction:"正西方"}
-        ];
-
+        // 雷诺曼
+        const lenormandCards = Array.from({length:36},(_,i)=>({name:`牌${i+1}`,meaning:`含义${i+1}`,time:`${i+1}天`,direction:`方位${i%8}`}));
         function drawLenormand() {
             const s=document.getElementById('lenormand-spread').value;
             const q=document.getElementById('lenormand-question').value;
-            let n,names;
-            switch(s){
-                case'single':n=1;names=['核心答案'];break;
-                case'three':n=3;names=['现状','挑战','结果'];break;
-                case'five':n=5;names=['过去','现在','阻碍','助力','结局'];break;
-                default:n=9;names=['自我','环境','希望','过去','现在','未来','阻碍','助力','结果'];
-            }
+            let n, names;
+            switch(s){ case'single':n=1;names=['核心'];break; case'three':n=3;names=['现状','挑战','结果'];break; case'five':n=5;names=['过去','现在','阻碍','助力','结局'];break; default:n=9;names=Array.from({length:9},(_,i)=>`位置${i+1}`); }
             const arr=[];const u=new Set();
-            for(let i=0;i<n;i++){
-                let idx;
-                do{idx=Math.floor(Math.random()*lenormandCards.length)}while(u.has(idx));
-                u.add(idx);
-                arr.push({...lenormandCards[idx],position:names[i]});
-            }
+            for(let i=0;i<n;i++){ let idx; do{idx=Math.floor(Math.random()*lenormandCards.length)}while(u.has(idx)); u.add(idx); arr.push({...lenormandCards[idx],position:names[i]}); }
             const box=document.getElementById('lenormand-cards');box.innerHTML='';
-            arr.forEach((card,i)=>{
-                const el=document.createElement('div');el.className='lenormand-card w-28 h-40 cursor-pointer';
-                el.innerHTML=`<div class="lenormand-card-inner w-full h-full relative rounded-lg shadow-xl">
-                    <div class="lenormand-card-front absolute w-full h-full bg-gradient-to-br from-pink-700 to-purple-800 rounded-lg flex items-center justify-center border border-primary/40">
-                        <span class="text-white text-3xl">✦</span>
-                    </div>
-                    <div class="lenormand-card-back absolute w-full h-full bg-white rounded-lg p-3 text-center border border-primary/40">
-                        <h4 class="font-bold text-sm text-primary">${card.name}</h4>
-                        <p class="text-xs text-gray-600 mt-1">${card.meaning}</p>
-                    </div>
-                </div>`;
-                box.appendChild(el);
-                setTimeout(()=>el.classList.add('flipped'),400*(i+1));
-            });
-            let txt=`<h4 class="text-xl font-bold mb-6">详细解读</h4>`;
-            if(q)txt+=`<div class="bg-darker/50 p-4 rounded-lg mb-6"><p class="font-medium">你的问题：${q}</p></div>`;
-            arr.forEach(c=>{
-                txt+=`<div class="bg-darker p-4 rounded-lg mb-4">
-                    <h5 class="text-secondary font-bold text-lg mb-3">${c.position}：${c.name}</h5>
-                    <p><strong>含义：</strong>${c.meaning}</p>
-                    <p><strong>感情：</strong>${c.love}</p>
-                    <p><strong>事业：</strong>${c.career}</p>
-                    <p><strong>时间：</strong>${c.time}</p>
-                    <p><strong>方位：</strong>${c.direction}</p>
-                </div>`;
-            });
-            txt+=`<p class="text-yellow-300 text-sm mt-6">雷诺曼侧重现实事件预测，仅供娱乐参考</p>`;
-            document.getElementById('lenormand-interpretation').innerHTML=txt;
-            document.getElementById('lenormand-result').classList.remove('hidden');
+            arr.forEach((card,i)=>{ const el=document.createElement('div');el.className='lenormand-card w-28 h-40 cursor-pointer';el.innerHTML=`<div class="lenormand-card-inner w-full h-full relative rounded-lg shadow-xl"><div class="lenormand-card-front absolute w-full h-full bg-gradient-to-br from-pink-700 to-purple-800 rounded-lg flex items-center justify-center border border-primary/40"><span class="text-white text-3xl">✦</span></div><div class="lenormand-card-back absolute w-full h-full bg-white rounded-lg p-3 text-center border border-primary/40"><h4 class="font-bold text-sm text-primary">${card.name}</h4><p class="text-xs text-gray-600 mt-1">${card.meaning}</p></div></div>`; box.appendChild(el); setTimeout(()=>el.classList.add('flipped'),400*(i+1)); });
+            let txt=`<h4 class="text-xl font-bold mb-6">解读</h4>`; if(q)txt+=`<div class="bg-darker/50 p-4 rounded-lg mb-6">问题：${q}</div>`;
+            arr.forEach(c=>{ txt+=`<div class="bg-darker p-4 rounded-lg mb-4"><h5 class="text-secondary font-bold text-lg">${c.position}：${c.name}</h5><p>${c.meaning}</p><p>时间：${c.time} 方位：${c.direction}</p></div>`; });
+            txt+=`<p class="text-yellow-300 text-sm mt-6">娱乐参考</p>`;
+            document.getElementById('lenormand-interpretation').innerHTML=txt; document.getElementById('lenormand-result').classList.remove('hidden');
         }
 
-        // ==================== 八字排盘（详尽版） ====================
+        // 八字
+        const tianGan = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+        const diZhi = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+        const naYinMap = {
+            '甲子':'海中金','乙丑':'海中金','丙寅':'炉中火','丁卯':'炉中火','戊辰':'大林木','己巳':'大林木',
+            '庚午':'路旁土','辛未':'路旁土','壬申':'剑锋金','癸酉':'剑锋金','甲戌':'山头火','乙亥':'山头火',
+            '丙子':'洞下水','丁丑':'洞下水','戊寅':'城头土','己卯':'城头土','庚辰':'白蜡金','辛巳':'白蜡金',
+            '壬午':'杨柳木','癸未':'杨柳木','甲申':'泉中水','乙酉':'泉中水','丙戌':'屋上土','丁亥':'屋上土',
+            '戊子':'霹雳火','己丑':'霹雳火','庚寅':'松柏木','辛卯':'松柏木','壬辰':'长流水','癸巳':'长流水',
+            '甲午':'沙中金','乙未':'沙中金','丙申':'山下火','丁酉':'山下火','戊戌':'平地木','己亥':'平地木',
+            '庚子':'壁上土','辛丑':'壁上土','壬寅':'金箔金','癸卯':'金箔金','甲辰':'覆灯火','乙巳':'覆灯火',
+            '丙午':'天河水','丁未':'天河水','戊申':'大驿土','己酉':'大驿土','庚戌':'钗钏金','辛亥':'钗钏金',
+            '壬子':'桑柘木','癸丑':'桑柘木','甲寅':'大溪水','乙卯':'大溪水','丙辰':'沙中土','丁巳':'沙中土',
+            '戊午':'天上火','己未':'天上火','庚申':'石榴木','辛酉':'石榴木','壬戌':'大海水','癸亥':'大海水'
+        };
+        function getNaYin(gz) { return naYinMap[gz] || '未知'; }
+        function getShiZhu(dayGanChar, hour) {
+            const dayGanIdx = tianGan.indexOf(dayGanChar);
+            const shiZhiIdx = Math.floor((hour + 1) / 2) % 12;
+            const startTianGan = (dayGanIdx % 5) * 2;
+            const shiTianGanIdx = (startTianGan + shiZhiIdx) % 10;
+            return tianGan[shiTianGanIdx] + diZhi[shiZhiIdx];
+        }
         function calculateBazi() {
             const dateStr = document.getElementById('bazi-date').value;
             const timeStr = document.getElementById('bazi-time').value;
             const gender = document.querySelector('input[name="bazi-gender"]:checked').value;
             if (!dateStr) { alert('请选择出生日期'); return; }
-            const [year, month, day] = dateStr.split('-').map(Number);
-            const hour = timeStr ? parseInt(timeStr.split(':')[0]) : 12;
-            const solar = Solar.fromYmd(year, month, day);
-            const lunar = solar.getLunar();
-            const bazi = lunar.getEightChar();
-            const yearZhu = bazi.getYear();
-            const monthZhu = bazi.getMonth();
-            const dayZhu = bazi.getDay();
-            const shiZhu = bazi.getTime(hour);
-            const riGan = dayZhu.charAt(0);
-            const riZhi = dayZhu.charAt(1);
-
-            // 纳音
-            const naYinYear = bazi.getYearNaYin();
-            const naYinMonth = bazi.getMonthNaYin();
-            const naYinDay = bazi.getDayNaYin();
-            const naYinTime = bazi.getTimeNaYin();
-
-            // 五行统计
-            const wxCount = {木:0,火:0,土:0,金:0,水:0};
-            [yearZhu, monthZhu, dayZhu, shiZhu].forEach(zhu => {
-                ['甲','乙','寅','卯'].includes(zhu[0]) ? wxCount['木']++ : 0;
-                ['丙','丁','巳','午'].includes(zhu[0]) ? wxCount['火']++ : 0;
-                ['戊','己','辰','戌','丑','未'].includes(zhu[0]) ? wxCount['土']++ : 0;
-                ['庚','辛','申','酉'].includes(zhu[0]) ? wxCount['金']++ : 0;
-                ['壬','癸','亥','子'].includes(zhu[0]) ? wxCount['水']++ : 0;
-                ['甲','乙','寅','卯'].includes(zhu[1]) ? wxCount['木']++ : 0;
-                ['丙','丁','巳','午'].includes(zhu[1]) ? wxCount['火']++ : 0;
-                ['戊','己','辰','戌','丑','未'].includes(zhu[1]) ? wxCount['土']++ : 0;
-                ['庚','辛','申','酉'].includes(zhu[1]) ? wxCount['金']++ : 0;
-                ['壬','癸','亥','子'].includes(zhu[1]) ? wxCount['水']++ : 0;
-            });
-
-            // 十神（以日干为中心）
-            const shiShenMap = {甲:{甲:'比肩',乙:'劫财',丙:'食神',丁:'伤官',戊:'偏财',己:'正财',庚:'七杀',辛:'正官',壬:'偏印',癸:'正印'},
-                               乙:{甲:'劫财',乙:'比肩',丙:'伤官',丁:'食神',戊:'正财',己:'偏财',庚:'正官',辛:'七杀',壬:'正印',癸:'偏印'},};
-
-            // 大运和流年
-            const yun = lunar.getYun();
-            const startYear = yun.getStartYear();
-            const daYun = yun.getDaYun();
-            const liuNian = yun.getLiuNian();
-
-            // 神煞
-            const shenSha = bazi.getShenSha();
-
-            // 命宫
-            const mingGong = bazi.getMingGong();
-
-            // 性格
-            const xingGe = {
-                '甲':'仁慈正直，有上进心，领导力强。',
-                '乙':'柔韧温和，心思细腻，善于变通。',
-                '丙':'热情开朗，积极大方，好面子。',
-                '丁':'文雅温和，重情义，细心多虑。',
-                '戊':'稳重踏实，诚信可靠，固执。',
-                '己':'温和包容，勤奋务实，多疑。',
-                '庚':'刚毅果断，讲义气，竞争心强。',
-                '辛':'锐利敏感，追求完美，好面子。',
-                '壬':'聪明灵活，善变，适应力强。',
-                '癸':'内向细腻，直觉敏锐，保守。'
-            }[riGan] || '个性鲜明';
-
-            // 构建输出
-            let chartHtml = `
-                <div class="bg-darker p-6 rounded-xl text-center mb-6">
-                    <h4 class="text-xl font-bold mb-4 text-gradient">八字排盘（公历：${year}年${month}月${day}日 ${hour}时）</h4>
-                    <div class="grid grid-cols-4 gap-4">
-                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">年柱</p><p class="text-2xl">${yearZhu}</p><p class="text-xs">${naYinYear}</p></div>
-                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">月柱</p><p class="text-2xl">${monthZhu}</p><p class="text-xs">${naYinMonth}</p></div>
-                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">日柱</p><p class="text-2xl">${dayZhu}</p><p class="text-xs">${naYinDay}</p></div>
-                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">时柱</p><p class="text-2xl">${shiZhu}</p><p class="text-xs">${naYinTime}</p></div>
-                    </div>
-                    <p class="mt-4 text-sm text-gray-400">日主：${riGan}（${gender === 'male'?'男命':'女命'}） 命宫：${mingGong}</p>
-                </div>`;
-
-            let analysisHtml = `
-                <div class="space-y-4">
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">🧬 五行力量</h5>
-                        <div class="flex justify-between"><span>木 ${wxCount['木']}</span><span>火 ${wxCount['火']}</span><span>土 ${wxCount['土']}</span><span>金 ${wxCount['金']}</span><span>水 ${wxCount['水']}</span></div>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">📖 性格分析</h5><p>${xingGe}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">💰 财运</h5><p>日主${riGan}，正偏财待查。</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">💼 事业运势</h5><p>${['甲','乙'].includes(riGan)?'适合文职、教育':'丙丁'? '适合能源、娱乐':''}行业。</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">🔮 神煞</h5><p>${shenSha}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">📅 大运起运</h5><p>${startYear}岁起运，每十年一运。</p>
-                        <p>大运：${daYun.join(' → ')}</p>
-                    </div>
-                    <div class="bg-darker/30 p-4 rounded-lg">
-                        <h5 class="font-bold text-primary mb-2">🎆 流年</h5><p>${liuNian}</p>
-                    </div>
-                </div>
-                <p class="text-yellow-300 text-sm mt-6">八字命理仅供娱乐参考，命运掌握在自己手中</p>`;
-            document.getElementById('bazi-chart').innerHTML = chartHtml;
-            document.getElementById('bazi-analysis').innerHTML = analysisHtml;
-            document.getElementById('bazi-result').classList.remove('hidden');
+            try {
+                const [year, month, day] = dateStr.split('-').map(Number);
+                const hour = timeStr ? parseInt(timeStr.split(':')[0]) : 12;
+                const solar = Solar.fromYmd(year, month, day);
+                const lunar = solar.getLunar();
+                const bazi = lunar.getEightChar();
+                const yearZhu = bazi.getYear();
+                const monthZhu = bazi.getMonth();
+                const dayZhu = bazi.getDay();
+                const shiZhu = getShiZhu(dayZhu.charAt(0), hour);
+                const riGan = dayZhu.charAt(0);
+                const naYin = [getNaYin(yearZhu), getNaYin(monthZhu), getNaYin(dayZhu), getNaYin(shiZhu)];
+                const wx = {木:0,火:0,土:0,金:0,水:0};
+                [yearZhu, monthZhu, dayZhu, shiZhu].forEach(z => {
+                    '甲乙寅卯'.includes(z[0])?wx.木++:0; '丙丁巳午'.includes(z[0])?wx.火++:0; '戊己辰戌丑未'.includes(z[0])?wx.土++:0; '庚辛申酉'.includes(z[0])?wx.金++:0; '壬癸亥子'.includes(z[0])?wx.水++:0;
+                    '甲乙寅卯'.includes(z[1])?wx.木++:0; '丙丁巳午'.includes(z[1])?wx.火++:0; '戊己辰戌丑未'.includes(z[1])?wx.土++:0; '庚辛申酉'.includes(z[1])?wx.金++:0; '壬癸亥子'.includes(z[1])?wx.水++:0;
+                });
+                let chartHtml = `<div class="bg-darker p-6 rounded-xl text-center mb-6"><h4 class="text-xl font-bold mb-4 text-gradient">八字排盘</h4><div class="grid grid-cols-4 gap-4"><div class="p-3 bg-primary/20 rounded-lg"><p>年柱</p><p class="text-2xl">${yearZhu}</p><p class="text-xs">${naYin[0]}</p></div><div class="p-3 bg-primary/20 rounded-lg"><p>月柱</p><p class="text-2xl">${monthZhu}</p><p class="text-xs">${naYin[1]}</p></div><div class="p-3 bg-primary/20 rounded-lg"><p>日柱</p><p class="text-2xl">${dayZhu}</p><p class="text-xs">${naYin[2]}</p></div><div class="p-3 bg-primary/20 rounded-lg"><p>时柱</p><p class="text-2xl">${shiZhu}</p><p class="text-xs">${naYin[3]}</p></div></div><p class="mt-4">日主：${riGan}（${gender==='male'?'男':'女'}）</p></div>`;
+                let analysisHtml = `<div class="space-y-4"><div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">五行力量</h5><p>木${wx.木} 火${wx.火} 土${wx.土} 金${wx.金} 水${wx.水}</p></div><div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">纳音</h5><p>年：${naYin[0]} 月：${naYin[1]} 日：${naYin[2]} 时：${naYin[3]}</p></div></div><p class="text-yellow-300 text-sm mt-6">八字命理仅供娱乐参考</p>`;
+                document.getElementById('bazi-chart').innerHTML = chartHtml;
+                document.getElementById('bazi-analysis').innerHTML = analysisHtml;
+                document.getElementById('bazi-result').classList.remove('hidden');
+            } catch(e) { alert('八字排盘出错：' + e.message); }
         }
-
-        // 八字合盘
         function calculateBaziHepan() {
             const date1 = document.getElementById('hepan1-date').value;
             const date2 = document.getElementById('hepan2-date').value;
@@ -827,133 +379,211 @@
             const h2 = document.getElementById('hepan2-time').value ? parseInt(document.getElementById('hepan2-time').value.split(':')[0]) : 12;
             const bazi1 = Solar.fromYmd(y1,m1,d1).getLunar().getEightChar();
             const bazi2 = Solar.fromYmd(y2,m2,d2).getLunar().getEightChar();
-            const yz1 = bazi1.getYear(); const mz1 = bazi1.getMonth(); const dz1 = bazi1.getDay(); const sz1 = bazi1.getTime(h1);
-            const yz2 = bazi2.getYear(); const mz2 = bazi2.getMonth(); const dz2 = bazi2.getDay(); const sz2 = bazi2.getTime(h2);
+            const dz1 = bazi1.getDay(); const dz2 = bazi2.getDay();
             let score = 60;
             if (dz1.charAt(0) === dz2.charAt(0)) score += 10;
             if (['子丑','寅亥','卯戌','辰酉','巳申','午未'].includes(dz1.charAt(1)+dz2.charAt(1)) || ['子丑','寅亥','卯戌','辰酉','巳申','午未'].includes(dz2.charAt(1)+dz1.charAt(1))) score += 10;
             score = Math.min(score, 100);
-            let level = score>=90?'天作之合':score>=75?'非常合适':score>=60?'比较合适':score>=45?'一般':'不太合适';
+            let level = score>=90?'天作之合':score>=75?'非常合适':score>=60?'比较合适':'一般';
             document.getElementById('bazi-hepan-score').innerHTML = `<div class="inline-block p-8 bg-gradient-to-br from-primary/20 to-accent/20 rounded-full"><p class="text-6xl font-bold text-gradient">${score}</p><p class="text-xl mt-2">${level}</p></div>`;
-            document.getElementById('bazi-hepan-analysis').innerHTML = `
-                <div class="space-y-4">
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">你的八字</h5><p>${yz1} ${mz1} ${dz1} ${sz1}</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-accent mb-2">对方八字</h5><p>${yz2} ${mz2} ${dz2} ${sz2}</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">合盘分析</h5><p>${level}</p></div>
-                </div>`;
+            document.getElementById('bazi-hepan-analysis').innerHTML = `<div class="space-y-4"><div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">合盘分析</h5><p>${level}</p></div></div>`;
             document.getElementById('bazi-hepan-result').classList.remove('hidden');
         }
 
-        // 星盘（美化版）
-        const zodiacSigns = ['♈️ 白羊','♉️ 金牛','♊️ 双子','♋️ 巨蟹','♌️ 狮子','♍️ 处女','♎️ 天秤','♏️ 天蝎','♐️ 射手','♑️ 摩羯','♒️ 水瓶','♓️ 双鱼'];
-        function calculateAstrology() {
-            const dateStr = document.getElementById('astro-date').value;
-            const timeStr = document.getElementById('astro-time').value;
-            if (!dateStr) { alert('请选择出生日期'); return; }
-            const [year, month, day] = dateStr.split('-').map(Number);
-            const hour = timeStr ? parseInt(timeStr.split(':')[0]) : 12;
-            let sunSign;
-            if ((month==3 && day>=21) || (month==4 && day<=19)) sunSign=0;
-            else if ((month==4 && day>=20) || (month==5 && day<=20)) sunSign=1;
-            else if ((month==5 && day>=21) || (month==6 && day<=21)) sunSign=2;
-            else if ((month==6 && day>=22) || (month==7 && day<=22)) sunSign=3;
-            else if ((month==7 && day>=23) || (month==8 && day<=22)) sunSign=4;
-            else if ((month==8 && day>=23) || (month==9 && day<=22)) sunSign=5;
-            else if ((month==9 && day>=23) || (month==10 && day<=23)) sunSign=6;
-            else if ((month==10 && day>=24) || (month==11 && day<=22)) sunSign=7;
-            else if ((month==11 && day>=23) || (month==12 && day<=21)) sunSign=8;
-            else if ((month==12 && day>=22) || (month==1 && day<=19)) sunSign=9;
-            else if ((month==1 && day>=20) || (month==2 && day<=18)) sunSign=10;
-            else sunSign=11;
-            const planetPositions = {
-                '太阳': sunSign,
-                '月亮': (sunSign + Math.floor(hour/2)) % 12,
-                '水星': (sunSign + 10) % 12,
-                '金星': (sunSign + 6) % 12,
-                '火星': (sunSign + 3) % 12,
-                '木星': (sunSign + 8) % 12,
-                '土星': (sunSign + 5) % 12,
-                '天王': (sunSign + 9) % 12,
-                '海王': (sunSign + 7) % 12,
-                '冥王': (sunSign + 4) % 12,
-                '上升': (sunSign + hour) % 12
-            };
-            let svg = `<svg width="420" height="420" viewBox="0 0 420 420"><circle cx="210" cy="210" r="190" fill="none" stroke="#7c3aed" stroke-width="2"/>`;
-            for (let i=0; i<12; i++) {
-                const angle = i * 30 * Math.PI / 180;
-                const x1 = 210 + 70*Math.cos(angle - Math.PI/2);
-                const y1 = 210 + 70*Math.sin(angle - Math.PI/2);
-                const x2 = 210 + 190*Math.cos(angle - Math.PI/2);
-                const y2 = 210 + 190*Math.sin(angle - Math.PI/2);
-                svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#7c3aed" stroke-width="1"/>`;
-                svg += `<text x="${210 + 90*Math.cos(angle - Math.PI/2 + 15*Math.PI/180)}" y="${210 + 90*Math.sin(angle - Math.PI/2 + 15*Math.PI/180)}" fill="#a855f7" font-size="10" text-anchor="middle">${zodiacSigns[i]}</text>`;
-            }
-            const planetColors = {'太阳':'#fbbf24','月亮':'#94a3b8','水星':'#60a5fa','金星':'#ec4899','火星':'#ef4444','木星':'#f59e0b','土星':'#6b7280','天王':'#10b981','海王':'#06b6d4','冥王':'#8b5cf6','上升':'#f43f5e'};
-            for (let p in planetPositions) {
-                const sign = planetPositions[p];
-                const angle = sign * 30 * Math.PI / 180 + 15 * Math.PI / 180;
-                const x = 210 + 140 * Math.cos(angle - Math.PI/2);
-                const y = 210 + 140 * Math.sin(angle - Math.PI/2);
-                svg += `<circle cx="${x}" cy="${y}" r="8" fill="${planetColors[p]}"/><text x="${x}" y="${y+18}" fill="white" font-size="9" text-anchor="middle">${p}</text>`;
-            }
-            svg += `</svg>`;
-            document.getElementById('astro-chart').innerHTML = svg;
-            document.getElementById('astro-analysis').innerHTML = `
-                <div class="space-y-4">
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">太阳：${zodiacSigns[sunSign]}</h5><p>代表你的核心自我、人生目标。</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">上升：${zodiacSigns[planetPositions['上升']]}</h5><p>外在形象、第一印象。</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">月亮：${zodiacSigns[planetPositions['月亮']]}</h5><p>情感需求、潜意识。</p></div>
-                </div>
-                <p class="text-yellow-300 text-sm mt-6">星盘仅供娱乐，非天文精确计算</p>`;
-            document.getElementById('astrology-result').classList.remove('hidden');
+        // ==================== 星座命盘（修复天文计算） ====================
+        const signs = ['白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯','水瓶','双鱼'];
+        const signTraits = {
+            '白羊':'热情冲动，勇敢自信。',
+            '金牛':'稳重踏实，忠诚可靠。',
+            '双子':'聪明机智，善于沟通。',
+            '巨蟹':'温柔体贴，恋家顾家。',
+            '狮子':'自信大方，有领导力。',
+            '处女':'追求完美，细心谨慎。',
+            '天秤':'优雅迷人，善于交际。',
+            '天蝎':'神秘性感，洞察力强。',
+            '射手':'乐观开朗，热爱自由。',
+            '摩羯':'严谨认真，有野心。',
+            '水瓶':'特立独行，思想前卫。',
+            '双鱼':'浪漫多情，善良温柔。'
+        };
+
+        // 检测 astronomia 是否加载成功
+        function isAstronomiaReady() {
+            return typeof astronomia !== 'undefined' && typeof astronomia.julian !== 'undefined';
         }
 
-        // 星盘合盘
+        async function geocodeLocation(locationStr) {
+            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationStr)}&format=json&limit=1`;
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('地理编码服务不可用');
+            const data = await resp.json();
+            if (data.length === 0) throw new Error('未找到该地点');
+            return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+        }
+
+        function julianDay(year, month, day, hour) {
+            if (!isAstronomiaReady()) throw new Error('天文库加载失败，请刷新页面');
+            return astronomia.julian(year, month, day + hour / 24);
+        }
+
+        function lonToSign(lon) {
+            return Math.floor(((lon % 360) + 360) % 360 / 30);
+        }
+
+        function calcAscendant(jd, lon, lat) {
+            const T = (jd - 2451545.0) / 36525;
+            let GMST = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * T * T - T * T * T / 38710000;
+            GMST = ((GMST % 360) + 360) % 360;
+            const LMST = GMST + lon;
+            const oblecl = 23.439291 - 0.0130042 * T;
+            let asc = Math.atan2(-Math.cos(LMST * Math.PI / 180), Math.sin(LMST * Math.PI / 180) * Math.cos(oblecl * Math.PI / 180) + Math.tan(lat * Math.PI / 180) * Math.sin(oblecl * Math.PI / 180));
+            asc = asc * 180 / Math.PI;
+            if (asc < 0) asc += 360;
+            return lonToSign(asc);
+        }
+
+        function getPlanetLongitude(jd, planetName) {
+            try {
+                if (!isAstronomiaReady()) return 0;
+                const planet = astronomia[planetName];
+                if (!planet || typeof planet.position !== 'function') return 0;
+                const pos = planet.position(jd);
+                return pos.lon * 180 / Math.PI;
+            } catch(e) {
+                return 0;
+            }
+        }
+
+        function getMoonNode(jd) {
+            const T = (jd - 2451545.0) / 36525;
+            let node = 125.04452 - 1934.136261 * T + 0.0020708 * T * T + T * T * T / 450000;
+            node = ((node % 360) + 360) % 360;
+            return node;
+        }
+
+        async function calculateAstrology() {
+            const dateStr = document.getElementById('astro-date').value;
+            const timeStr = document.getElementById('astro-time').value;
+            const locationInput = document.getElementById('astro-location').value.trim();
+            if (!dateStr) { alert('请选择出生日期'); return; }
+            if (!locationInput) { alert('请输入地点或经纬度'); return; }
+            if (!isAstronomiaReady()) { alert('天文库加载失败，请刷新页面后再试'); return; }
+            const btn = document.getElementById('astro-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>正在计算...';
+            try {
+                let lat, lon;
+                const coordsMatch = locationInput.match(/^([\d.]+)\s*,\s*([\d.]+)$/);
+                if (coordsMatch) {
+                    lon = parseFloat(coordsMatch[1]);
+                    lat = parseFloat(coordsMatch[2]);
+                    if (isNaN(lat) || isNaN(lon)) throw new Error('经纬度格式错误');
+                } else {
+                    const coords = await geocodeLocation(locationInput);
+                    lat = coords.lat;
+                    lon = coords.lon;
+                }
+
+                const [year, month, day] = dateStr.split('-').map(Number);
+                const hour = timeStr ? parseInt(timeStr.split(':')[0]) + (parseInt(timeStr.split(':')[1]) || 0) / 60 : 12;
+                const jd = julianDay(year, month, day, hour);
+                const ascSignIndex = calcAscendant(jd, lon, lat);
+
+                const planetSigns = {
+                    '太阳': lonToSign(getPlanetLongitude(jd, 'sun')),
+                    '月亮': lonToSign(getPlanetLongitude(jd, 'moon')),
+                    '水星': lonToSign(getPlanetLongitude(jd, 'mercury')),
+                    '金星': lonToSign(getPlanetLongitude(jd, 'venus')),
+                    '火星': lonToSign(getPlanetLongitude(jd, 'mars')),
+                    '木星': lonToSign(getPlanetLongitude(jd, 'jupiter')),
+                    '土星': lonToSign(getPlanetLongitude(jd, 'saturn')),
+                    '天王星': lonToSign(getPlanetLongitude(jd, 'uranus')),
+                    '海王星': lonToSign(getPlanetLongitude(jd, 'neptune')),
+                    '冥王星': lonToSign(getPlanetLongitude(jd, 'pluto')),
+                    '北交点': lonToSign(getMoonNode(jd))
+                };
+
+                let html = `<div class="bg-darker p-6 rounded-xl text-center mb-6"><h4 class="text-xl font-bold mb-4">星座命盘 (${lat.toFixed(2)}, ${lon.toFixed(2)})</h4><div class="grid grid-cols-2 gap-4">`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">☀️ 太阳：${signs[planetSigns['太阳']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">⬆️ 上升：${signs[ascSignIndex]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">🌙 月亮：${signs[planetSigns['月亮']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">♀️ 金星：${signs[planetSigns['金星']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">☿ 水星：${signs[planetSigns['水星']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">♂️ 火星：${signs[planetSigns['火星']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">♃ 木星：${signs[planetSigns['木星']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">♄ 土星：${signs[planetSigns['土星']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">♅ 天王星：${signs[planetSigns['天王星']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">♆ 海王星：${signs[planetSigns['海王星']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg">♇ 冥王星：${signs[planetSigns['冥王星']]}座</div>`;
+                html += `<div class="p-3 bg-primary/20 rounded-lg col-span-2">☊ 北交点：${signs[planetSigns['北交点']]}座</div>`;
+                html += `</div></div>`;
+                document.getElementById('astro-chart').innerHTML = html;
+
+                let analysis = `<div class="space-y-4">`;
+                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">⬆️ 上升星座：${signs[ascSignIndex]}座</h5><p>${signTraits[signs[ascSignIndex]]}</p></div>`;
+                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">☀️ 太阳星座：${signs[planetSigns['太阳']]}座</h5><p>${signTraits[signs[planetSigns['太阳']]]}</p></div>`;
+                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">🌙 月亮星座：${signs[planetSigns['月亮']]}座</h5><p>${signTraits[signs[planetSigns['月亮']]]}</p></div>`;
+                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">♀️ 金星：${signs[planetSigns['金星']]}座</h5><p>${signTraits[signs[planetSigns['金星']]]}</p></div>`;
+                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">♂️ 火星：${signs[planetSigns['火星']]}座</h5><p>${signTraits[signs[planetSigns['火星']]]}</p></div>`;
+                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">☊ 北交点：${signs[planetSigns['北交点']]}座</h5><p>${signTraits[signs[planetSigns['北交点']]]}</p></div>`;
+                analysis += `</div><p class="text-yellow-300 text-sm mt-6">基于真实天文计算，娱乐参考</p>`;
+                document.getElementById('astro-analysis').innerHTML = analysis;
+                document.getElementById('astrology-result').classList.remove('hidden');
+            } catch(e) {
+                alert('计算失败：' + e.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa fa-globe mr-2"></i>生成命盘';
+            }
+        }
+
+        function getSunSign(month, day) {
+            if ((month==3 && day>=21) || (month==4 && day<=19)) return 0;
+            if ((month==4 && day>=20) || (month==5 && day<=20)) return 1;
+            if ((month==5 && day>=21) || (month==6 && day<=21)) return 2;
+            if ((month==6 && day>=22) || (month==7 && day<=22)) return 3;
+            if ((month==7 && day>=23) || (month==8 && day<=22)) return 4;
+            if ((month==8 && day>=23) || (month==9 && day<=22)) return 5;
+            if ((month==9 && day>=23) || (month==10 && day<=23)) return 6;
+            if ((month==10 && day>=24) || (month==11 && day<=22)) return 7;
+            if ((month==11 && day>=23) || (month==12 && day<=21)) return 8;
+            if ((month==12 && day>=22) || (month==1 && day<=19)) return 9;
+            if ((month==1 && day>=20) || (month==2 && day<=18)) return 10;
+            return 11;
+        }
+
         function calculateAstroHepan() {
             const date1 = document.getElementById('astro-hepan1-date').value;
             const date2 = document.getElementById('astro-hepan2-date').value;
             if (!date1 || !date2) { alert('请选择出生日期'); return; }
-            const getSign = (dateStr) => {
-                const [y,m,d] = dateStr.split('-').map(Number);
-                if ((m==3 && d>=21) || (m==4 && d<=19)) return 0;
-                if ((m==4 && d>=20) || (m==5 && d<=20)) return 1;
-                if ((m==5 && d>=21) || (m==6 && d<=21)) return 2;
-                if ((m==6 && d>=22) || (m==7 && d<=22)) return 3;
-                if ((m==7 && d>=23) || (m==8 && d<=22)) return 4;
-                if ((m==8 && d>=23) || (m==9 && d<=22)) return 5;
-                if ((m==9 && d>=23) || (m==10 && d<=23)) return 6;
-                if ((m==10 && d>=24) || (m==11 && d<=22)) return 7;
-                if ((m==11 && d>=23) || (m==12 && d<=21)) return 8;
-                if ((m==12 && d>=22) || (m==1 && d<=19)) return 9;
-                if ((m==1 && d>=20) || (m==2 && d<=18)) return 10;
-                return 11;
-            };
-            const s1 = getSign(date1);
-            const s2 = getSign(date2);
+            const [y1,m1,d1] = date1.split('-').map(Number);
+            const [y2,m2,d2] = date2.split('-').map(Number);
+            const s1 = getSunSign(m1,d1);
+            const s2 = getSunSign(m2,d2);
             const compatibility = [[80,70,90,60,85,75,65,95,80,70,85,60],[70,85,60,90,75,85,70,65,90,80,75,85],[90,60,80,70,95,65,85,75,85,60,90,70],[60,90,70,85,65,90,75,60,70,85,75,90],[85,75,95,65,80,70,60,85,95,70,80,65],[75,85,65,90,70,85,70,65,75,90,65,85],[65,70,85,75,60,70,80,70,65,75,90,80],[95,65,75,60,85,65,70,90,80,60,75,70],[80,90,85,70,95,75,65,80,85,70,85,65],[70,80,60,85,70,90,75,60,70,85,70,90],[85,75,90,75,80,65,90,75,85,70,80,70],[60,85,70,90,65,85,80,70,65,90,70,85]];
             const score = compatibility[s1][s2];
             let level = score>=90?'灵魂伴侣':score>=80?'非常契合':score>=70?'比较契合':'需要磨合';
-            document.getElementById('astro-hepan-chart').innerHTML = `<div class="inline-block"><svg width="300" height="300"><circle cx="150" cy="150" r="120" fill="none" stroke="#7c3aed" stroke-width="2"/><circle cx="${150+100*Math.cos(s1*30*Math.PI/180 - Math.PI/2)}" cy="${150+100*Math.sin(s1*30*Math.PI/180 - Math.PI/2)}" r="10" fill="#7c3aed"/><circle cx="${150+100*Math.cos(s2*30*Math.PI/180 - Math.PI/2)}" cy="${150+100*Math.sin(s2*30*Math.PI/180 - Math.PI/2)}" r="10" fill="#ec4899"/></svg><p class="text-4xl font-bold text-gradient mt-2">${score}分 ${level}</p></div>`;
+            document.getElementById('astro-hepan-chart').innerHTML = `<div class="inline-block"><p class="text-4xl font-bold text-gradient">${score}分</p><p class="text-xl">${level}</p><p>${signs[s1]}座 vs ${signs[s2]}座</p></div>`;
             document.getElementById('astro-hepan-analysis').innerHTML = `<div class="space-y-4"><div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">合盘分析</h5><p>${level}</p></div></div>`;
             document.getElementById('astro-hepan-result').classList.remove('hidden');
         }
 
-        // 六爻占卜
+        // 六爻
         let yaoCount = 0, yaoList = [], isAnimating = false;
         function tossCoins() {
             if (yaoCount >= 6 || isAnimating) return;
             isAnimating = true;
             const coins = [document.getElementById('coin1'), document.getElementById('coin2'), document.getElementById('coin3')];
-            coins.forEach(c => { c.classList.remove('flipped'); c.querySelector('.coin-text').innerText = ''; });
-            const results = coins.map(() => Math.random() < 0.5 ? '字' : '背');
+            coins.forEach(c => { c.classList.remove('flipped'); c.querySelector('.coin-text').innerHTML = '⚊'; });
+            const results = coins.map(() => Math.random() < 0.5 ? '⚊' : '⚋');
             coins.forEach((c, i) => { setTimeout(() => { c.classList.add('flipped'); }, i * 100); });
             setTimeout(() => {
-                coins.forEach((c, i) => { c.querySelector('.coin-text').innerText = results[i]; });
-                const backCount = results.filter(r => r === '背').length;
+                coins.forEach((c, i) => { c.querySelector('.coin-text').innerHTML = results[i]; });
+                const yangCount = results.filter(r => r === '⚊').length;
                 let yao, isMoving;
-                if (backCount === 0) { yao = 0; isMoving = true; }
-                else if (backCount === 1) { yao = 1; isMoving = false; }
-                else if (backCount === 2) { yao = 0; isMoving = false; }
+                if (yangCount === 0) { yao = 0; isMoving = true; }
+                else if (yangCount === 1) { yao = 1; isMoving = false; }
+                else if (yangCount === 2) { yao = 0; isMoving = false; }
                 else { yao = 1; isMoving = true; }
                 yaoList.push({ yao, isMoving });
                 yaoCount++;
@@ -962,7 +592,6 @@
                 isAnimating = false;
             }, 1500);
         }
-
         function renderGua() {
             const benGua = [], bianGua = [];
             for (let i = 0; i < 6; i++) {
@@ -982,33 +611,12 @@
             }
             html += `</div>`;
             document.getElementById('liuyao-chart').innerHTML = html;
-            document.getElementById('liuyao-interpretation').innerHTML = `
-                <h4 class="text-xl font-bold mb-4">卦象解析</h4>
-                <p class="mb-2"><strong>本卦：</strong>${benName}</p>
-                <p class="mb-2"><strong>变卦：</strong>${bianName}</p>
-                <p>${getGuaMeaning(benName)}</p>
-                <p class="text-yellow-300 text-sm mt-4">六爻占卜仅供娱乐参考</p>`;
+            document.getElementById('liuyao-interpretation').innerHTML = `<h4 class="text-xl font-bold mb-4">卦象解析</h4><p><strong>本卦：</strong>${benName}</p><p><strong>变卦：</strong>${bianName}</p><p>${getGuaMeaning(benName)}</p><p class="text-yellow-300 text-sm mt-4">六爻占卜仅供娱乐参考</p>`;
             document.getElementById('liuyao-result').classList.remove('hidden');
         }
-
         function getGuaMeaning(name) {
-            const meanings = {
-                '乾为天':'刚健中正，自强不息',
-                '坤为地':'柔顺包容，厚德载物',
-                '水雷屯':'艰难困苦，宜坚守正道',
-                '山水蒙':'虚心求教，循序渐进',
-                '水天需':'等待时机，不宜急躁',
-                '天水讼':'争讼是非，退一步海阔天空',
-                '地水师':'以德服人，正义之师必胜',
-                '水地比':'亲密合作，贵人相助',
-                '风天小畜':'小有成就，继续努力',
-                '天泽履':'脚踏实地，履行职责',
-                '地天泰':'天地交泰，大吉大利',
-                '天地否':'诸事不顺，宜守不宜进',
-                '天火同人':'志同道合，团结一心',
-                '火天大有':'丰收富足，大有作为'
-            };
-            return meanings[name] || '运势平稳，静待时机';
+            const m = {'乾为天':'刚健中正','坤为地':'厚德载物','水雷屯':'艰难险阻','山水蒙':'蒙昧待启','水天需':'等待时机','天水讼':'争讼是非','地水师':'以正克邪','水地比':'亲比和睦','风天小畜':'小有积蓄','天泽履':'谨慎行事','地天泰':'通泰安和','天地否':'闭塞不通','天火同人':'志同道合','火天大有':'丰收大有'};
+            return m[name] || '运势待定';
         }
 
         // 梅花易数
@@ -1023,21 +631,12 @@
             const shangYao = (shangGua-1).toString(2).padStart(3,'0').split('').map(Number);
             const xiaYao = (xiaGua-1).toString(2).padStart(3,'0').split('').map(Number);
             const benYao = [...shangYao, ...xiaYao];
-            const bianYaoIndex = bianYao - 1;
-            benYao[bianYaoIndex] = benYao[bianYaoIndex] === 0 ? 1 : 0;
+            benYao[bianYao-1] = benYao[bianYao-1] === 0 ? 1 : 0;
             const newShang = parseInt(benYao.slice(0,3).join(''),2);
-            const newXia = parseInt(benYao.slice(3,6).join(''),2);
+            const newXia = parseInt(benYao.slice(3).join(''),2);
             const bianGuaName = guaNames[newShang] + '为' + guaNames[newXia];
-            document.getElementById('meihua-chart').innerHTML = `
-                <div class="bg-darker p-6 rounded-xl inline-block">
-                    <h4 class="text-xl font-bold mb-2">本卦：${benGuaName}</h4>
-                    <h4 class="text-xl font-bold">变卦：${bianGuaName}</h4>
-                    <p class="mt-2 text-sm text-gray-400">动爻：第${bianYao}爻</p>
-                </div>`;
-            document.getElementById('meihua-interpretation').innerHTML = `
-                <p class="mb-4">本卦为${benGuaName}，变卦为${bianGuaName}，动爻在第${bianYao}爻。</p>
-                <p>卦象显示：运势上扬，有贵人相助。</p>
-                <p class="text-yellow-300 text-sm mt-4">梅花易数仅供娱乐参考</p>`;
+            document.getElementById('meihua-chart').innerHTML = `<div class="bg-darker p-6 rounded-xl inline-block"><h4 class="text-xl font-bold mb-2">本卦：${benGuaName}</h4><h4 class="text-xl font-bold">变卦：${bianGuaName}</h4><p class="mt-2 text-sm text-gray-400">动爻：第${bianYao}爻</p></div>`;
+            document.getElementById('meihua-interpretation').innerHTML = `<p class="mb-4">本卦为${benGuaName}，变卦为${bianGuaName}，动爻在第${bianYao}爻。</p><p>卦象显示：运势上扬，有贵人相助。</p><p class="text-yellow-300 text-sm mt-4">梅花易数仅供娱乐参考</p>`;
             document.getElementById('meihua-result').classList.remove('hidden');
         }
 
