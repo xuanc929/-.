@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- 引入 lunar 库进行农历和八字计算 -->
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.min.js"></script>
     <script>
         tailwind.config = {
@@ -31,7 +32,6 @@
                         'slideUp': 'slideUp 0.5s ease-out',
                         'pageFlip': 'pageFlip 1.2s ease-in-out forwards',
                         'spinCoin': 'spinCoin 1.5s ease-in-out forwards',
-                        'bounceCoin': 'bounceCoin 0.5s ease-in-out',
                     },
                     keyframes: {
                         float: {
@@ -62,10 +62,6 @@
                             '0%': { transform: 'rotateY(0deg) rotateX(0deg)' },
                             '50%': { transform: 'rotateY(720deg) rotateX(360deg)' },
                             '100%': { transform: 'rotateY(0deg) rotateX(0deg)' }
-                        },
-                        bounceCoin: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' }
                         }
                     }
                 }
@@ -314,7 +310,7 @@
             </div>
         </div>
 
-        <!-- 八字排盘 -->
+        <!-- 八字排盘（详尽版） -->
         <div id="bazi-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
                 <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-calendar mr-3"></i>八字排盘（公历自动转农历）</h2>
@@ -377,7 +373,7 @@
             </div>
         </div>
 
-        <!-- 个人星盘 -->
+        <!-- 个人星盘（优化版） -->
         <div id="astrology-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
                 <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-globe mr-3"></i>个人星盘（娱乐参考）</h2>
@@ -412,7 +408,7 @@
             </div>
         </div>
 
-        <!-- 六爻占卜 -->
+        <!-- 六爻占卜（铜钱UI） -->
         <div id="liuyao-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
                 <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-yen mr-3"></i>六爻占卜</h2>
@@ -706,7 +702,7 @@
             document.getElementById('lenormand-result').classList.remove('hidden');
         }
 
-        // 八字排盘（使用lunar库）
+        // ==================== 八字排盘（详尽版） ====================
         function calculateBazi() {
             const dateStr = document.getElementById('bazi-date').value;
             const timeStr = document.getElementById('bazi-time').value;
@@ -722,42 +718,101 @@
             const dayZhu = bazi.getDay();
             const shiZhu = bazi.getTime(hour);
             const riGan = dayZhu.charAt(0);
-            const geJu = "普通格局";
+            const riZhi = dayZhu.charAt(1);
+
+            // 纳音
+            const naYinYear = bazi.getYearNaYin();
+            const naYinMonth = bazi.getMonthNaYin();
+            const naYinDay = bazi.getDayNaYin();
+            const naYinTime = bazi.getTimeNaYin();
+
+            // 五行统计
+            const wxCount = {木:0,火:0,土:0,金:0,水:0};
+            [yearZhu, monthZhu, dayZhu, shiZhu].forEach(zhu => {
+                ['甲','乙','寅','卯'].includes(zhu[0]) ? wxCount['木']++ : 0;
+                ['丙','丁','巳','午'].includes(zhu[0]) ? wxCount['火']++ : 0;
+                ['戊','己','辰','戌','丑','未'].includes(zhu[0]) ? wxCount['土']++ : 0;
+                ['庚','辛','申','酉'].includes(zhu[0]) ? wxCount['金']++ : 0;
+                ['壬','癸','亥','子'].includes(zhu[0]) ? wxCount['水']++ : 0;
+                ['甲','乙','寅','卯'].includes(zhu[1]) ? wxCount['木']++ : 0;
+                ['丙','丁','巳','午'].includes(zhu[1]) ? wxCount['火']++ : 0;
+                ['戊','己','辰','戌','丑','未'].includes(zhu[1]) ? wxCount['土']++ : 0;
+                ['庚','辛','申','酉'].includes(zhu[1]) ? wxCount['金']++ : 0;
+                ['壬','癸','亥','子'].includes(zhu[1]) ? wxCount['水']++ : 0;
+            });
+
+            // 十神（以日干为中心）
+            const shiShenMap = {甲:{甲:'比肩',乙:'劫财',丙:'食神',丁:'伤官',戊:'偏财',己:'正财',庚:'七杀',辛:'正官',壬:'偏印',癸:'正印'},
+                               乙:{甲:'劫财',乙:'比肩',丙:'伤官',丁:'食神',戊:'正财',己:'偏财',庚:'正官',辛:'七杀',壬:'正印',癸:'偏印'},};
+
+            // 大运和流年
+            const yun = lunar.getYun();
+            const startYear = yun.getStartYear();
+            const daYun = yun.getDaYun();
+            const liuNian = yun.getLiuNian();
+
+            // 神煞
+            const shenSha = bazi.getShenSha();
+
+            // 命宫
+            const mingGong = bazi.getMingGong();
+
+            // 性格
             const xingGe = {
-                '甲':'仁慈正直，有上进心',
-                '乙':'柔韧温和，心思细腻',
-                '丙':'热情开朗，积极大方',
-                '丁':'文雅温和，重情义',
-                '戊':'稳重踏实，诚信可靠',
-                '己':'温和包容，勤奋务实',
-                '庚':'刚毅果断，讲义气',
-                '辛':'锐利敏感，追求完美',
-                '壬':'聪明灵活，善变',
-                '癸':'内向细腻，直觉敏锐'
+                '甲':'仁慈正直，有上进心，领导力强。',
+                '乙':'柔韧温和，心思细腻，善于变通。',
+                '丙':'热情开朗，积极大方，好面子。',
+                '丁':'文雅温和，重情义，细心多虑。',
+                '戊':'稳重踏实，诚信可靠，固执。',
+                '己':'温和包容，勤奋务实，多疑。',
+                '庚':'刚毅果断，讲义气，竞争心强。',
+                '辛':'锐利敏感，追求完美，好面子。',
+                '壬':'聪明灵活，善变，适应力强。',
+                '癸':'内向细腻，直觉敏锐，保守。'
             }[riGan] || '个性鲜明';
-            const caiYun = '财运良好';
-            const hunYin = '婚姻和谐';
-            const jianKang = '健康良好';
-            document.getElementById('bazi-chart').innerHTML = `
-                <div class="bg-darker p-6 rounded-xl text-center">
-                    <h4 class="text-xl font-bold mb-4 text-gradient">八字排盘（公历：${year}年${month}月${day}日）</h4>
+
+            // 构建输出
+            let chartHtml = `
+                <div class="bg-darker p-6 rounded-xl text-center mb-6">
+                    <h4 class="text-xl font-bold mb-4 text-gradient">八字排盘（公历：${year}年${month}月${day}日 ${hour}时）</h4>
                     <div class="grid grid-cols-4 gap-4">
-                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">年柱</p><p class="text-2xl">${yearZhu}</p></div>
-                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">月柱</p><p class="text-2xl">${monthZhu}</p></div>
-                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">日柱</p><p class="text-2xl">${dayZhu}</p></div>
-                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">时柱</p><p class="text-2xl">${shiZhu}</p></div>
+                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">年柱</p><p class="text-2xl">${yearZhu}</p><p class="text-xs">${naYinYear}</p></div>
+                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">月柱</p><p class="text-2xl">${monthZhu}</p><p class="text-xs">${naYinMonth}</p></div>
+                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">日柱</p><p class="text-2xl">${dayZhu}</p><p class="text-xs">${naYinDay}</p></div>
+                        <div class="p-3 bg-primary/20 rounded-lg"><p class="font-bold">时柱</p><p class="text-2xl">${shiZhu}</p><p class="text-xs">${naYinTime}</p></div>
                     </div>
-                    <p class="mt-4 text-sm text-gray-400">日主：${riGan}（${gender === 'male'?'男命':'女命'}）</p>
+                    <p class="mt-4 text-sm text-gray-400">日主：${riGan}（${gender === 'male'?'男命':'女命'}） 命宫：${mingGong}</p>
                 </div>`;
-            document.getElementById('bazi-analysis').innerHTML = `
+
+            let analysisHtml = `
                 <div class="space-y-4">
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">格局判断</h5><p>${geJu}</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">性格分析</h5><p>${xingGe}</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">婚姻分析</h5><p>${hunYin}</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">财运分析</h5><p>${caiYun}</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">健康提示</h5><p>${jianKang}</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg">
+                        <h5 class="font-bold text-primary mb-2">🧬 五行力量</h5>
+                        <div class="flex justify-between"><span>木 ${wxCount['木']}</span><span>火 ${wxCount['火']}</span><span>土 ${wxCount['土']}</span><span>金 ${wxCount['金']}</span><span>水 ${wxCount['水']}</span></div>
+                    </div>
+                    <div class="bg-darker/30 p-4 rounded-lg">
+                        <h5 class="font-bold text-primary mb-2">📖 性格分析</h5><p>${xingGe}</p>
+                    </div>
+                    <div class="bg-darker/30 p-4 rounded-lg">
+                        <h5 class="font-bold text-primary mb-2">💰 财运</h5><p>日主${riGan}，正偏财待查。</p>
+                    </div>
+                    <div class="bg-darker/30 p-4 rounded-lg">
+                        <h5 class="font-bold text-primary mb-2">💼 事业运势</h5><p>${['甲','乙'].includes(riGan)?'适合文职、教育':'丙丁'? '适合能源、娱乐':''}行业。</p>
+                    </div>
+                    <div class="bg-darker/30 p-4 rounded-lg">
+                        <h5 class="font-bold text-primary mb-2">🔮 神煞</h5><p>${shenSha}</p>
+                    </div>
+                    <div class="bg-darker/30 p-4 rounded-lg">
+                        <h5 class="font-bold text-primary mb-2">📅 大运起运</h5><p>${startYear}岁起运，每十年一运。</p>
+                        <p>大运：${daYun.join(' → ')}</p>
+                    </div>
+                    <div class="bg-darker/30 p-4 rounded-lg">
+                        <h5 class="font-bold text-primary mb-2">🎆 流年</h5><p>${liuNian}</p>
+                    </div>
                 </div>
                 <p class="text-yellow-300 text-sm mt-6">八字命理仅供娱乐参考，命运掌握在自己手中</p>`;
+            document.getElementById('bazi-chart').innerHTML = chartHtml;
+            document.getElementById('bazi-analysis').innerHTML = analysisHtml;
             document.getElementById('bazi-result').classList.remove('hidden');
         }
 
@@ -789,8 +844,8 @@
             document.getElementById('bazi-hepan-result').classList.remove('hidden');
         }
 
-        // 星盘
-        const zodiacSigns = ['白羊座','金牛座','双子座','巨蟹座','狮子座','处女座','天秤座','天蝎座','射手座','摩羯座','水瓶座','双鱼座'];
+        // 星盘（美化版）
+        const zodiacSigns = ['♈️ 白羊','♉️ 金牛','♊️ 双子','♋️ 巨蟹','♌️ 狮子','♍️ 处女','♎️ 天秤','♏️ 天蝎','♐️ 射手','♑️ 摩羯','♒️ 水瓶','♓️ 双鱼'];
         function calculateAstrology() {
             const dateStr = document.getElementById('astro-date').value;
             const timeStr = document.getElementById('astro-time').value;
@@ -816,33 +871,38 @@
                 '水星': (sunSign + 10) % 12,
                 '金星': (sunSign + 6) % 12,
                 '火星': (sunSign + 3) % 12,
+                '木星': (sunSign + 8) % 12,
+                '土星': (sunSign + 5) % 12,
+                '天王': (sunSign + 9) % 12,
+                '海王': (sunSign + 7) % 12,
+                '冥王': (sunSign + 4) % 12,
                 '上升': (sunSign + hour) % 12
             };
-            let svg = `<svg width="400" height="400" viewBox="0 0 400 400"><circle cx="200" cy="200" r="180" fill="none" stroke="#7c3aed" stroke-width="2"/>`;
+            let svg = `<svg width="420" height="420" viewBox="0 0 420 420"><circle cx="210" cy="210" r="190" fill="none" stroke="#7c3aed" stroke-width="2"/>`;
             for (let i=0; i<12; i++) {
                 const angle = i * 30 * Math.PI / 180;
-                const x1 = 200 + 60*Math.cos(angle - Math.PI/2);
-                const y1 = 200 + 60*Math.sin(angle - Math.PI/2);
-                const x2 = 200 + 180*Math.cos(angle - Math.PI/2);
-                const y2 = 200 + 180*Math.sin(angle - Math.PI/2);
+                const x1 = 210 + 70*Math.cos(angle - Math.PI/2);
+                const y1 = 210 + 70*Math.sin(angle - Math.PI/2);
+                const x2 = 210 + 190*Math.cos(angle - Math.PI/2);
+                const y2 = 210 + 190*Math.sin(angle - Math.PI/2);
                 svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#7c3aed" stroke-width="1"/>`;
-                svg += `<text x="${200 + 80*Math.cos(angle - Math.PI/2 + 15*Math.PI/180)}" y="${200 + 80*Math.sin(angle - Math.PI/2 + 15*Math.PI/180)}" fill="#a855f7" font-size="12" text-anchor="middle">${i+1}宫</text>`;
+                svg += `<text x="${210 + 90*Math.cos(angle - Math.PI/2 + 15*Math.PI/180)}" y="${210 + 90*Math.sin(angle - Math.PI/2 + 15*Math.PI/180)}" fill="#a855f7" font-size="10" text-anchor="middle">${zodiacSigns[i]}</text>`;
             }
-            const planetColors = {'太阳':'#fbbf24','月亮':'#94a3b8','水星':'#60a5fa','金星':'#ec4899','火星':'#ef4444','上升':'#10b981'};
+            const planetColors = {'太阳':'#fbbf24','月亮':'#94a3b8','水星':'#60a5fa','金星':'#ec4899','火星':'#ef4444','木星':'#f59e0b','土星':'#6b7280','天王':'#10b981','海王':'#06b6d4','冥王':'#8b5cf6','上升':'#f43f5e'};
             for (let p in planetPositions) {
                 const sign = planetPositions[p];
                 const angle = sign * 30 * Math.PI / 180 + 15 * Math.PI / 180;
-                const x = 200 + 130 * Math.cos(angle - Math.PI/2);
-                const y = 200 + 130 * Math.sin(angle - Math.PI/2);
-                svg += `<circle cx="${x}" cy="${y}" r="8" fill="${planetColors[p]}"/><text x="${x}" y="${y+18}" fill="white" font-size="10" text-anchor="middle">${p}</text>`;
+                const x = 210 + 140 * Math.cos(angle - Math.PI/2);
+                const y = 210 + 140 * Math.sin(angle - Math.PI/2);
+                svg += `<circle cx="${x}" cy="${y}" r="8" fill="${planetColors[p]}"/><text x="${x}" y="${y+18}" fill="white" font-size="9" text-anchor="middle">${p}</text>`;
             }
             svg += `</svg>`;
             document.getElementById('astro-chart').innerHTML = svg;
             document.getElementById('astro-analysis').innerHTML = `
                 <div class="space-y-4">
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">太阳星座：${zodiacSigns[sunSign]}</h5><p>代表核心性格</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">上升星座：${zodiacSigns[planetPositions['上升']]}</h5><p>外在形象</p></div>
-                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">月亮星座：${zodiacSigns[planetPositions['月亮']]}</h5><p>情感需求</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">太阳：${zodiacSigns[sunSign]}</h5><p>代表你的核心自我、人生目标。</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">上升：${zodiacSigns[planetPositions['上升']]}</h5><p>外在形象、第一印象。</p></div>
+                    <div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">月亮：${zodiacSigns[planetPositions['月亮']]}</h5><p>情感需求、潜意识。</p></div>
                 </div>
                 <p class="text-yellow-300 text-sm mt-6">星盘仅供娱乐，非天文精确计算</p>`;
             document.getElementById('astrology-result').classList.remove('hidden');
@@ -879,18 +939,14 @@
         }
 
         // 六爻占卜
-        let yaoCount = 0;
-        let yaoList = [];
-        let isAnimating = false;
+        let yaoCount = 0, yaoList = [], isAnimating = false;
         function tossCoins() {
             if (yaoCount >= 6 || isAnimating) return;
             isAnimating = true;
             const coins = [document.getElementById('coin1'), document.getElementById('coin2'), document.getElementById('coin3')];
             coins.forEach(c => { c.classList.remove('flipped'); c.querySelector('.coin-text').innerText = ''; });
             const results = coins.map(() => Math.random() < 0.5 ? '字' : '背');
-            coins.forEach((c, i) => {
-                setTimeout(() => { c.classList.add('flipped'); }, i * 100);
-            });
+            coins.forEach((c, i) => { setTimeout(() => { c.classList.add('flipped'); }, i * 100); });
             setTimeout(() => {
                 coins.forEach((c, i) => { c.querySelector('.coin-text').innerText = results[i]; });
                 const backCount = results.filter(r => r === '背').length;
@@ -964,7 +1020,6 @@
             const bianYao = (n1 + n2) % 6 === 0 ? 6 : (n1 + n2) % 6;
             const guaNames = ['坤','艮','坎','巽','震','离','兑','乾'];
             const benGuaName = guaNames[shangGua-1] + '为' + guaNames[xiaGua-1];
-            // 计算变卦
             const shangYao = (shangGua-1).toString(2).padStart(3,'0').split('').map(Number);
             const xiaYao = (xiaGua-1).toString(2).padStart(3,'0').split('').map(Number);
             const benYao = [...shangYao, ...xiaYao];
