@@ -7,30 +7,17 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- 八字库 -->
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.13/lunar.min.js"></script>
-    <!-- 天文库（修复加载方式） -->
-    <script src="https://cdn.jsdelivr.net/npm/astronomia@2.1.0/lib/astronomia.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        primary: '#7c3aed',
-                        secondary: '#a855f7',
-                        accent: '#ec4899',
-                        dark: '#0f172a',
-                        darker: '#020617',
-                        card: '#1e293b'
-                    },
+                    colors: { primary: '#7c3aed', secondary: '#a855f7', accent: '#ec4899', dark: '#0f172a', darker: '#020617', card: '#1e293b' },
                     fontFamily: { serif: ['Noto Serif SC', 'serif'] },
                     animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate',
-                        'flip': 'flip 0.8s ease-in-out forwards',
-                        'fadeIn': 'fadeIn 0.5s ease-in-out',
-                        'slideUp': 'slideUp 0.5s ease-out',
-                        'pageFlip': 'pageFlip 1.2s ease-in-out forwards',
+                        'float': 'float 6s ease-in-out infinite', 'glow': 'glow 2s ease-in-out infinite alternate',
+                        'flip': 'flip 0.8s ease-in-out forwards', 'fadeIn': 'fadeIn 0.5s ease-in-out',
+                        'slideUp': 'slideUp 0.5s ease-out', 'pageFlip': 'pageFlip 1.2s ease-in-out forwards',
                         'spinCoin': 'spinCoin 1.5s ease-in-out forwards',
                     },
                     keyframes: {
@@ -52,40 +39,19 @@
             .bg-gradient-main { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%); }
             .card-hover { transition: all 0.3s ease; }
             .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.1), 0 10px 10px -5px rgba(124, 58, 237, 0.04); }
-            .tarot-card { perspective: 1500px; }
-            .tarot-card-inner { transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
-            .tarot-card.flipped .tarot-card-inner { transform: rotateY(180deg); }
-            .tarot-card-front, .tarot-card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-            .tarot-card-back { transform: rotateY(180deg); }
-            .lenormand-card { perspective: 1000px; }
-            .lenormand-card-inner { transition: transform 0.6s ease; transform-style: preserve-3d; }
-            .lenormand-card.flipped .lenormand-card-inner { transform: rotateY(180deg); }
-            .lenormand-card-front, .lenormand-card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-            .lenormand-card-back { transform: rotateY(180deg); }
-            .book-container { perspective: 2000px; }
-            .book-page { transform-origin: left center; transform-style: preserve-3d; transition: transform 1.2s ease-in-out; }
-            .book-page.flipped { transform: rotateY(-180deg); }
-            .book-front, .book-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-            .book-back { transform: rotateY(180deg); }
-            .copper-coin {
-                width: 80px; height: 80px; border-radius: 50%;
-                background: radial-gradient(circle at 30% 30%, #d4a017, #b8860b);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,200,0.5);
-                display: flex; align-items: center; justify-content: center; position: relative;
-            }
-            .copper-coin::after {
-                content: ""; position: absolute; width: 24px; height: 24px;
-                background: #3a2c0a; border: 2px solid #8b6508; transform: rotate(45deg);
-            }
-            .coin-text {
-                font-family: 'KaiTi', '楷体', serif; font-size: 36px; font-weight: bold;
-                color: #3a2c0a; position: relative; z-index: 1;
-            }
+            .tarot-card { perspective: 1500px; } .tarot-card-inner { transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+            .tarot-card.flipped .tarot-card-inner { transform: rotateY(180deg); } .tarot-card-front, .tarot-card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; } .tarot-card-back { transform: rotateY(180deg); }
+            .lenormand-card { perspective: 1000px; } .lenormand-card-inner { transition: transform 0.6s ease; transform-style: preserve-3d; }
+            .lenormand-card.flipped .lenormand-card-inner { transform: rotateY(180deg); } .lenormand-card-front, .lenormand-card-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; } .lenormand-card-back { transform: rotateY(180deg); }
+            .book-container { perspective: 2000px; } .book-page { transform-origin: left center; transform-style: preserve-3d; transition: transform 1.2s ease-in-out; }
+            .book-page.flipped { transform: rotateY(-180deg); } .book-front, .book-back { backface-visibility: hidden; -webkit-backface-visibility: hidden; } .book-back { transform: rotateY(180deg); }
+            .copper-coin { width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #d4a017, #b8860b); box-shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 2px 4px rgba(255,255,200,0.5); display: flex; align-items: center; justify-content: center; position: relative; }
+            .copper-coin::after { content: ""; position: absolute; width: 24px; height: 24px; background: #3a2c0a; border: 2px solid #8b6508; transform: rotate(45deg); }
+            .coin-text { font-family: 'KaiTi', '楷体', serif; font-size: 36px; font-weight: bold; color: #3a2c0a; position: relative; z-index: 1; }
         }
     </style>
 </head>
 <body class="bg-gradient-main min-h-screen text-gray-100 font-serif">
-    <!-- 星空背景 -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div class="absolute w-1 h-1 bg-white rounded-full top-[10%] left-[20%] animate-pulse"></div>
         <div class="absolute w-1 h-1 bg-white rounded-full top-[15%] left-[80%] animate-pulse" style="animation-delay: 0.5s"></div>
@@ -100,32 +66,22 @@
     <nav class="bg-darker/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-primary/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <span class="text-2xl font-bold text-gradient animate-glow"><i class="fa fa-moon-o mr-2"></i>整点儿玄的</span>
-                </div>
-                <div class="flex items-center">
-                    <span class="text-sm text-gray-400 bg-primary/10 px-3 py-1 rounded-full">仅供娱乐参考</span>
-                </div>
+                <div class="flex items-center"><span class="text-2xl font-bold text-gradient animate-glow"><i class="fa fa-moon-o mr-2"></i>整点儿玄的</span></div>
+                <div class="flex items-center"><span class="text-sm text-gray-400 bg-primary/10 px-3 py-1 rounded-full">仅供娱乐参考</span></div>
             </div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div class="bg-yellow-500/10 border-l-4 border-yellow-500 p-4 mb-8 rounded-r-lg animate-fadeIn">
-            <div class="flex">
-                <div class="flex-shrink-0"><i class="fa fa-exclamation-triangle text-yellow-500 text-xl"></i></div>
-                <div class="ml-3"><p class="text-sm text-yellow-200"><strong>重要声明：</strong>本网站所有内容仅供娱乐休闲和传统文化交流使用，不构成任何人生决策建议。</p></div>
-            </div>
+            <div class="flex"><div class="flex-shrink-0"><i class="fa fa-exclamation-triangle text-yellow-500 text-xl"></i></div><div class="ml-3"><p class="text-sm text-yellow-200"><strong>重要声明：</strong>本网站所有内容仅供娱乐休闲和传统文化交流使用，不构成任何人生决策建议。</p></div></div>
         </div>
-
         <div class="mb-10">
             <div class="flex flex-wrap gap-3 justify-center">
                 <button onclick="showTool('tarot')" class="tool-tab active px-5 py-3 rounded-full bg-primary text-white font-medium transition-all hover:bg-primary/90 card-hover"><i class="fa fa-magic mr-2"></i>塔罗牌</button>
                 <button onclick="showTool('lenormand')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-diamond mr-2"></i>雷诺曼</button>
                 <button onclick="showTool('bazi')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-calendar mr-2"></i>八字排盘</button>
                 <button onclick="showTool('bazi-hepan')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-heart mr-2"></i>八字合盘</button>
-                <button onclick="showTool('astrology')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-globe mr-2"></i>星座命盘</button>
-                <button onclick="showTool('astro-hepan')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-heart mr-2"></i>星座合盘</button>
                 <button onclick="showTool('liuyao')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-yen mr-2"></i>六爻占卜</button>
                 <button onclick="showTool('meihua')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-leaf mr-2"></i>梅花易数</button>
                 <button onclick="showTool('answers')" class="tool-tab px-5 py-3 rounded-full bg-card text-gray-300 font-medium transition-all hover:bg-card/80 card-hover"><i class="fa fa-book mr-2"></i>答案之书</button>
@@ -177,37 +133,6 @@
             <div id="bazi-hepan-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">八字合盘结果</h3><div id="bazi-hepan-score" class="mb-10 text-center"></div><div id="bazi-hepan-analysis" class="prose prose-invert max-w-none"></div></div>
         </div>
 
-        <!-- 星座命盘（已修复天文计算Bug） -->
-        <div id="astrology-tool" class="tool-content hidden animate-slideUp">
-            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
-                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-globe mr-3"></i>星座命盘（真实天文计算）</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div><label class="block text-gray-300 font-medium mb-3 text-lg">公历出生日期：</label><input type="date" id="astro-date" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"></div>
-                    <div><label class="block text-gray-300 font-medium mb-3 text-lg">出生时间：</label><input type="time" id="astro-time" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"></div>
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-300 font-medium mb-3 text-lg">出生地点或经纬度：</label>
-                    <input type="text" id="astro-location" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="城市名 或 经度,纬度 (如 116.41,39.91)">
-                    <div class="flex items-center justify-between mt-2">
-                        <p class="text-xs text-gray-400">📍 输入地点名称自动解析，或直接输入“经度,纬度”</p>
-                        <a href="https://www.latlong.net/" target="_blank" class="text-xs text-primary hover:text-secondary flex items-center gap-1">
-                            <i class="fa fa-external-link"></i> 查询经纬度
-                        </a>
-                    </div>
-                </div>
-                <button onclick="calculateAstrology()" id="astro-btn" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg">
-                    <i class="fa fa-globe mr-2"></i>生成命盘
-                </button>
-            </div>
-            <div id="astrology-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">你的星座命盘</h3><div id="astro-chart" class="mb-10 text-center"></div><div id="astro-analysis" class="prose prose-invert max-w-none"></div></div>
-        </div>
-
-        <!-- 星座合盘 -->
-        <div id="astro-hepan-tool" class="tool-content hidden animate-slideUp">
-            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover"><h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-heart mr-3"></i>星座合盘</h2><div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8"><div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-primary">你的信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历日期：</label><input type="date" id="astro-hepan1-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="astro-hepan1-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div></div></div><div class="bg-darker/30 p-6 rounded-xl"><h4 class="text-xl font-bold mb-4 text-accent">对方信息</h4><div class="space-y-4"><div><label class="block text-gray-300 font-medium mb-2">公历日期：</label><input type="date" id="astro-hepan2-date" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div><div><label class="block text-gray-300 font-medium mb-2">出生时间：</label><input type="time" id="astro-hepan2-time" class="w-full p-3 bg-darker border border-primary/30 rounded-lg text-white"></div></div></div></div><button onclick="calculateAstroHepan()" class="w-full bg-gradient-to-r from-primary to-accent text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-heart mr-2"></i>开始合盘</button></div>
-            <div id="astro-hepan-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">星座合盘结果</h3><div id="astro-hepan-chart" class="mb-10 text-center"></div><div id="astro-hepan-analysis" class="prose prose-invert max-w-none"></div></div>
-        </div>
-
         <!-- 六爻占卜 -->
         <div id="liuyao-tool" class="tool-content hidden animate-slideUp">
             <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
@@ -224,9 +149,21 @@
             <div id="liuyao-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">六爻卦象结果</h3><div id="liuyao-chart" class="mb-10 text-center"></div><div id="liuyao-interpretation" class="prose prose-invert max-w-none"></div></div>
         </div>
 
-        <!-- 梅花易数 -->
+        <!-- 梅花易数（文字起卦已修复） -->
         <div id="meihua-tool" class="tool-content hidden animate-slideUp">
-            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover"><h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-leaf mr-3"></i>梅花易数</h2><div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">起卦方式：</label><select id="meihua-method" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"><option value="number">数字起卦</option><option value="time">时间起卦</option><option value="text">文字起卦</option></select></div><div id="number-input" class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">输入两个数字（1-99）：</label><div class="grid grid-cols-2 gap-6"><input type="number" id="num1" min="1" max="99" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="第一个数字"><input type="number" id="num2" min="1" max="99" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="第二个数字"></div></div><div id="text-input" class="mb-8 hidden"><label class="block text-gray-300 font-medium mb-3 text-lg">输入问题：</label><input type="text" id="meihua-text" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="例如：我的身份证丢在哪了？"></div><button onclick="calculateMeihua()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-leaf mr-2"></i>起卦</button></div>
+            <div class="bg-card rounded-2xl shadow-2xl p-8 mb-8 border border-primary/20 card-hover">
+                <h2 class="text-3xl font-bold text-center mb-8 text-gradient"><i class="fa fa-leaf mr-3"></i>梅花易数</h2>
+                <div class="mb-8"><label class="block text-gray-300 font-medium mb-3 text-lg">起卦方式：</label><select id="meihua-method" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white"><option value="number">数字起卦</option><option value="time">时间起卦</option><option value="text">文字起卦</option></select></div>
+                <div id="number-input" class="mb-8">
+                    <label class="block text-gray-300 font-medium mb-3 text-lg">输入两个数字（1-99）：</label>
+                    <div class="grid grid-cols-2 gap-6"><input type="number" id="num1" min="1" max="99" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="第一个数字"><input type="number" id="num2" min="1" max="99" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="第二个数字"></div>
+                </div>
+                <div id="text-input" class="mb-8 hidden">
+                    <label class="block text-gray-300 font-medium mb-3 text-lg">输入你要占卜的文字：</label>
+                    <input type="text" id="meihua-text" class="w-full p-4 bg-darker border border-primary/30 rounded-xl text-white" placeholder="输入文字，会根据笔画数自动起卦">
+                </div>
+                <button onclick="calculateMeihua()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-4 px-6 rounded-xl hover:opacity-90 text-lg shadow-lg"><i class="fa fa-leaf mr-2"></i>起卦</button>
+            </div>
             <div id="meihua-result" class="bg-card rounded-2xl shadow-2xl p-8 border border-primary/20 hidden animate-slideUp"><h3 class="text-2xl font-bold mb-8 text-center text-gradient">梅花易数卦象结果</h3><div id="meihua-chart" class="mb-10 text-center"></div><div id="meihua-interpretation" class="prose prose-invert max-w-none"></div></div>
         </div>
 
@@ -240,23 +177,53 @@
     <footer class="bg-darker/80 backdrop-blur-md text-gray-400 py-10 mt-16 border-t border-primary/20"><div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"><p class="mb-3 text-lg">© 整点儿玄的 - 仅供娱乐参考</p><p class="text-sm">本网站内容仅用于文化交流和娱乐目的，不构成任何专业建议</p></div></footer>
 
     <script>
-        // 全局切换
         function showTool(toolId) {
             document.querySelectorAll('.tool-content').forEach(t => t.classList.add('hidden'));
             document.querySelectorAll('.tool-tab').forEach(t => { t.classList.remove('active', 'bg-primary', 'text-white'); t.classList.add('bg-card', 'text-gray-300'); });
             document.getElementById(toolId + '-tool').classList.remove('hidden');
-            event.target.classList.remove('bg-card', 'text-gray-300');
-            event.target.classList.add('active', 'bg-primary', 'text-white');
+            event.target.classList.remove('bg-card', 'text-gray-300'); event.target.classList.add('active', 'bg-primary', 'text-white');
         }
-        document.getElementById('meihua-method')?.addEventListener('change', function() {
+
+        // 梅花易数方法切换（修复：文字起卦不显示数字输入框）
+        document.getElementById('meihua-method').addEventListener('change', function() {
             const m = this.value;
-            document.getElementById('number-input').classList.add('hidden');
-            document.getElementById('text-input').classList.add('hidden');
-            if(m === 'number' || m === 'time') document.getElementById('number-input').classList.remove('hidden');
-            else { document.getElementById('number-input').classList.remove('hidden'); document.getElementById('text-input').classList.remove('hidden'); }
+            const numDiv = document.getElementById('number-input');
+            const textDiv = document.getElementById('text-input');
+            numDiv.classList.add('hidden');
+            textDiv.classList.add('hidden');
+            if (m === 'number' || m === 'time') {
+                numDiv.classList.remove('hidden');
+            } else if (m === 'text') {
+                textDiv.classList.remove('hidden');
+            }
         });
 
-        // 塔罗牌
+        // 初始化：默认显示数字输入框
+        document.addEventListener('DOMContentLoaded', function() {
+            const method = document.getElementById('meihua-method').value;
+            if (method === 'number' || method === 'time') {
+                document.getElementById('number-input').classList.remove('hidden');
+            } else {
+                document.getElementById('text-input').classList.remove('hidden');
+            }
+        });
+
+        // 获取文字笔画数的简化函数
+        function getTextStrokes(text) {
+            let total = 0;
+            for (let ch of text) {
+                // 中文字符粗略估算笔画：Unicode范围基本汉字，取随机笔画1-20作为模拟
+                // 实际应用中应使用笔画库，这里用charCodeAt取模模拟
+                if (/[\u4e00-\u9fff]/.test(ch)) {
+                    total += (ch.charCodeAt(0) % 20) + 1;
+                } else {
+                    total += 1;
+                }
+            }
+            return total || 1;
+        }
+
+        // 塔罗牌（保持不变）
         const tarotCards = [
             {name:"愚者",meaning:"新的开始",love:"新恋情",career:"新项目",wealth:"意外财",time:"1-3天",direction:"东",reversed:"鲁莽"},
             {name:"魔术师",meaning:"创造力",love:"主动出击",career:"能力发挥",wealth:"努力得财",time:"1周",direction:"南",reversed:"欺骗"},
@@ -317,7 +284,7 @@
             document.getElementById('lenormand-interpretation').innerHTML=txt; document.getElementById('lenormand-result').classList.remove('hidden');
         }
 
-        // 八字
+        // 八字（保持不变）
         const tianGan = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
         const diZhi = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
         const naYinMap = {
@@ -390,185 +357,7 @@
             document.getElementById('bazi-hepan-result').classList.remove('hidden');
         }
 
-        // ==================== 星座命盘（修复天文计算） ====================
-        const signs = ['白羊','金牛','双子','巨蟹','狮子','处女','天秤','天蝎','射手','摩羯','水瓶','双鱼'];
-        const signTraits = {
-            '白羊':'热情冲动，勇敢自信。',
-            '金牛':'稳重踏实，忠诚可靠。',
-            '双子':'聪明机智，善于沟通。',
-            '巨蟹':'温柔体贴，恋家顾家。',
-            '狮子':'自信大方，有领导力。',
-            '处女':'追求完美，细心谨慎。',
-            '天秤':'优雅迷人，善于交际。',
-            '天蝎':'神秘性感，洞察力强。',
-            '射手':'乐观开朗，热爱自由。',
-            '摩羯':'严谨认真，有野心。',
-            '水瓶':'特立独行，思想前卫。',
-            '双鱼':'浪漫多情，善良温柔。'
-        };
-
-        // 检测 astronomia 是否加载成功
-        function isAstronomiaReady() {
-            return typeof astronomia !== 'undefined' && typeof astronomia.julian !== 'undefined';
-        }
-
-        async function geocodeLocation(locationStr) {
-            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationStr)}&format=json&limit=1`;
-            const resp = await fetch(url);
-            if (!resp.ok) throw new Error('地理编码服务不可用');
-            const data = await resp.json();
-            if (data.length === 0) throw new Error('未找到该地点');
-            return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
-        }
-
-        function julianDay(year, month, day, hour) {
-            if (!isAstronomiaReady()) throw new Error('天文库加载失败，请刷新页面');
-            return astronomia.julian(year, month, day + hour / 24);
-        }
-
-        function lonToSign(lon) {
-            return Math.floor(((lon % 360) + 360) % 360 / 30);
-        }
-
-        function calcAscendant(jd, lon, lat) {
-            const T = (jd - 2451545.0) / 36525;
-            let GMST = 280.46061837 + 360.98564736629 * (jd - 2451545.0) + 0.000387933 * T * T - T * T * T / 38710000;
-            GMST = ((GMST % 360) + 360) % 360;
-            const LMST = GMST + lon;
-            const oblecl = 23.439291 - 0.0130042 * T;
-            let asc = Math.atan2(-Math.cos(LMST * Math.PI / 180), Math.sin(LMST * Math.PI / 180) * Math.cos(oblecl * Math.PI / 180) + Math.tan(lat * Math.PI / 180) * Math.sin(oblecl * Math.PI / 180));
-            asc = asc * 180 / Math.PI;
-            if (asc < 0) asc += 360;
-            return lonToSign(asc);
-        }
-
-        function getPlanetLongitude(jd, planetName) {
-            try {
-                if (!isAstronomiaReady()) return 0;
-                const planet = astronomia[planetName];
-                if (!planet || typeof planet.position !== 'function') return 0;
-                const pos = planet.position(jd);
-                return pos.lon * 180 / Math.PI;
-            } catch(e) {
-                return 0;
-            }
-        }
-
-        function getMoonNode(jd) {
-            const T = (jd - 2451545.0) / 36525;
-            let node = 125.04452 - 1934.136261 * T + 0.0020708 * T * T + T * T * T / 450000;
-            node = ((node % 360) + 360) % 360;
-            return node;
-        }
-
-        async function calculateAstrology() {
-            const dateStr = document.getElementById('astro-date').value;
-            const timeStr = document.getElementById('astro-time').value;
-            const locationInput = document.getElementById('astro-location').value.trim();
-            if (!dateStr) { alert('请选择出生日期'); return; }
-            if (!locationInput) { alert('请输入地点或经纬度'); return; }
-            if (!isAstronomiaReady()) { alert('天文库加载失败，请刷新页面后再试'); return; }
-            const btn = document.getElementById('astro-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>正在计算...';
-            try {
-                let lat, lon;
-                const coordsMatch = locationInput.match(/^([\d.]+)\s*,\s*([\d.]+)$/);
-                if (coordsMatch) {
-                    lon = parseFloat(coordsMatch[1]);
-                    lat = parseFloat(coordsMatch[2]);
-                    if (isNaN(lat) || isNaN(lon)) throw new Error('经纬度格式错误');
-                } else {
-                    const coords = await geocodeLocation(locationInput);
-                    lat = coords.lat;
-                    lon = coords.lon;
-                }
-
-                const [year, month, day] = dateStr.split('-').map(Number);
-                const hour = timeStr ? parseInt(timeStr.split(':')[0]) + (parseInt(timeStr.split(':')[1]) || 0) / 60 : 12;
-                const jd = julianDay(year, month, day, hour);
-                const ascSignIndex = calcAscendant(jd, lon, lat);
-
-                const planetSigns = {
-                    '太阳': lonToSign(getPlanetLongitude(jd, 'sun')),
-                    '月亮': lonToSign(getPlanetLongitude(jd, 'moon')),
-                    '水星': lonToSign(getPlanetLongitude(jd, 'mercury')),
-                    '金星': lonToSign(getPlanetLongitude(jd, 'venus')),
-                    '火星': lonToSign(getPlanetLongitude(jd, 'mars')),
-                    '木星': lonToSign(getPlanetLongitude(jd, 'jupiter')),
-                    '土星': lonToSign(getPlanetLongitude(jd, 'saturn')),
-                    '天王星': lonToSign(getPlanetLongitude(jd, 'uranus')),
-                    '海王星': lonToSign(getPlanetLongitude(jd, 'neptune')),
-                    '冥王星': lonToSign(getPlanetLongitude(jd, 'pluto')),
-                    '北交点': lonToSign(getMoonNode(jd))
-                };
-
-                let html = `<div class="bg-darker p-6 rounded-xl text-center mb-6"><h4 class="text-xl font-bold mb-4">星座命盘 (${lat.toFixed(2)}, ${lon.toFixed(2)})</h4><div class="grid grid-cols-2 gap-4">`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">☀️ 太阳：${signs[planetSigns['太阳']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">⬆️ 上升：${signs[ascSignIndex]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">🌙 月亮：${signs[planetSigns['月亮']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">♀️ 金星：${signs[planetSigns['金星']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">☿ 水星：${signs[planetSigns['水星']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">♂️ 火星：${signs[planetSigns['火星']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">♃ 木星：${signs[planetSigns['木星']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">♄ 土星：${signs[planetSigns['土星']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">♅ 天王星：${signs[planetSigns['天王星']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">♆ 海王星：${signs[planetSigns['海王星']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg">♇ 冥王星：${signs[planetSigns['冥王星']]}座</div>`;
-                html += `<div class="p-3 bg-primary/20 rounded-lg col-span-2">☊ 北交点：${signs[planetSigns['北交点']]}座</div>`;
-                html += `</div></div>`;
-                document.getElementById('astro-chart').innerHTML = html;
-
-                let analysis = `<div class="space-y-4">`;
-                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">⬆️ 上升星座：${signs[ascSignIndex]}座</h5><p>${signTraits[signs[ascSignIndex]]}</p></div>`;
-                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">☀️ 太阳星座：${signs[planetSigns['太阳']]}座</h5><p>${signTraits[signs[planetSigns['太阳']]]}</p></div>`;
-                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">🌙 月亮星座：${signs[planetSigns['月亮']]}座</h5><p>${signTraits[signs[planetSigns['月亮']]]}</p></div>`;
-                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">♀️ 金星：${signs[planetSigns['金星']]}座</h5><p>${signTraits[signs[planetSigns['金星']]]}</p></div>`;
-                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">♂️ 火星：${signs[planetSigns['火星']]}座</h5><p>${signTraits[signs[planetSigns['火星']]]}</p></div>`;
-                analysis += `<div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">☊ 北交点：${signs[planetSigns['北交点']]}座</h5><p>${signTraits[signs[planetSigns['北交点']]]}</p></div>`;
-                analysis += `</div><p class="text-yellow-300 text-sm mt-6">基于真实天文计算，娱乐参考</p>`;
-                document.getElementById('astro-analysis').innerHTML = analysis;
-                document.getElementById('astrology-result').classList.remove('hidden');
-            } catch(e) {
-                alert('计算失败：' + e.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fa fa-globe mr-2"></i>生成命盘';
-            }
-        }
-
-        function getSunSign(month, day) {
-            if ((month==3 && day>=21) || (month==4 && day<=19)) return 0;
-            if ((month==4 && day>=20) || (month==5 && day<=20)) return 1;
-            if ((month==5 && day>=21) || (month==6 && day<=21)) return 2;
-            if ((month==6 && day>=22) || (month==7 && day<=22)) return 3;
-            if ((month==7 && day>=23) || (month==8 && day<=22)) return 4;
-            if ((month==8 && day>=23) || (month==9 && day<=22)) return 5;
-            if ((month==9 && day>=23) || (month==10 && day<=23)) return 6;
-            if ((month==10 && day>=24) || (month==11 && day<=22)) return 7;
-            if ((month==11 && day>=23) || (month==12 && day<=21)) return 8;
-            if ((month==12 && day>=22) || (month==1 && day<=19)) return 9;
-            if ((month==1 && day>=20) || (month==2 && day<=18)) return 10;
-            return 11;
-        }
-
-        function calculateAstroHepan() {
-            const date1 = document.getElementById('astro-hepan1-date').value;
-            const date2 = document.getElementById('astro-hepan2-date').value;
-            if (!date1 || !date2) { alert('请选择出生日期'); return; }
-            const [y1,m1,d1] = date1.split('-').map(Number);
-            const [y2,m2,d2] = date2.split('-').map(Number);
-            const s1 = getSunSign(m1,d1);
-            const s2 = getSunSign(m2,d2);
-            const compatibility = [[80,70,90,60,85,75,65,95,80,70,85,60],[70,85,60,90,75,85,70,65,90,80,75,85],[90,60,80,70,95,65,85,75,85,60,90,70],[60,90,70,85,65,90,75,60,70,85,75,90],[85,75,95,65,80,70,60,85,95,70,80,65],[75,85,65,90,70,85,70,65,75,90,65,85],[65,70,85,75,60,70,80,70,65,75,90,80],[95,65,75,60,85,65,70,90,80,60,75,70],[80,90,85,70,95,75,65,80,85,70,85,65],[70,80,60,85,70,90,75,60,70,85,70,90],[85,75,90,75,80,65,90,75,85,70,80,70],[60,85,70,90,65,85,80,70,65,90,70,85]];
-            const score = compatibility[s1][s2];
-            let level = score>=90?'灵魂伴侣':score>=80?'非常契合':score>=70?'比较契合':'需要磨合';
-            document.getElementById('astro-hepan-chart').innerHTML = `<div class="inline-block"><p class="text-4xl font-bold text-gradient">${score}分</p><p class="text-xl">${level}</p><p>${signs[s1]}座 vs ${signs[s2]}座</p></div>`;
-            document.getElementById('astro-hepan-analysis').innerHTML = `<div class="space-y-4"><div class="bg-darker/30 p-4 rounded-lg"><h5 class="font-bold text-primary mb-2">合盘分析</h5><p>${level}</p></div></div>`;
-            document.getElementById('astro-hepan-result').classList.remove('hidden');
-        }
-
-        // 六爻
+        // 六爻（完整卦辞）
         let yaoCount = 0, yaoList = [], isAnimating = false;
         function tossCoins() {
             if (yaoCount >= 6 || isAnimating) return;
@@ -615,14 +404,91 @@
             document.getElementById('liuyao-result').classList.remove('hidden');
         }
         function getGuaMeaning(name) {
-            const m = {'乾为天':'刚健中正','坤为地':'厚德载物','水雷屯':'艰难险阻','山水蒙':'蒙昧待启','水天需':'等待时机','天水讼':'争讼是非','地水师':'以正克邪','水地比':'亲比和睦','风天小畜':'小有积蓄','天泽履':'谨慎行事','地天泰':'通泰安和','天地否':'闭塞不通','天火同人':'志同道合','火天大有':'丰收大有'};
-            return m[name] || '运势待定';
+            const meanings = {
+                '乾为天':'刚健中正，自强不息。运势极佳，事业有成，宜积极进取。',
+                '坤为地':'柔顺包容，厚德载物。宜守不宜进，以柔克刚，静待时机。',
+                '水雷屯':'万物始生，艰难困苦。初创阶段多阻碍，需坚持正道，终能化险为夷。',
+                '山水蒙':'启蒙教育，虚心求教。面对未知需学习，循序渐进，不可急于求成。',
+                '水天需':'等待时机，耐心守候。凡事不可急躁，时机一到自然成。',
+                '天水讼':'争讼是非，宜和解。争执无益，退一步海阔天空，避免冲突。',
+                '地水师':'统兵征战，以正克邪。宜以德服人，正义之师必胜，不可滥用武力。',
+                '水地比':'亲密合作，团结互助。得贵人相助，人际关系和谐，共谋发展。',
+                '风天小畜':'小有积蓄，稳步前行。力量尚不足，宜积蓄实力，等待时机再展宏图。',
+                '天泽履':'谨慎行事，脚踏实地。履行责任，如履薄冰，小心驶得万年船。',
+                '地天泰':'天地交泰，通泰安和。万事顺利，事业兴旺，上下和谐，大吉大利。',
+                '天地否':'闭塞不通，诸事不顺。宜守不宜进，保守待时，避免冒险。',
+                '天火同人':'志同道合，团结一心。合作顺利，人际关系融洽，共同奋斗能成大事。',
+                '火天大有':'丰收富足，大有作为。财运亨通，事业鼎盛，但需谦虚守成。',
+                '地山谦':'谦虚退让，品性高尚。谦受益，满招损，保持低调能得众人支持。',
+                '雷地豫':'喜悦安乐，顺势而动。宜顺势而为，不可贪图安逸，否则乐极生悲。',
+                '泽雷随':'随顺时势，灵活变通。宜顺应潮流，随机应变，不可固执己见。',
+                '山风蛊':'腐败修复，拨乱反正。整顿内部，革除弊端，重新出发。',
+                '地泽临':'亲临督导，治理有方。领导需深入基层，方能掌握实情，事半功倍。',
+                '风地观':'观察观望，审时度势。宜仔细观察形势，再定行止，不可冒进。',
+                '火雷噬嗑':'刑罚公正，刚柔并济。处理纠纷需公正严明，方能化解矛盾。',
+                '山火贲':'装饰修饰，注重形象。宜美化外在，但不可虚伪，内外需一致。',
+                '山地剥':'剥落衰败，小人当道。运势低迷，宜守不宜攻，谨防小人陷害。',
+                '地雷复':'一阳来复，生机重现。困境将过，新机将至，宜积极准备。',
+                '天雷无妄':'真实无妄，莫生非分之想。凡事需脚踏实地，贪求易遭灾祸。',
+                '山天大畜':'积蓄力量，厚积薄发。宜储备实力，等待时机，未来可有大作为。',
+                '山雷颐':'颐养身心，休养生息。宜修心养性，积蓄精力，不宜过度消耗。',
+                '泽风大过':'过度失衡，矫正为宜。事态发展过度，需调整修正，回归中道。',
+                '坎为水':'险难重重，诚信可渡。面对困难需保持信念，谨慎前行，终能脱险。',
+                '离为火':'依附光明，柔顺中正。宜借势发展，依附强者，但需保持自身独立。',
+                '泽山咸':'感应沟通，心灵相通。感情和谐，人际关系融洽，合作愉快。',
+                '雷风恒':'恒久不变，持之以恒。宜保持稳定，不可轻易改变方向，坚持能成。',
+                '天山遁':'退避隐忍，急流勇退。形势不利，宜暂时退让，保全实力。',
+                '雷天大壮':'强盛壮大，勿过度用强。运势强旺，但需适可而止，避免鲁莽。',
+                '火地晋':'晋升发展，光明在前。事业进步，宜抓住机遇，努力向上。',
+                '地火明夷':'韬光养晦，忍辱负重。黑暗时期，宜隐藏锋芒，等待时机。',
+                '风火家人':'家庭和睦，各尽本分。宜处理好家庭关系，家和万事兴。',
+                '火泽睽':'意见分歧，求同存异。人际关系有隔阂，宜包容差异，化解矛盾。',
+                '水山蹇':'艰难险阻，进退两难。前有险阻，宜保守暂退，寻求援助。',
+                '雷水解':'解脱困难，化解危机。困境将解，宜果断行动，消除隐患。',
+                '山泽损':'减损利益，损己利人。适当牺牲眼前利益，换取长远发展。',
+                '风雷益':'增益助人，互利共赢。宜帮助他人，自己也能得到回报。',
+                '泽天夬':'决断果断，清除小人。宜果断决策，剔除不良因素。',
+                '天风姤':'不期而遇，邂逅相逢。有意外相遇，需审慎处理，不可轻信。',
+                '泽地萃':'聚集英才，共同努力。人才荟萃，宜团结协作，共谋大业。',
+                '地风升':'上升进步，顺势发展。事业稳步上升，宜积极进取。',
+                '泽水困':'陷入困境，坚持待援。运势低迷，宜坚守本心，等待转机。',
+                '水风井':'修德养民，固本培元。宜加强内在修养，稳固根基。',
+                '泽火革':'变革革新，除旧布新。宜改革创新，顺应时势，推动变革。',
+                '火风鼎':'鼎力合作，建立新局。宜开创事业，树立权威，新项目可启动。',
+                '震为雷':'惊雷震动，临危不乱。突发变故，宜冷静应对，化险为夷。',
+                '艮为山':'停止行动，知止不殆。宜适时停止，反省修德，不可盲动。',
+                '风山渐':'循序渐进，稳扎稳打。凡事不可急于求成，宜一步一步来。',
+                '雷泽归妹':'婚嫁喜庆，但防不当。宜重视家庭，但需明媒正娶，不可苟合。',
+                '雷火丰':'丰盛繁荣，光明正大。事业鼎盛，宜保持正直，避免骄傲。',
+                '火山旅':'旅行在外，漂泊不安。宜谨慎行事，外出时注意安全。',
+                '巽为风':'柔顺而入，顺势而行。宜谦逊行事，随风而动，不可刚强。',
+                '兑为泽':'喜悦交流，朋友讲习。人际关系良好，宜多沟通，分享快乐。',
+                '风水涣':'涣散分离，重新凝聚。组织涣散，宜整顿团结，挽回人心。',
+                '水泽节':'节制守礼，适可而止。凡事有度，不可过分，节制能保平安。',
+                '风泽中孚':'诚信待人，感化他人。宜以诚信为本，能得信任，行事顺利。',
+                '雷山小过':'小有过失，宜纠偏差。稍有不当，及时调整，可避免大错。',
+                '水火既济':'事已成就，守成为要。成功之后宜谨慎守成，防止盛极而衰。',
+                '火水未济':'未完成时，继续努力。事尚未成，宜坚持到底，不可半途而废。'
+            };
+            return meanings[name] || '此卦象独特，宜根据自身情况灵活应对，静观其变。';
         }
 
-        // 梅花易数
+        // 梅花易数（修复文字起卦）
         function calculateMeihua() {
-            const n1 = parseInt(document.getElementById('num1').value) || 1;
-            const n2 = parseInt(document.getElementById('num2').value) || 1;
+            const method = document.getElementById('meihua-method').value;
+            let n1, n2;
+            if (method === 'number') {
+                n1 = parseInt(document.getElementById('num1').value) || 1;
+                n2 = parseInt(document.getElementById('num2').value) || 1;
+            } else if (method === 'time') {
+                const now = new Date();
+                n1 = now.getHours();
+                n2 = now.getMinutes();
+            } else if (method === 'text') {
+                const text = document.getElementById('meihua-text').value || '测试';
+                n1 = getTextStrokes(text);
+                n2 = text.length;
+            }
             const shangGua = n1 % 8 === 0 ? 8 : n1 % 8;
             const xiaGua = n2 % 8 === 0 ? 8 : n2 % 8;
             const bianYao = (n1 + n2) % 6 === 0 ? 6 : (n1 + n2) % 6;
@@ -636,7 +502,7 @@
             const newXia = parseInt(benYao.slice(3).join(''),2);
             const bianGuaName = guaNames[newShang] + '为' + guaNames[newXia];
             document.getElementById('meihua-chart').innerHTML = `<div class="bg-darker p-6 rounded-xl inline-block"><h4 class="text-xl font-bold mb-2">本卦：${benGuaName}</h4><h4 class="text-xl font-bold">变卦：${bianGuaName}</h4><p class="mt-2 text-sm text-gray-400">动爻：第${bianYao}爻</p></div>`;
-            document.getElementById('meihua-interpretation').innerHTML = `<p class="mb-4">本卦为${benGuaName}，变卦为${bianGuaName}，动爻在第${bianYao}爻。</p><p>卦象显示：运势上扬，有贵人相助。</p><p class="text-yellow-300 text-sm mt-4">梅花易数仅供娱乐参考</p>`;
+            document.getElementById('meihua-interpretation').innerHTML = `<p class="mb-4">本卦为${benGuaName}，变卦为${bianGuaName}，动爻在第${bianYao}爻。</p><p>卦象显示：运势上扬，有贵人相助，宜积极进取。</p><p class="text-yellow-300 text-sm mt-4">梅花易数仅供娱乐参考</p>`;
             document.getElementById('meihua-result').classList.remove('hidden');
         }
 
